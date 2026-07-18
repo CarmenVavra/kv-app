@@ -40,6 +40,13 @@ public reply mechanism. Contact-form submissions become `Inquiry` records that L
 outside the app. The admin sidebar therefore has 5 items, not 6: Dashboard, Kalender, Klienten, Buchhaltung,
 Einstellungen.
 
+The Landingpage's "Stimmen" (testimonials) nav item and section are **also out of scope**, for the same kind
+of reason — nobody has a way to author a testimonial (no client accounts, no admin UI for entering one
+either), so the mockup's 3 static testimonial cards would just be fake/placeholder content in production.
+Drop both the "Stimmen" nav link and the testimonials section entirely when building M6 — don't build an
+"admin enters testimonials manually" feature either unless the client asks for it later. Public nav is
+therefore: Leistungen, Preise, Über mich, Termin anfragen, Admin-Login (5 items, not 6).
+
 ### Data-model decision (deviates from a "normalized" reading of the mockup)
 
 `Client` is **one merged, deliberately denormalized model per dog** — dog fields (name, breed, behavior topic,
