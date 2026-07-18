@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\RecurringInvoiceTemplate;
+use App\Services\DunningService;
+use App\Services\EuerCalculator;
+use App\Services\MileageCalculator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,8 +20,12 @@ class AccountingController extends Controller
 {
     private const TABS = ['out', 'in', 'mahnwesen', 'wiederkehrend', 'fahrtkosten', 'euer', 'jahr'];
 
-    public function index(Request $request): View
-    {
+    public function index(
+        Request $request,
+        DunningService $dunningService,
+        EuerCalculator $euerCalculator,
+        MileageCalculator $mileageCalculator,
+    ): View {
         $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : 'out';
 
         $invoices = Invoice::query()->with(['client', 'lineItems'])->orderByDesc('issue_date')->get();
@@ -29,7 +37,42 @@ class AccountingController extends Controller
             'expenses' => $expenses,
             'clients' => Client::query()->orderBy('dog_name')->get(),
             'stats' => $this->stats($invoices, $expenses),
+            ...$this->tabData($tab, $invoices, $dunningService, $euerCalculator, $mileageCalculator),
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function tabData(
+        string $tab,
+        Collection $invoices,
+        DunningService $dunningService,
+        EuerCalculator $euerCalculator,
+        MileageCalculator $mileageCalculator,
+    ): array {
+        return match ($tab) {
+            'mahnwesen' => [
+                'overdue' => $invoices
+                    ->filter(fn (Invoice $invoice) => $invoice->status === InvoiceStatus::Ueberfaellig)
+                    ->map(fn (Invoice $invoice) => ['invoice' => $invoice, 'draft' => $dunningService->draft($invoice)]),
+            ],
+            'wiederkehrend' => [
+                'templates' => RecurringInvoiceTemplate::query()->with('client')->orderBy('title')->get(),
+            ],
+            'fahrtkosten' => [
+                'ratePerKm' => $mileageCalculator->ratePerKm(),
+            ],
+            'euer' => [
+                'euer' => $euerCalculator->summarize(today()->startOfMonth()->toImmutable(), today()->endOfMonth()->toImmutable()),
+            ],
+            'jahr' => (function () use ($euerCalculator) {
+                $quarters = $euerCalculator->quartersForYear((int) today()->year);
+
+                return ['quarters' => $quarters, 'yearlyProfit' => collect($quarters)->sum('profit')];
+            })(),
+            default => [],
+        };
     }
 
     public function export(Request $request): StreamedResponse

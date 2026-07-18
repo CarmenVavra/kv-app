@@ -36,6 +36,7 @@ it('switches to the incoming tab via the tab query parameter', function () {
 });
 
 it('creates an outgoing invoice with a single line item and an auto-generated number', function () {
+    Storage::fake('local');
     $client = Client::factory()->create();
 
     $this->withoutMiddleware(Authenticate::class)
@@ -54,6 +55,7 @@ it('creates an outgoing invoice with a single line item and an auto-generated nu
 });
 
 it('generates sequential invoice numbers', function () {
+    Storage::fake('local');
     $client = Client::factory()->create();
     Invoice::factory()->for($client)->create(['number' => 'R-0007']);
 

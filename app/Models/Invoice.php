@@ -50,6 +50,11 @@ class Invoice extends Model
         return $this->hasMany(InvoiceLineItem::class);
     }
 
+    public function paymentReminders(): HasMany
+    {
+        return $this->hasMany(PaymentReminder::class);
+    }
+
     protected function totalAmount(): Attribute
     {
         return Attribute::get(

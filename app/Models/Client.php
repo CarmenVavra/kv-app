@@ -53,4 +53,9 @@ class Client extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function recurringInvoiceTemplates(): HasMany
+    {
+        return $this->hasMany(RecurringInvoiceTemplate::class);
+    }
 }

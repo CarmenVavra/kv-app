@@ -6,14 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreInvoiceRequest;
 use App\Models\Invoice;
 use App\Services\InvoiceNumberGenerator;
+use App\Services\InvoicePdfGenerator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 
 class InvoiceController extends Controller
 {
-    public function store(StoreInvoiceRequest $request, InvoiceNumberGenerator $numberGenerator): RedirectResponse
-    {
+    public function store(
+        StoreInvoiceRequest $request,
+        InvoiceNumberGenerator $numberGenerator,
+        InvoicePdfGenerator $pdfGenerator,
+    ): RedirectResponse {
         $issueDate = Carbon::today();
 
         $invoice = Invoice::create([
@@ -28,6 +32,8 @@ class InvoiceController extends Controller
             'quantity' => 1,
             'unit_price' => $request->validated('amount'),
         ]);
+
+        $pdfGenerator->generate($invoice);
 
         return redirect()->route('admin.accounting.index', ['tab' => 'out']);
     }

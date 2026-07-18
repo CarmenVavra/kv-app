@@ -54,8 +54,11 @@
                                 <button type="submit" class="border border-border bg-white rounded-field px-4 py-2 font-bold text-sm">Als bezahlt markieren</button>
                             </form>
                         @endif
-                        <a href="{{ route('admin.accounting.invoices.print', $invoice) }}" target="_blank" class="no-underline bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm">
-                            Drucken / Als PDF
+                        <a href="{{ route('admin.accounting.invoices.print', $invoice) }}" target="_blank" class="no-underline border border-border bg-white rounded-field px-4.5 py-2.5 font-bold text-sm">
+                            Drucken
+                        </a>
+                        <a href="{{ route('admin.accounting.invoices.pdf', $invoice) }}" class="no-underline bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm">
+                            PDF herunterladen
                         </a>
                     </div>
                 </x-admin.modal>

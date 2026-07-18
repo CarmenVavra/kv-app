@@ -81,8 +81,59 @@ routing) stays one level up next to `DashboardController`, matching the existing
 page-level controllers.
 
 The Buchhaltung tab bar always renders all 7 tabs (real `?tab=` query-param routes, not client state, per the
-plan); the 5 tabs not yet built (Mahnwesen, Wiederkehrend, Fahrtkosten, EA-Rechnung, Jahresübersicht) show a
-plain "im Aufbau" placeholder — M5 fills each in without touching the tab bar itself.
+plan). As of M5 all 7 are fully built (Mahnwesen, Wiederkehrend, Fahrtkosten and EA-Rechnung/Jahresübersicht
+were the last 4, added on top of M4's Ausgangs-/Eingangsrechnungen).
+
+### Buchhaltung erweitert (M5): Mahnwesen, Wiederkehrend, Fahrtkosten, EÜR, echte PDFs
+
+**Mahnwesen** — `App\Services\DunningService` is the single place that knows the Austrian dunning rules:
+`DunningLevel` (Erinnerung → Mahnung1 → Mahnung2, capped — `next()` on the 2nd Mahnung returns itself) is
+derived from the invoice's *last* `PaymentReminder`, not stored on the invoice. Verzugszinsen (9,2 % over
+Basiszinssatz p.a., § 456 UGB) and the flat 40 € Betreibungsschaden (§ 1333 Abs. 2 ABGB) are computed **only**
+when `DunningLevel::chargesInterestAndFee()` is true, i.e. from the 2nd Mahnung onward — never on the free
+Erinnerung or the 1st Mahnung. The Basiszinssatz itself fluctuates and isn't fetched live; it's a configurable
+approximation in `config/accounting.php` (`BASISZINSSATZ` env var) — update it there if it drifts, don't
+hardcode 9,2 % as the *whole* rate anywhere. `DunningService::draft()` pre-fills subject/body for the reminder
+modal, but the **actually sent** text is whatever the admin submits in the form (`SendPaymentReminderRequest`)
+— `PaymentReminder` stores that submitted text verbatim, not the template, so the sent record and the email
+body can never diverge (a plan-mandated test scenario). Sending is blocked server-side with a session error if
+the client has no email on file (mockup doesn't show this case since its data is static).
+
+**Wiederkehrend** — `RecurringInvoiceTemplate` + the daily-scheduled `invoices:generate-recurring` command
+(`GenerateRecurringInvoices`). Idempotency (plan-mandated: no duplicate on a second same-day run) comes from
+calling `$template->advanceNextRunDate()` *immediately* after generating each invoice, inside the same loop
+iteration — the next run's `where('next_run_date', '<=', today())` filter then naturally excludes it, so there
+is no separate "already ran today" guard column to keep in sync. A "Pausieren/Aktivieren" toggle was added
+(mockup only shows a static Aktiv/Pausiert badge) since without one a template could never be paused after
+creation.
+
+**Fahrtkosten** — the one place using real client-side JS per the plan ("nur für die Fahrtkosten-Live-Berechnung
+gebraucht"): a plain `oninput` handler multiplies km × rate, no jQuery/Ajax needed for a client-side
+multiplication. Submitting creates both an `Expense` (category Fahrzeugkosten, status Bezahlt — this is a
+reimbursement you're recording for yourself, not something owed to a third party) and a `MileageEntry` row that
+snapshots `rate_per_km` at creation time, so a later change to `config('accounting.kilometergeld_pro_km')`
+never rewrites historical entries.
+
+**EÜR/Jahresübersicht** — `App\Services\EuerCalculator` sums on a strict cash basis: an invoice counts as
+Einnahmen when `paid_at` falls in the period, never `issue_date` (matches the Kleinunternehmer/Ist-Besteuerung
+mental model already used for the M4 stat tiles). Steuerrücklage is a flat ~20 % estimate
+(`config('accounting.steuerruecklage_quote')`), explicitly labelled as not tax advice.
+
+**PDFs** — `barryvdh/laravel-dompdf`. Two separate Blade views on purpose, per the plan: `invoices/print.blade.php`
+(Tailwind/flexbox, opened in a new tab for the browser's own print dialog) and `invoices/pdf.blade.php`
+(plain `<table>`/inline styles only — dompdf's CSS support doesn't reliably handle flexbox/grid). Every invoice
+gets a real PDF generated to the **private** `local` disk (`storage/app/private/invoices/{number}.pdf`,
+*not* the `public` disk) the moment it's created (`InvoicePdfGenerator`, called from both
+`InvoiceController::store()` and `GenerateRecurringInvoices`) — downloads go through an authenticated
+controller route rather than a public URL, and `InvoicePdfController::download()` regenerates on demand if the
+file is ever missing (e.g. invoices created before this existed). Tests that trigger PDF generation must
+`Storage::fake('local')` first, or dompdf writes real files under `storage/app/private/invoices/` during the
+test run.
+
+> Note: expense receipt uploads (M4, `ExpenseController::store()`) went to the `public` disk instead, which
+> means an uploaded receipt's URL is reachable by anyone who has it, without going through the admin auth guard
+> — lower severity than invoice PDFs (no client billing/address data) but worth tightening the same way
+> (private disk + authenticated download route) in a follow-up if this becomes a real concern.
 
 ### Custom multi-column grid layouts: always `minmax(0, Nfr)` + a stacking breakpoint
 

@@ -29,6 +29,10 @@
                 <button type="button" onclick="document.getElementById('new-expense-modal').showModal()" class="bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm whitespace-nowrap">
                     + Beleg erfassen
                 </button>
+            @elseif ($tab === 'wiederkehrend')
+                <button type="button" onclick="document.getElementById('new-recurring-modal').showModal()" class="bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm whitespace-nowrap">
+                    + Neue Vorlage
+                </button>
             @endif
         </div>
     </header>
@@ -67,11 +71,16 @@
         @include('admin.accounting._outgoing', ['invoices' => $invoices, 'euro' => $euro])
     @elseif ($tab === 'in')
         @include('admin.accounting._incoming', ['expenses' => $expenses, 'euro' => $euro])
-    @else
-        <section class="bg-card border border-border rounded-card p-8 text-center">
-            <p class="font-serif font-semibold text-lg">{{ $tabs[$tab] }}</p>
-            <p class="text-text-muted text-sm mt-2">Dieser Bereich befindet sich im Aufbau.</p>
-        </section>
+    @elseif ($tab === 'mahnwesen')
+        @include('admin.accounting._dunning', ['overdue' => $overdue, 'euro' => $euro])
+    @elseif ($tab === 'wiederkehrend')
+        @include('admin.accounting._recurring', ['templates' => $templates, 'euro' => $euro])
+    @elseif ($tab === 'fahrtkosten')
+        @include('admin.accounting._fahrtkosten', ['ratePerKm' => $ratePerKm])
+    @elseif ($tab === 'euer')
+        @include('admin.accounting._euer', ['euer' => $euer, 'euro' => $euro])
+    @elseif ($tab === 'jahr')
+        @include('admin.accounting._jahr', ['quarters' => $quarters, 'yearlyProfit' => $yearlyProfit, 'euro' => $euro])
     @endif
 
     <x-admin.modal id="new-invoice-modal" title="Neue Ausgangsrechnung">
@@ -135,9 +144,56 @@
         </form>
     </x-admin.modal>
 
+    <x-admin.modal id="new-recurring-modal" title="Neue wiederkehrende Vorlage">
+        <form method="POST" action="{{ route('admin.accounting.recurring.store') }}" class="flex flex-col gap-3.5">
+            @csrf
+            <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                Titel
+                <input type="text" name="title" value="{{ old('title') }}" required placeholder="z.B. Trainingspaket Rocky (4er-Karte)" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            </label>
+            <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                Klient
+                <select name="client_id" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                    <option value="">– auswählen –</option>
+                    @foreach ($clients as $client)
+                        <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->dog_name }} ({{ $client->owner_name }})</option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                Leistung
+                <input type="text" name="description" value="{{ old('description') }}" required placeholder="z.B. Trainingspaket" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+                <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                    Betrag (€)
+                    <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount') }}" required placeholder="280,00" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                </label>
+                <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                    Rhythmus
+                    <select name="frequency" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                        @foreach (\App\Enums\RecurringFrequency::cases() as $frequency)
+                            <option value="{{ $frequency->value }}" @selected(old('frequency') === $frequency->value)>{{ $frequency->label() }}</option>
+                        @endforeach
+                    </select>
+                </label>
+            </div>
+            <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                Nächste Rechnung am
+                <input type="date" name="next_run_date" value="{{ old('next_run_date', today()->toDateString()) }}" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            </label>
+            <div class="flex gap-2.5 justify-end mt-2">
+                <button type="button" onclick="document.getElementById('new-recurring-modal').close()" class="border border-border bg-white rounded-field px-4.5 py-2.5 font-bold text-sm">Abbrechen</button>
+                <button type="submit" class="bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm">Vorlage speichern</button>
+            </div>
+        </form>
+    </x-admin.modal>
+
     @if ($errors->any() && old('service') !== null)
         <script>document.getElementById('new-invoice-modal').showModal();</script>
     @elseif ($errors->any() && old('supplier') !== null)
         <script>document.getElementById('new-expense-modal').showModal();</script>
+    @elseif ($errors->any() && old('title') !== null)
+        <script>document.getElementById('new-recurring-modal').showModal();</script>
     @endif
 </x-layouts.admin>
