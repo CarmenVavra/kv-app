@@ -17,11 +17,17 @@ architecture/data-model/build-order plan lives at `C:\Users\carme\.claude\plans\
 ### Local dev commands
 
 - Install deps: `composer install && npm install`
-- Start the whole stack (serve + queue:work + schedule:work): `.\start.ps1` (or double-click `start.bat`)
+- Start the whole stack (serve + queue:work + schedule:work + Vite dev server): `.\start.ps1` (or
+  double-click `start.bat`)
 - Stop it: `.\stop.ps1` (or `stop.bat`) — kills the process tree it started via `taskkill /T`, since
-  `php artisan serve` spawns a child PHP dev-server process that a plain `Stop-Process` would orphan
+  `php artisan serve` spawns a child PHP dev-server process that a plain `Stop-Process` would orphan; it
+  also deletes a leftover `public/hot` if `taskkill` killed Vite before Vite could clean it up itself
 - Run tests: `php artisan test` (Pest)
-- Build frontend assets: `npm run build` (dev: `npm run dev`)
+- **`start.ps1` runs `npm run dev` (Vite, live-rebuilds on save) — don't rely on a one-off `npm run build`**
+  during a work session. `php artisan serve` never rebuilds assets itself, so editing Tailwind classes in a
+  Blade file with only `php artisan serve` running leaves `public/build` stale; new utility classes then
+  silently don't apply (looks like a CSS/layout bug — cost real time to track down once already, see the
+  `<dialog>` centering fix in the M2 commit). For a one-off production-style build: `npm run build`.
 - MySQL is **not** managed by these scripts. On this dev machine it runs as the always-on Windows service
   `MySQL80` (not XAMPP's bundled MySQL, which fails to bind port 3306 because of this), shared with several
   other local projects — `start.ps1` only checks connectivity to `127.0.0.1:3306`. The database `mhdr_kv_db`

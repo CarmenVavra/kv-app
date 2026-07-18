@@ -27,4 +27,12 @@ foreach ($property in $pids.PSObject.Properties) {
 }
 
 Remove-Item $PidFile -Force
+
+# taskkill /F beendet Vite hart, ohne dass es seine eigene "public/hot"-Datei aufraeumt - ohne
+# diesen Schritt wuerde @vite() weiter versuchen, Assets vom (toten) Dev-Server zu laden.
+$HotFile = Join-Path $ProjectRoot 'public\hot'
+if (Test-Path $HotFile) {
+    Remove-Item $HotFile -Force
+}
+
 Write-Host "App gestoppt."

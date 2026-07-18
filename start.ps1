@@ -5,6 +5,8 @@
     - php artisan serve (Webserver)
     - php artisan queue:work (Mail-Versand etc.)
     - php artisan schedule:work (Mahnwesen-/Erinnerungs-Jobs, lokales Aequivalent zum Cron auf Netcup)
+    - npm run dev (Vite-Dev-Server) - baut Tailwind/JS bei jeder Aenderung automatisch neu;
+      ohne das bleibt @vite() sonst beim zuletzt manuell gebauten Stand (public/build) haengen
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -25,8 +27,9 @@ try {
     $serve = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'serve' -PassThru -WindowStyle Minimized
     $queue = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'queue:work', '--tries=1' -PassThru -WindowStyle Minimized
     $sched = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'schedule:work' -PassThru -WindowStyle Minimized
+    $vite = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', 'npm run dev' -PassThru -WindowStyle Minimized
 
-    @{ serve = $serve.Id; queue = $queue.Id; schedule = $sched.Id } |
+    @{ serve = $serve.Id; queue = $queue.Id; schedule = $sched.Id; vite = $vite.Id } |
         ConvertTo-Json | Set-Content (Join-Path $RunDir 'pids.json')
 }
 finally {
