@@ -32,5 +32,15 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+
+        <!-- Fake, aber gueltig geformte Auth0-Werte: nur damit der SDK-Guard sich konstruieren
+             laesst (Domain/Client-ID muessen vorhanden sein). Es wird nie echt gegen Auth0
+             aufgeloest - Tests pruefen nur unser eigenes Routing/Middleware-Verhalten. -->
+        <env name="AUTH0_DOMAIN" value="example-tenant.eu.auth0.com"/>
+        <env name="AUTH0_CLIENT_ID" value="test-client-id"/>
+        <env name="AUTH0_CLIENT_SECRET" value="test-client-secret"/>
+        <env name="AUTH0_COOKIE_SECRET" value="test-cookie-secret-test-cookie-secret"/>
+        <env name="AUTH0_AUDIENCE" value="https://rowdy.api"/>
+        <env name="ADMIN_EMAIL" value="admin@example.test"/>
     </php>
 </phpunit>

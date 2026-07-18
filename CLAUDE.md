@@ -42,6 +42,26 @@ model. Confirmed with the client: a training plan belongs to exactly one dog, so
 gets multiple `Client` rows (owner data repeated each time), not one owner row `hasMany` dogs. See the plan
 file for the full model list and rationale.
 
+### Auth0 setup gotcha — `registerMiddleware` must stay `false`
+
+`config/auth0.php` sets `'registerMiddleware' => false` and `defaults.guard` in `config/auth.php` stays
+`'web'` (a plain, never-logged-in Eloquent guard), on purpose — do not "simplify" this back to the package
+defaults. If `registerMiddleware` is `true`, `auth0/login` force-appends `AuthenticatorMiddleware` to the
+*entire* `web` middleware group, which calls `auth()->shouldUse('auth0-session')` on every request. Combined
+with `SESSION_DRIVER=database`, Laravel's `DatabaseSessionHandler` then calls `auth()->guard()->id()` on
+*every* request to store it alongside the session row — which eagerly constructs the Auth0 SDK client and
+throws `` `domain` must be configured `` even for the public marketing pages, not just `/admin`. Only
+`routes/admin.php` requests the Auth0 guard, explicitly, via `auth:auth0-session` middleware — that's what
+correctly scopes the Auth0 dependency to the admin backend only. `app/Auth0/UserRepository.php` overrides the
+package's generic user wrapper to find-or-create the local `App\Models\User` by `auth0_id` and reject any
+login whose email doesn't match `config('admin.email')` (`ADMIN_EMAIL` env var).
+
+**Real Auth0 tenant credentials are still needed** (`AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`,
+`ADMIN_EMAIL` in `.env`) before `/admin/*` can actually be used or visually QA'd — until then it correctly
+500s with "`domain` must be configured" rather than silently misbehaving. Tests don't need real credentials:
+`phpunit.xml` sets syntactically-valid fake Auth0 env values so the guard can construct in the test
+environment without ever calling out to Auth0.
+
 ## What this project is
 
 "Mein Hund der Rowdy" — a client-management system ("Klientenverwaltung") for a dog-behavior consultant
