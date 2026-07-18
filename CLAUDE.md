@@ -4,18 +4,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current state of this repository
 
-This repository does **not yet contain an application codebase**. It currently holds only planning/reference
-material:
+The Laravel 12 application is scaffolded and under active milestone-by-milestone development. The full
+architecture/data-model/build-order plan lives at `C:\Users\carme\.claude\plans\recursive-floating-rossum.md`
+(also mirrored in project memory) — read it before starting a new milestone. Reference material:
 
-- `Description.md` — the project brief from the client (in German). Read this in full before planning or
-  scaffolding anything; it is the source of truth for stack, constraints, and deployment target.
+- `Description.md` — the project brief from the client (in German). Source of truth for stack, constraints,
+  and deployment target.
 - `UI_MOCKUPS/meinHundDerRowdy.zip` and `UI_MOCKUPS/meinHundDerRowdy_02.zip` — two versions of the same design
-  handoff (the second adds a `screenshots/` folder with PNG renders of each screen). Unzip either one to get
-  `design_handoff_klientenverwaltung/`.
+  handoff (the second adds a `screenshots/` folder with PNG renders of each screen), already unzipped into
+  `UI_MOCKUPS/meinHundDerRowdy_02/design_handoff_klientenverwaltung/`.
 
-There is no `composer.json`, artisan console, migrations, or test suite yet. The first real task in this repo
-is to **plan the project** (explicitly requested in `Description.md`) before scaffolding the Laravel app. Once
-scaffolded, update this file with the actual `composer`/`artisan` commands, test invocation, etc.
+### Local dev commands
+
+- Install deps: `composer install && npm install`
+- Start the whole stack (serve + queue:work + schedule:work): `.\start.ps1` (or double-click `start.bat`)
+- Stop it: `.\stop.ps1` (or `stop.bat`) — kills the process tree it started via `taskkill /T`, since
+  `php artisan serve` spawns a child PHP dev-server process that a plain `Stop-Process` would orphan
+- Run tests: `php artisan test` (Pest)
+- Build frontend assets: `npm run build` (dev: `npm run dev`)
+- MySQL is **not** managed by these scripts. On this dev machine it runs as the always-on Windows service
+  `MySQL80` (not XAMPP's bundled MySQL, which fails to bind port 3306 because of this), shared with several
+  other local projects — `start.ps1` only checks connectivity to `127.0.0.1:3306`. The database `mhdr_kv_db`
+  already exists on that instance (root/1234, matching `Description.md` and `.env`).
+
+### Scope decision (confirmed with the client, deviates from the mockup)
+
+The mockup's "Nachrichten" screen (two-way chat UI) is **out of scope** — no chat, no client-facing login, no
+public reply mechanism. Contact-form submissions become `Inquiry` records that Lena answers by ordinary email
+outside the app. The admin sidebar therefore has 5 items, not 6: Dashboard, Kalender, Klienten, Buchhaltung,
+Einstellungen.
+
+### Data-model decision (deviates from a "normalized" reading of the mockup)
+
+`Client` is **one merged, deliberately denormalized model per dog** — dog fields (name, breed, behavior topic,
+notes) and owner/Halter fields (name, email, phone, address) live on the same row. There is no separate `Dog`
+model. Confirmed with the client: a training plan belongs to exactly one dog, so an owner with multiple dogs
+gets multiple `Client` rows (owner data repeated each time), not one owner row `hasMany` dogs. See the plan
+file for the full model list and rationale.
 
 ## What this project is
 
@@ -92,7 +117,7 @@ Notable cross-screen behavior worth preserving in the real implementation:
   consultation) is required before any package.
 - Admin layout is a fixed left sidebar (220px) that collapses to a bottom icon nav under 860px width; the
   public site switches to a hamburger menu under 1000px width.
-- Nachrichten (messages) badge count on the sidebar nav should reflect unread messages app-wide.
+- The mockup's Nachrichten nav item/badge is dropped per the scope decision above — don't reintroduce it.
 
 ### Design tokens (must match exactly when implementing UI)
 
