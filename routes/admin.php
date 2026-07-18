@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
@@ -7,7 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:auth0-session'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::view('/kalender', 'admin.calendar')->name('calendar');
+    Route::get('/kalender', [AppointmentController::class, 'index'])->name('calendar');
+    Route::post('/kalender', [AppointmentController::class, 'store'])->name('appointments.store');
 
     Route::prefix('klienten')->name('clients.')->group(function (): void {
         Route::get('/', [ClientController::class, 'index'])->name('index');

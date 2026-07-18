@@ -46,7 +46,13 @@ class ClientController extends Controller
 
     public function show(Client $client): View
     {
-        return view('admin.clients.show', ['client' => $client]);
+        $appointments = $client->appointments()->orderByDesc('starts_at')->get();
+
+        return view('admin.clients.show', [
+            'client' => $client,
+            'pastAppointments' => $appointments->where('starts_at', '<=', now())->values(),
+            'nextAppointment' => $appointments->where('starts_at', '>', now())->sortBy('starts_at')->first(),
+        ]);
     }
 
     public function update(UpdateClientRequest $request, Client $client): RedirectResponse

@@ -48,6 +48,21 @@ model. Confirmed with the client: a training plan belongs to exactly one dog, so
 gets multiple `Client` rows (owner data repeated each time), not one owner row `hasMany` dogs. See the plan
 file for the full model list and rationale.
 
+### Custom multi-column grid layouts: always `minmax(0, Nfr)` + a stacking breakpoint
+
+Every custom two-column layout in this app (Kalender's month-grid+agenda, Klientenprofil's
+Trainingsverlauf+sidebar) uses `grid-cols-1 lg:grid-cols-[minmax(0,Nfr)_minmax(0,1fr)]`, never bare
+`grid-template-columns: Nfr 1fr`. Two real bugs found via visual QA, both from skipping this:
+- Without `minmax(0, …)`, a track's default min size is its content's min-content width, not its `fr`
+  share — one column with any unshrinkable content (a status badge, a long label) silently blows out and
+  steals space from the other column, e.g. a `1.1fr 1fr` split rendering as roughly 159px/394px instead of
+  proportional. Symptoms look unrelated to grid at first (squished calendar cells, `aspect-square` cells
+  rendering as thin slivers) because the *child* shrinks to satisfy the *parent's* wrong track width.
+- Without an explicit `grid-cols-1 lg:grid-cols-[...]` breakpoint, the layout never stacks on phone/tablet
+  widths — it silently stays two-column and everything gets cramped. Tailwind's `grid-template-columns`
+  arbitrary-value syntax needs underscores instead of spaces between tracks:
+  `lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]`.
+
 ### Auth0 setup gotcha — `registerMiddleware` must stay `false`
 
 `config/auth0.php` sets `'registerMiddleware' => false` and `defaults.guard` in `config/auth.php` stays

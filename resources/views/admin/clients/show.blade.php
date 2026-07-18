@@ -20,7 +20,7 @@
                     Nachricht senden
                 </a>
             @endif
-            <a href="{{ route('admin.calendar') }}" class="no-underline bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm whitespace-nowrap">
+            <a href="{{ route('admin.calendar', ['klient' => $client->id]) }}" class="no-underline bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm whitespace-nowrap">
                 Termin buchen
             </a>
             <button type="button" onclick="document.getElementById('edit-client-modal').showModal()" class="border border-border bg-white rounded-field px-4.5 py-2.5 font-bold text-sm whitespace-nowrap">
@@ -32,10 +32,27 @@
         </div>
     </section>
 
-    <div class="grid gap-6 items-start" style="grid-template-columns: 1.4fr 1fr;">
-        <section class="bg-card border border-border rounded-card p-6 flex flex-col gap-4">
-            <h2 class="font-serif font-semibold text-lg">Trainingsverlauf</h2>
-            <p class="text-text-muted text-sm">Noch keine Termine erfasst.</p>
+    <div class="grid gap-6 items-start grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <section class="bg-card border border-border rounded-card p-6 flex flex-col gap-1">
+            <h2 class="font-serif font-semibold text-lg mb-3">Trainingsverlauf</h2>
+            @forelse ($pastAppointments as $appointment)
+                <div class="flex gap-4 py-3.5 border-t border-border">
+                    <div class="w-[70px] flex-shrink-0 text-text-muted text-xs font-bold pt-0.5">
+                        {{ $appointment->starts_at->translatedFormat('d. F') }}
+                    </div>
+                    <div class="w-2.5 flex-shrink-0 flex justify-center pt-1">
+                        <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ $client->color }}"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-sm">{{ $appointment->type->label() }}</div>
+                        @if ($appointment->notes)
+                            <div class="text-[color:var(--color-text-muted-2)] text-[13.5px] leading-relaxed mt-0.5">{{ $appointment->notes }}</div>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <p class="text-text-muted text-sm">Noch keine Termine erfasst.</p>
+            @endforelse
         </section>
 
         <div class="flex flex-col gap-6">
@@ -46,6 +63,18 @@
                     @if ($client->phone)<div>📞 {{ $client->phone }}</div>@endif
                     @if ($client->city)<div>📍 {{ $client->city }}</div>@endif
                 </div>
+            </section>
+
+            <section class="bg-card border border-border rounded-card p-5.5 flex flex-col gap-3">
+                <h2 class="font-serif font-semibold text-base">Nächster Termin</h2>
+                @if ($nextAppointment)
+                    <div class="bg-bg rounded-xl p-3.5 flex flex-col gap-1">
+                        <div class="font-extrabold text-sm">{{ $nextAppointment->starts_at->translatedFormat('D, d. F · H:i') }}</div>
+                        <div class="text-text-muted text-[13px]">{{ $nextAppointment->type->label() }}</div>
+                    </div>
+                @else
+                    <p class="text-text-muted text-sm">Kein Termin geplant.</p>
+                @endif
             </section>
 
             <section class="bg-card border border-border rounded-card p-5.5 flex flex-col gap-2.5">
