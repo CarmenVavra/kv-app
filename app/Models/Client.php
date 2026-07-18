@@ -48,4 +48,9 @@ class Client extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

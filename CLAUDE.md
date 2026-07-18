@@ -55,6 +55,35 @@ model. Confirmed with the client: a training plan belongs to exactly one dog, so
 gets multiple `Client` rows (owner data repeated each time), not one owner row `hasMany` dogs. See the plan
 file for the full model list and rationale.
 
+### Buchhaltung Kern (M4): Invoice.status is computed, Expense.status is stored
+
+`Invoice` has no `status` column — it's an accessor (`InvoiceStatus` enum: Offen/Bezahlt/Überfällig) derived
+from `paid_at` and `due_date`, so there's exactly one place that can go stale (a paid invoice is just one with
+`paid_at` set) instead of two. `Expense.status` is the opposite on purpose: a real stored column
+(`ExpenseStatus`: Offen/Bezahlt), because unlike an invoice an expense has no `due_date` to derive overdue-ness
+from — matches the plan's data-model table. Both models expose a `markPaid()` method used by a small "Als
+bezahlt markieren" action (invoice preview modal / expense row) that doesn't exist in the static mockup — added
+because without *some* way to flip Offen→Bezahlt, `Invoice.paid_at` (and therefore the Einnahmen/Gewinn stat
+tiles, which are cash-basis: only *paid* invoices in the current month count as Einnahmen) could never move
+off zero. This is still M4 core CRUD, not the M5 Mahnwesen state machine (no dunning levels, no interest/fee
+calculation here).
+
+Invoice numbers (`R-0042` format) come from `App\Services\InvoiceNumberGenerator`, which derives the next
+number from the highest existing `R-XXXX` suffix rather than a separate counter column or table `count()`
+(safe against gaps from any future invoice deletion). No locking around it — acceptable for a single-admin app
+with no concurrent invoice creation.
+
+CSV export (`AccountingController::export()`) uses plain `fputcsv` over a streamed response, no package
+dependency, per the plan. Controllers live under `App\Http\Controllers\Admin\Accounting\*`
+(`InvoiceController`, `ExpenseController`) per the plan's directory layout, since M5 adds ~5 more controllers
+there (Dunning, Recurring, Mileage, Report, InvoicePdf) — `AccountingController` itself (index/export/tab
+routing) stays one level up next to `DashboardController`, matching the existing flat convention for
+page-level controllers.
+
+The Buchhaltung tab bar always renders all 7 tabs (real `?tab=` query-param routes, not client state, per the
+plan); the 5 tabs not yet built (Mahnwesen, Wiederkehrend, Fahrtkosten, EA-Rechnung, Jahresübersicht) show a
+plain "im Aufbau" placeholder — M5 fills each in without touching the tab bar itself.
+
 ### Custom multi-column grid layouts: always `minmax(0, Nfr)` + a stacking breakpoint
 
 Every custom two-column layout in this app (Kalender's month-grid+agenda, Klientenprofil's

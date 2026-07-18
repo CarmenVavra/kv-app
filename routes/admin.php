@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\Accounting\ExpenseController;
+use App\Http\Controllers\Admin\Accounting\InvoiceController;
+use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -20,6 +23,17 @@ Route::middleware(['auth:auth0-session'])->prefix('admin')->name('admin.')->grou
         Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
     });
 
-    Route::view('/buchhaltung', 'admin.accounting.index')->name('accounting.index');
+    Route::prefix('buchhaltung')->name('accounting.')->group(function (): void {
+        Route::get('/', [AccountingController::class, 'index'])->name('index');
+        Route::get('/export', [AccountingController::class, 'export'])->name('export');
+
+        Route::post('/rechnungen', [InvoiceController::class, 'store'])->name('invoices.store');
+        Route::patch('/rechnungen/{invoice}/bezahlt', [InvoiceController::class, 'markPaid'])->name('invoices.mark-paid');
+        Route::get('/rechnungen/{invoice}/drucken', [InvoiceController::class, 'print'])->name('invoices.print');
+
+        Route::post('/ausgaben', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::patch('/ausgaben/{expense}/bezahlt', [ExpenseController::class, 'markPaid'])->name('expenses.mark-paid');
+    });
+
     Route::view('/einstellungen', 'admin.settings.index')->name('settings.index');
 });
