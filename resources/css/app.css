@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+
+/* Selbst gehostete Fonts statt Google-Fonts-CDN (DSGVO) */
+@import '@fontsource/fraunces/500.css';
+@import '@fontsource/fraunces/600.css';
+@import '@fontsource/fraunces/700.css';
+@import '@fontsource/fraunces/500-italic.css';
+@import '@fontsource/nunito-sans/400.css';
+@import '@fontsource/nunito-sans/600.css';
+@import '@fontsource/nunito-sans/700.css';
+@import '@fontsource/nunito-sans/800.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Fraunces', ui-serif, serif;
+
+    --color-bg: #f4ede4;
+    --color-card: #fffaf3;
+    --color-border: #e7dcc9;
+    --color-primary: #b5651d;
+    --color-primary-hover: #96521a;
+    --color-secondary: #6b8e5a;
+    --color-accent: #e0793c;
+    --color-text: #3a2f27;
+    --color-text-muted: #8a7b6a;
+    --color-text-muted-2: #6b5a45;
+    --color-success-bg: #e5efdf;
+    --color-success-text: #4c6b3f;
+    --color-warning-bg: #fdeee0;
+    --color-warning-text: #a85b1e;
+    --color-error-bg: #fbe4e0;
+    --color-error-text: #b3402a;
+
+    --radius-card: 18px;
+    --radius-field: 10px;
+    --radius-chip: 20px;
+}

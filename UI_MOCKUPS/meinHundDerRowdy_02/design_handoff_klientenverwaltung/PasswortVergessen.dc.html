@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; color:#3a2f27; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box;">
+  <div style="width:100%; max-width:380px; display:flex; flex-direction:column; gap:28px;">
+
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <div style="width:48px; height:48px; border-radius:14px; background:#b5651d; display:flex; align-items:center; justify-content:center;">
+        <div style="width:20px; height:20px; border-radius:50%; background:#f4ede4;"></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:19px; text-align:center; letter-spacing:0.01em;">Mein Hund <span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+    </div>
+
+    <sc-if value="{{ isFormStep }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:20px; padding:32px; display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">Passwort vergessen?</div>
+          <div style="color:#8a7b6a; font-size:13.5px; margin-top:6px; line-height:1.5;">Gib deine E-Mail-Adresse ein — wir schicken dir einen Link zum Zurücksetzen.</div>
+        </div>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">
+          E-Mail
+          <input type="email" placeholder="lena@meinhundderrowdy.de" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:11px 14px; font-size:14px; font-family:inherit; color:#3a2f27; font-weight:400;" />
+        </label>
+        <button onClick="{{ submit }}" style="border:none; text-align:center; background:#b5651d; color:#fff; border-radius:10px; padding:13px; font-weight:700; font-size:14.5px; margin-top:4px; cursor:pointer;" style-hover="background:#96521a;">Link zum Zurücksetzen senden</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSentStep }}">
+      <div style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:20px; padding:32px; display:flex; flex-direction:column; gap:14px; align-items:center; text-align:center;">
+        <div style="width:52px; height:52px; border-radius:50%; background:#e5efdf; display:flex; align-items:center; justify-content:center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4c6b3f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg>
+        </div>
+        <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">E-Mail unterwegs</div>
+        <div style="color:#8a7b6a; font-size:13.5px; line-height:1.55;">Falls ein Konto zu dieser Adresse existiert, findest du in Kürze einen Link zum Zurücksetzen in deinem Postfach.</div>
+        <button onClick="{{ reset }}" style="border:1px solid #e7dcc9; background:#fff; color:#3a2f27; border-radius:10px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; margin-top:6px;" style-hover="background:#f4ede4;">Andere Adresse verwenden</button>
+      </div>
+    </sc-if>
+
+    <a href="Login.dc.html" style="text-align:center; text-decoration:none; color:#8a7b6a; font-size:13px; font-weight:700;">← Zurück zum Login</a>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { step: 'form' };
+  renderVals() {
+    return {
+      isFormStep: this.state.step === 'form',
+      isSentStep: this.state.step === 'sent',
+      submit: () => this.setState({ step: 'sent' }),
+      reset: () => this.setState({ step: 'form' }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

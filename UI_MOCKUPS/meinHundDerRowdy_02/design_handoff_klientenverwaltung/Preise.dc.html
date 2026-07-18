@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; color:#3a2f27; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+  @media (max-width:1000px) {
+    [data-nav-desktop] { display:none !important; }
+    [data-nav-toggle] { display:flex !important; }
+  }
+</style>
+</helmet>
+
+<div style="display:flex; flex-direction:column; min-height:100vh;">
+
+  <header style="display:flex; align-items:center; justify-content:space-between; padding:24px 56px; max-width:1200px; margin:0 auto; width:100%; box-sizing:border-box;">
+    <a href="Landingpage.dc.html" style="display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit;">
+      <div style="width:38px; height:38px; border-radius:12px; background:#b5651d; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:16px; height:16px; border-radius:50%; background:#f4ede4;"></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:17px; letter-spacing:0.01em;">Mein Hund <span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+    </a>
+    <nav data-nav-desktop style="display:flex; align-items:center; gap:22px; font-weight:700; font-size:14.5px; white-space:nowrap;">
+      <a href="Landingpage.dc.html#leistungen" style="text-decoration:none; color:#3a2f27;">Leistungen</a>
+      <a href="Preise.dc.html" style="text-decoration:none; color:#b5651d;">Preise</a>
+      <a href="Landingpage.dc.html#ueber-mich" style="text-decoration:none; color:#3a2f27;">Über mich</a>
+      <a href="Landingpage.dc.html#kontakt" style="background:#b5651d; color:#fff; text-decoration:none; padding:11px 20px; border-radius:10px;" style-hover="background:#96521a;">Termin anfragen</a>
+    </nav>
+
+    <button data-nav-toggle onClick="{{ toggleMenu }}" style="display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:10px; border:1px solid #e7dcc9; background:#fffaf3; cursor:pointer; flex-shrink:0;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a2f27" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+  </header>
+
+  <sc-if value="{{ menuOpen }}">
+    <div style="position:fixed; inset:0; background:rgba(58,47,39,0.35); z-index:30;" onClick="{{ toggleMenu }}">
+      <div style="background:#fffaf3; padding:20px 24px 28px; display:flex; flex-direction:column; gap:4px;" onClick="{{ stopClick }}">
+        <a href="Landingpage.dc.html#leistungen" style="text-decoration:none; color:#3a2f27; font-weight:700; padding:12px 4px; border-bottom:1px solid #e7dcc9;">Leistungen</a>
+        <a href="Preise.dc.html" style="text-decoration:none; color:#b5651d; font-weight:700; padding:12px 4px; border-bottom:1px solid #e7dcc9;">Preise</a>
+        <a href="Landingpage.dc.html#ueber-mich" style="text-decoration:none; color:#3a2f27; font-weight:700; padding:12px 4px; border-bottom:1px solid #e7dcc9;">Über mich</a>
+        <a href="Landingpage.dc.html#kontakt" onClick="{{ toggleMenu }}" style="text-decoration:none; background:#b5651d; color:#fff; text-align:center; padding:13px; border-radius:10px; font-weight:700; margin-top:10px;">Termin anfragen</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <section style="max-width:1200px; margin:0 auto; width:100%; box-sizing:border-box; padding:24px 56px 20px; text-align:center;">
+    <div style="font-weight:800; font-size:13px; color:#6b8e5a; letter-spacing:0.04em; text-transform:uppercase;">Preise &amp; Pakete</div>
+    <h1 style="font-family:'Fraunces',serif; font-size:38px; font-weight:600; margin:12px 0 0; text-wrap:balance;">Transparent und fair — passend zu eurem Bedarf</h1>
+    <p style="color:#6b5a45; font-size:15.5px; max-width:520px; margin:14px auto 0; line-height:1.6;">Alle Preise verstehen sich als Kleinunternehmerin gemäß § 6 Abs. 1 Z 27 UStG ohne Umsatzsteuerausweis.</p>
+  </section>
+
+  <section style="max-width:1200px; margin:0 auto; width:100%; box-sizing:border-box; padding:24px 56px 64px; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; align-items:stretch;">
+    <sc-for list="{{ packages }}" as="p" hint-placeholder-count="4">
+      <div style="background:{{ p.bg }}; border:1px solid {{ p.border }}; border-radius:20px; padding:30px 26px; display:flex; flex-direction:column; gap:16px; position:relative;">
+        <sc-if value="{{ p.highlight }}">
+          <div style="position:absolute; top:-13px; left:26px; background:#b5651d; color:#fff; font-size:11.5px; font-weight:800; padding:5px 12px; border-radius:20px;">Beliebt</div>
+        </sc-if>
+        <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600; color:{{ p.textColor }};">{{ p.title }}</div>
+        <div style="display:flex; align-items:baseline; gap:6px;">
+          <div style="font-family:'Fraunces',serif; font-size:34px; font-weight:600; color:{{ p.textColor }};">{{ p.price }}</div>
+          <div style="font-size:13px; color:{{ p.subColor }};">{{ p.unit }}</div>
+        </div>
+        <div style="font-size:13.5px; color:{{ p.subColor }}; line-height:1.5;">{{ p.desc }}</div>
+        <div style="display:flex; flex-direction:column; gap:9px; margin-top:4px; flex:1;">
+          <sc-for list="{{ p.features }}" as="f" hint-placeholder-count="3">
+            <div style="display:flex; gap:9px; align-items:flex-start; font-size:13.5px; color:{{ p.textColor }};">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="{{ p.checkColor }}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0;"><path d="M4 12l5 5L20 6"></path></svg>
+              <span>{{ f }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <a href="{{ p.ctaHref }}" style="text-decoration:none; text-align:center; background:{{ p.ctaBg }}; color:{{ p.ctaColor }}; border:1px solid {{ p.ctaBorder }}; border-radius:10px; padding:12px; font-weight:700; font-size:14px; margin-top:8px;" style-hover="opacity:0.9;">{{ p.cta }}</a>
+      </div>
+    </sc-for>
+  </section>
+
+  <section style="max-width:900px; margin:0 auto; width:100%; box-sizing:border-box; padding:0 56px 80px;">
+    <div style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:28px 30px; display:flex; flex-direction:column; gap:16px;">
+      <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Gut zu wissen</div>
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="3">
+        <div style="display:flex; gap:12px; align-items:flex-start; font-size:14px; color:#6b5a45; line-height:1.6;">
+          <div style="width:6px; height:6px; border-radius:50%; background:#b5651d; margin-top:8px; flex-shrink:0;"></div>
+          <div>{{ n }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="max-width:1200px; margin:0 auto; width:100%; box-sizing:border-box; padding:0 56px 48px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; color:#8a7b6a; font-size:13px;">
+    <div>© 2026 Mein Hund der Rowdy — Lena Brandt</div>
+    <div style="display:flex; gap:20px;">
+      <a href="Impressum.dc.html" style="text-decoration:none; color:#8a7b6a;">Impressum</a>
+      <a href="Datenschutz.dc.html" style="text-decoration:none; color:#8a7b6a;">Datenschutz</a>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { menuOpen: false };
+  renderVals() {
+    return {
+      menuOpen: this.state.menuOpen,
+      toggleMenu: () => this.setState(s => ({ menuOpen: !s.menuOpen })),
+      stopClick: (e) => e.stopPropagation(),
+      packages: [
+        {
+          title: 'Erstberatung', price: '90 €', unit: '/ Sitzung', desc: 'Verpflichtender erster Schritt vor jedem weiteren Training — hier erstellen wir die Verhaltensanalyse und euren individuellen Trainingsplan.',
+          features: ['90 Minuten vor Ort oder per Video', 'Verhaltensanalyse & Zielsetzung', 'Individueller Trainingsplan', 'Schriftliche Zusammenfassung', 'Voraussetzung für alle Trainingspakete'],
+          bg: '#fffaf3', border: '#e7dcc9', textColor: '#3a2f27', subColor: '#8a7b6a', checkColor: '#6b8e5a',
+          ctaBg: '#fff', ctaColor: '#3a2f27', ctaBorder: '#e7dcc9', cta: 'Jetzt anfragen', highlight: false,
+          ctaHref: 'Landingpage.dc.html?interesse=Erstberatung#kontakt',
+        },
+        {
+          title: 'Trainingspaket 4er', price: '320 €', unit: '/ Paket', desc: 'Vier Folgetermine für kontinuierlichen Fortschritt bei einem konkreten Thema.',
+          features: ['4 × 60 Minuten Training', 'Laufende Anpassung des Plans', 'WhatsApp-Support zwischen Terminen', '10 % günstiger als Einzeltermine'],
+          bg: '#b5651d', border: '#b5651d', textColor: '#fff', subColor: 'rgba(255,255,255,0.85)', checkColor: '#fff',
+          ctaBg: '#fff', ctaColor: '#b5651d', ctaBorder: '#fff', cta: 'Paket buchen', highlight: true,
+          ctaHref: 'Landingpage.dc.html?interesse=Trainingspaket+4er#kontakt',
+        },
+        {
+          title: 'Trainingspaket 8er', price: '580 €', unit: '/ Paket', desc: 'Für tiefgreifende Themen wie Aggression oder starke Ängste.',
+          features: ['8 × 60 Minuten Training', 'Priorisierte Terminvergabe', 'WhatsApp-Support zwischen Terminen', '20 % günstiger als Einzeltermine'],
+          bg: '#fffaf3', border: '#e7dcc9', textColor: '#3a2f27', subColor: '#8a7b6a', checkColor: '#6b8e5a',
+          ctaBg: '#fff', ctaColor: '#3a2f27', ctaBorder: '#e7dcc9', cta: 'Paket buchen', highlight: false,
+          ctaHref: 'Landingpage.dc.html?interesse=Trainingspaket+8er#kontakt',
+        },
+      ],
+      notes: [
+        'Die Erstberatung ist verpflichtende Voraussetzung für alle Trainingspakete — erst danach ist eine Buchung möglich.',
+        'Hausbesuche innerhalb Wiens: keine Aufpreis. Außerhalb: Kilometergeld von 0,50 €/km.',
+        'Absagen sind bis 24 Stunden vorher kostenfrei möglich — danach wird der volle Satz verrechnet.',
+        'Alle Pakete sind 12 Monate ab Kaufdatum gültig und übertragbar auf andere Hunde im selben Haushalt.',
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb { background:#ddd0bf; border-radius:8px; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+  @media (max-width:860px) {
+    [data-sidebar] { display:none; }
+    [data-bottomnav] { display:flex; }
+    body { padding-bottom:66px; }
+  }
+</style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; background:#f4ede4; color:#3a2f27;">
+
+  <aside data-sidebar style="width:220px; flex-shrink:0; background:#fffaf3; border-right:1px solid #e7dcc9; display:flex; flex-direction:column; padding:28px 18px; gap:28px;">
+    <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+      <div style="width:38px; height:38px; border-radius:12px; background:#b5651d; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:16px; height:16px; border-radius:50%; background:#f4ede4;"></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:16.5px; line-height:1.25; letter-spacing:0.01em;">Mein Hund<br/><span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+    </div>
+
+    <nav style="display:flex; flex-direction:column; gap:4px;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+        <a href="{{ item.href }}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; text-decoration:none; color:inherit; background:{{ item.active }};" style-hover="background:#f4ede4;">
+          <div style="width:20px; height:20px; border-radius:6px; flex-shrink:0;">{{ item.icon }}</div>
+          <span>{{ item.label }}</span>
+          <sc-if value="{{ item.badge }}">
+            <span style="margin-left:auto; background:#e0793c; color:#fff; font-size:11px; font-weight:800; padding:2px 7px; border-radius:20px;">{{ item.badge }}</span>
+          </sc-if>
+        </a>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; background:#f4ede4; border-radius:12px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:#6b8e5a; flex-shrink:0;"></div>
+      <div style="font-size:13px; line-height:1.3;">
+        <div style="font-weight:700;">Lena Brandt</div>
+        <div style="color:#8a7b6a;">Hundeverhaltensberaterin</div>
+      </div>
+    </div>
+  </aside>
+
+  <nav data-bottomnav style="display:none; position:fixed; bottom:0; left:0; right:0; background:#fffaf3; border-top:1px solid #e7dcc9; padding:6px 2px; align-items:center; justify-content:space-around; z-index:20;">
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+      <a href="{{ item.href }}" style="display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; color:#3a2f27; font-size:10px; font-weight:700; padding:6px 8px; position:relative;">
+        <div style="font-size:19px;">{{ item.icon }}</div>
+        <span>{{ item.label }}</span>
+        <sc-if value="{{ item.badge }}">
+          <span style="position:absolute; top:0; right:0; background:#e0793c; color:#fff; font-size:9px; font-weight:800; padding:1px 4px; border-radius:20px;">{{ item.badge }}</span>
+        </sc-if>
+      </a>
+    </sc-for>
+  </nav>
+
+  <main style="flex:1; padding:32px 40px; display:flex; flex-direction:column; gap:24px; min-width:0;">
+
+    <header style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+      <div>
+        <div style="font-family:'Fraunces',serif; font-size:26px; font-weight:600;">Buchhaltung</div>
+        <div style="color:#8a7b6a; font-size:14px; margin-top:4px;">Kleinunternehmerin gemäß § 6 Abs. 1 Z 27 UStG (AT) · keine Umsatzsteuer ausgewiesen</div>
+      </div>
+      <div style="display:flex; gap:12px;">
+        <button style="border:1px solid #e7dcc9; background:#fffaf3; color:#3a2f27; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; cursor:pointer;" style-hover="background:#f4ede4;">Export (CSV)</button>
+        <sc-if value="{{ showHeaderCta }}">
+          <button onClick="{{ openNew }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;" style-hover="background:#96521a;">{{ newButtonLabel }}</button>
+        </sc-if>
+      </div>
+    </header>
+
+    <!-- Stat cards -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px;">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+        <div style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:16px; padding:18px 20px;">
+          <div style="color:#8a7b6a; font-size:13px; font-weight:700;">{{ s.label }}</div>
+          <div style="font-family:'Fraunces',serif; font-size:26px; margin-top:6px; color:{{ s.color }};">{{ s.value }}</div>
+          <div style="color:#8a7b6a; font-size:12px; margin-top:2px;">{{ s.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex; gap:4px 10px; flex-wrap:wrap; border-bottom:1px solid #e7dcc9;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.select }}" style="border:none; background:none; padding:12px 6px; margin-right:22px; font-weight:800; font-size:14.5px; cursor:pointer; color:{{ t.color }}; border-bottom:3px solid {{ t.border }};">{{ t.label }}</button>
+      </sc-for>
+    </div>
+
+    <!-- Eingangsrechnungen -->
+    <sc-if value="{{ isIncoming }}">
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:82px minmax(0,1fr) 100px 100px 64px; gap:8px; padding:14px 22px; background:#f4ede4; font-size:12px; font-weight:800; color:#8a7b6a; text-transform:uppercase; letter-spacing:0.03em;">
+          <div>Datum</div><div>Lieferant / Kategorie</div><div>Betrag</div><div>Status</div><div></div>
+        </div>
+        <sc-for list="{{ incoming }}" as="r" hint-placeholder-count="5">
+          <div style="display:grid; grid-template-columns:82px minmax(0,1fr) 100px 100px 64px; gap:8px; padding:16px 22px; align-items:center; border-top:1px solid #e7dcc9; font-size:14px;">
+            <div style="color:#8a7b6a;">{{ r.date }}</div>
+            <div style="min-width:0;">
+              <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div>
+              <div style="color:#8a7b6a; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.category }}</div>
+            </div>
+            <div style="font-weight:800;">{{ r.amount }}</div>
+            <div><span style="background:{{ r.statusBg }}; color:{{ r.statusColor }}; font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; white-space:nowrap;">{{ r.status }}</span></div>
+            <a href="#" style="font-size:13px; font-weight:700; text-decoration:none; justify-self:start; white-space:nowrap;">Beleg →</a>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <!-- Ausgangsrechnungen -->
+    <sc-if value="{{ isOutgoing }}">
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:82px minmax(0,1fr) 100px 100px 56px; gap:8px; padding:14px 22px; background:#f4ede4; font-size:12px; font-weight:800; color:#8a7b6a; text-transform:uppercase; letter-spacing:0.03em;">
+          <div>Datum</div><div>Klient / Leistung</div><div>Betrag</div><div>Status</div><div></div>
+        </div>
+        <sc-for list="{{ outgoing }}" as="r" hint-placeholder-count="5">
+          <div style="display:grid; grid-template-columns:82px minmax(0,1fr) 100px 100px 56px; gap:8px; padding:16px 22px; align-items:center; border-top:1px solid #e7dcc9; font-size:14px;">
+            <div style="color:#8a7b6a;">{{ r.date }}</div>
+            <div style="min-width:0;">
+              <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.client }}</div>
+              <div style="color:#8a7b6a; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.number }} · {{ r.service }}</div>
+            </div>
+            <div style="font-weight:800;">{{ r.amount }}</div>
+            <div><span style="background:{{ r.statusBg }}; color:{{ r.statusColor }}; font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; white-space:nowrap;">{{ r.status }}</span></div>
+            <a href="#" onClick="{{ r.preview }}" style="font-size:13px; font-weight:700; text-decoration:none; justify-self:start; white-space:nowrap;">PDF →</a>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <!-- Mahnwesen -->
+    <sc-if value="{{ isMahnwesen }}">
+      <div style="background:#f4ede4; border-radius:12px; padding:14px 18px; font-size:13px; color:#6b5a45; line-height:1.55;">
+        In Österreich üblich: erst eine kostenlose Zahlungserinnerung, danach 1.–2. Mahnung. Ab der 2. Mahnung dürfen im B2B-Verkehr gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie ein pauschaler Betreibungsschaden von 40 € verrechnet werden.
+      </div>
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:90px minmax(0,1fr) 100px 90px 1fr 220px; gap:8px; padding:14px 22px; background:#f4ede4; font-size:12px; font-weight:800; color:#8a7b6a; text-transform:uppercase; letter-spacing:0.03em;">
+          <div>Nr.</div><div>Klient</div><div>Betrag</div><div>Überfällig</div><div>Letzte Mahnung</div><div></div>
+        </div>
+        <sc-for list="{{ overdue }}" as="o" hint-placeholder-count="3">
+          <div style="display:grid; grid-template-columns:90px minmax(0,1fr) 100px 90px 1fr 220px; gap:8px; padding:16px 22px; align-items:center; border-top:1px solid #e7dcc9; font-size:14px;">
+            <div style="color:#8a7b6a; font-weight:700;">{{ o.number }}</div>
+            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ o.client }}</div>
+            <div style="font-weight:800;">{{ o.amount }}</div>
+            <div><span style="background:#fbe4e0; color:#b3402a; font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; white-space:nowrap;">{{ o.daysOverdue }} Tage</span></div>
+            <div style="color:#8a7b6a; font-size:13px;">{{ o.lastReminder }}</div>
+            <button onClick="{{ o.sendReminder }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:8px; padding:8px 14px; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; justify-self:start;" style-hover="background:#f4ede4;">{{ o.nextAction }}</button>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <!-- Recurring -->
+    <sc-if value="{{ isWiederkehrend }}">
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 100px 110px 120px 90px; gap:8px; padding:14px 22px; background:#f4ede4; font-size:12px; font-weight:800; color:#8a7b6a; text-transform:uppercase; letter-spacing:0.03em;">
+          <div>Vorlage</div><div>Klient</div><div>Betrag</div><div>Rhythmus</div><div>Nächste</div><div>Status</div>
+        </div>
+        <sc-for list="{{ recurring }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 100px 110px 120px 90px; gap:8px; padding:16px 22px; align-items:center; border-top:1px solid #e7dcc9; font-size:14px;">
+            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.title }}</div>
+            <div style="color:#8a7b6a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.client }}</div>
+            <div style="font-weight:800;">{{ r.amount }}</div>
+            <div style="color:#8a7b6a; font-size:13px;">{{ r.frequency }}</div>
+            <div style="color:#8a7b6a; font-size:13px;">{{ r.next }}</div>
+            <sc-if value="{{ r.active }}">
+              <span style="background:#e5efdf; color:#4c6b3f; font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; width:fit-content;">Aktiv</span>
+            </sc-if>
+            <sc-if value="{{ !r.active }}" hint-placeholder-val="{{ false }}">
+              <span style="background:#f4ede4; color:#8a7b6a; font-size:12px; font-weight:700; padding:5px 10px; border-radius:20px; width:fit-content;">Pausiert</span>
+            </sc-if>
+          </div>
+        </sc-for>
+        <div style="padding:16px 22px; border-top:1px solid #e7dcc9;">
+          <button style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 16px; font-weight:700; font-size:13.5px; cursor:pointer;" style-hover="background:#f4ede4;">+ Neue Vorlage</button>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- Fahrtkosten -->
+    <sc-if value="{{ isFahrtkosten }}">
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:26px; display:flex; flex-direction:column; gap:18px; max-width:480px;">
+        <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Fahrtkosten-Rechner</div>
+        <div style="color:#8a7b6a; font-size:13px; line-height:1.5;">Amtliches Kilometergeld in Österreich: 0,50 € pro gefahrenem Kilometer für Hausbesuche.</div>
+        <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Gefahrene Kilometer
+          <input value="{{ kmRate }}" onChange="{{ setKm }}" placeholder="z.B. 24" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:11px 14px; font-size:14px; font-family:inherit;" />
+        </label>
+        <div style="background:#f4ede4; border-radius:12px; padding:16px 18px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:700; font-size:14px;">Erstattungsbetrag</span>
+          <span style="font-family:'Fraunces',serif; font-size:22px; color:#b5651d;">{{ kmResult }}</span>
+        </div>
+        <button style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:12px; font-weight:700; font-size:14px; cursor:pointer;" style-hover="background:#96521a;">Als Ausgabe erfassen</button>
+      </section>
+    </sc-if>
+
+    <!-- Jahresübersicht -->
+    <sc-if value="{{ isJahr }}">
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) 120px 120px 120px; gap:8px; padding:14px 22px; background:#f4ede4; font-size:12px; font-weight:800; color:#8a7b6a; text-transform:uppercase; letter-spacing:0.03em;">
+          <div>Zeitraum</div><div>Einnahmen</div><div>Ausgaben</div><div>Gewinn</div>
+        </div>
+        <sc-for list="{{ quarters }}" as="q" hint-placeholder-count="3">
+          <div style="display:grid; grid-template-columns:minmax(0,1fr) 120px 120px 120px; gap:8px; padding:16px 22px; align-items:center; border-top:1px solid #e7dcc9; font-size:14px;">
+            <div style="font-weight:700;">{{ q.label }}</div>
+            <div style="color:#6b8e5a; font-weight:700;">{{ q.income }}</div>
+            <div style="color:#e0793c; font-weight:700;">{{ q.expenses }}</div>
+            <div style="font-weight:800;">{{ q.profit }}</div>
+          </div>
+        </sc-for>
+      </section>
+      <div style="background:#f4ede4; border-radius:12px; padding:14px 18px; font-size:13px; color:#6b5a45; line-height:1.5;">
+        Für die Einkommensteuererklärung: Gesamtgewinn 2026 (bisher) 11.400 € — Rücklage empfohlen ca. 2.280 €.
+      </div>
+    </sc-if>
+
+    <!-- EÜR summary -->
+    <sc-if value="{{ isSummary }}">
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:26px; display:flex; flex-direction:column; gap:18px;">
+        <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Einnahmen-Ausgaben-Rechnung — Juli 2026</div>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <sc-for list="{{ euerRows }}" as="row" hint-placeholder-count="6">
+            <div style="display:flex; justify-content:space-between; padding:12px 4px; border-bottom:1px solid #e7dcc9; font-size:14.5px;">
+              <span style="font-weight:{{ row.weight }};">{{ row.label }}</span>
+              <span style="font-weight:800; color:{{ row.color }};">{{ row.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#f4ede4; border-radius:12px; padding:14px 18px; font-size:13px; color:#6b5a45; line-height:1.5;">
+          Als Kleinunternehmerin gemäß § 6 Abs. 1 Z 27 UStG weist du keine Umsatzsteuer aus (Nettoumsatzgrenze aktuell 55.000 €/Jahr). Diese Übersicht ersetzt keine Steuerberatung — für die Einkommensteuererklärung mit deiner/deinem Steuerberater/in abstimmen.
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ reminderTarget }}">
+      <div style="position:fixed; inset:0; background:rgba(58,47,39,0.4); display:flex; align-items:center; justify-content:center; z-index:10; padding:24px; box-sizing:border-box;" onClick="{{ closeReminder }}">
+        <div style="background:#fffaf3; border-radius:20px; width:520px; max-width:100%; max-height:90vh; overflow-y:auto; padding:28px; display:flex; flex-direction:column; gap:14px;" onClick="{{ stopClick }}">
+          <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">{{ reminderTarget.nextAction }}</div>
+          <div style="color:#8a7b6a; font-size:13px;">Wird per E-Mail an <strong style="color:#3a2f27;">{{ reminderTarget.client }}</strong> ({{ reminderTarget.email }}) gesendet — Betreff und Text kannst du vor dem Senden noch anpassen.</div>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Betreff
+            <input value="{{ reminderTarget.reminderSubject }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Nachricht
+            <textarea rows="9" value="{{ reminderTarget.reminderBody }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:12px; font-size:13.5px; font-family:inherit; resize:vertical; white-space:pre-wrap;"></textarea>
+          </label>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:4px;">
+            <button onClick="{{ closeReminder }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+            <button onClick="{{ closeReminder }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Per E-Mail senden</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ previewInvoice }}">
+      <div style="position:fixed; inset:0; background:rgba(58,47,39,0.4); display:flex; align-items:center; justify-content:center; z-index:10; padding:24px; box-sizing:border-box;" onClick="{{ closePreview }}">
+        <div style="background:#fff; border-radius:4px; width:600px; max-width:100%; max-height:90vh; overflow-y:auto; padding:52px 56px; box-shadow:0 20px 60px rgba(58,47,39,0.25); color:#3a2f27; font-size:14px;" onClick="{{ stopClick }}">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:44px;">
+            <div>
+              <div style="font-family:'Fraunces',serif; font-weight:600; font-size:19px;">Mein Hund <span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+              <div style="color:#8a7b6a; font-size:12.5px; margin-top:6px; line-height:1.6;">Lena Brandt<br/>Musterstraße 12<br/>1010 Wien</div>
+            </div>
+            <div style="text-align:right; font-size:12.5px; color:#8a7b6a; line-height:1.6;">
+              <div style="font-weight:800; color:#3a2f27; font-size:15px;">Rechnung {{ previewInvoice.number }}</div>
+              Datum: {{ previewInvoice.date }}2026<br/>
+              Leistungsdatum: {{ previewInvoice.date }}2026
+            </div>
+          </div>
+
+          <div style="margin-bottom:36px;">
+            <div style="color:#8a7b6a; font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;">Rechnungsempfänger</div>
+            <div style="font-weight:700;">{{ previewInvoice.client }}</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 100px; gap:8px; border-bottom:2px solid #3a2f27; padding-bottom:10px; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:0.03em; color:#8a7b6a;">
+            <div>Leistung</div><div style="text-align:right;">Betrag</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 100px; gap:8px; padding:16px 0; border-bottom:1px solid #e7dcc9;">
+            <div>{{ previewInvoice.service }}</div><div style="text-align:right; font-weight:700;">{{ previewInvoice.amount }}</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 100px; gap:8px; padding:14px 0; font-weight:800; font-size:16px;">
+            <div>Gesamtbetrag</div><div style="text-align:right;">{{ previewInvoice.amount }}</div>
+          </div>
+
+          <div style="margin-top:28px; background:#f4ede4; border-radius:10px; padding:14px 16px; font-size:12.5px; color:#6b5a45; line-height:1.6;">
+            Gemäß § 6 Abs. 1 Z 27 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet und ausgewiesen.
+          </div>
+
+          <div style="margin-top:32px; display:flex; gap:10px; justify-content:flex-end;">
+            <button onClick="{{ closePreview }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer; color:#3a2f27;">Schließen</button>
+            <a href="Rechnung.dc.html" style="text-decoration:none; background:#b5651d; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer; display:inline-flex; align-items:center;">Drucken / Als PDF</a>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showModal }}">
+      <div style="position:fixed; inset:0; background:rgba(58,47,39,0.35); display:flex; align-items:center; justify-content:center; z-index:10;" onClick="{{ closeNew }}">
+        <div style="background:#fffaf3; border-radius:20px; padding:28px; width:420px; max-width:90vw; display:flex; flex-direction:column; gap:14px;" onClick="{{ stopClick }}">
+          <sc-if value="{{ modalIsOutgoing }}">
+            <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">Neue Ausgangsrechnung</div>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Klient
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="z.B. Maria Weber" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Leistung
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="z.B. Erstberatung" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Betrag (€)
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="80,00" />
+            </label>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+              <button onClick="{{ closeNew }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+              <button onClick="{{ closeNew }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Rechnung erstellen</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ modalIsIncoming }}">
+            <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">Eingangsrechnung erfassen</div>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Lieferant
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="z.B. BüroPlus" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Kategorie
+              <select style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:#3a2f27;">
+                <option>Bürobedarf</option>
+                <option>Trainingsmaterial</option>
+                <option>Weiterbildung</option>
+                <option>Fahrzeugkosten</option>
+                <option>Telefon &amp; Internet</option>
+                <option>Sonstiges</option>
+              </select>
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Datum
+              <input type="date" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Betrag (€)
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="32,90" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Beleg
+              <div style="border:1px dashed #e7dcc9; border-radius:10px; padding:16px; text-align:center; font-size:12.5px; color:#8a7b6a; cursor:pointer;">Foto oder PDF hochladen</div>
+            </label>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+              <button onClick="{{ closeNew }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+              <button onClick="{{ closeNew }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Beleg speichern</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'out', showModal: false, previewInvoice: null };
+
+  renderVals() {
+    const tab = this.state.tab;
+    const tabs = [
+      { key: 'out', label: 'Ausgangsrechnungen' },
+      { key: 'in', label: 'Eingangsrechnungen' },
+      { key: 'mahnwesen', label: 'Mahnwesen' },
+      { key: 'wiederkehrend', label: 'Wiederkehrend' },
+      { key: 'fahrtkosten', label: 'Fahrtkosten' },
+      { key: 'summary', label: 'EÜR-Übersicht' },
+      { key: 'jahr', label: 'Jahresübersicht' },
+    ].map(t => ({
+      label: t.label,
+      color: tab === t.key ? '#b5651d' : '#8a7b6a',
+      border: tab === t.key ? '#b5651d' : 'transparent',
+      select: () => this.setState({ tab: t.key }),
+    }));
+
+    return {
+      navItems: [
+        { label: 'Dashboard', icon: '📊', badge: null, href: 'Dashboard.dc.html', active: 'transparent' },
+        { label: 'Kalender', icon: '📅', badge: null, href: 'Kalender.dc.html', active: 'transparent' },
+        { label: 'Nachrichten', icon: '💬', badge: '3', href: 'Nachrichten.dc.html', active: 'transparent' },
+        { label: 'Klienten', icon: '🐾', badge: null, href: 'Klienten.dc.html', active: 'transparent' },
+        { label: 'Buchhaltung', icon: '🧾', badge: null, href: 'Buchhaltung.dc.html', active: '#f4ede4' },
+        { label: 'Einstellungen', icon: '⚙️', badge: null, href: 'Einstellungen.dc.html', active: 'transparent' },
+      ],
+      stats: [
+        { label: 'Einnahmen (Juli)', value: '2.340 €', sub: '18 Rechnungen', color: '#6b8e5a' },
+        { label: 'Ausgaben (Juli)', value: '410 €', sub: '6 Belege', color: '#e0793c' },
+        { label: 'Gewinn (Juli)', value: '1.930 €', sub: 'vor Steuern', color: '#b5651d' },
+        { label: 'Offene Rechnungen', value: '3', sub: '285 € ausstehend', color: '#3a2f27' },
+      ],
+      tabs,
+      isOutgoing: tab === 'out',
+      isIncoming: tab === 'in',
+      isSummary: tab === 'summary',
+      isMahnwesen: tab === 'mahnwesen',
+      isWiederkehrend: tab === 'wiederkehrend',
+      isFahrtkosten: tab === 'fahrtkosten',
+      isJahr: tab === 'jahr',
+      overdue: [
+        {
+          number: 'R-0038', client: 'Frank Ostermann', email: 'frank.ostermann@beispiel.at', amount: '60,00 €', daysOverdue: 12, lastReminder: 'Keine',
+          nextAction: 'Zahlungserinnerung senden', reminderSubject: 'Freundliche Zahlungserinnerung zu Rechnung R-0038',
+          reminderBody: 'Guten Tag Herr Ostermann,\n\nbei der Durchsicht unserer offenen Posten ist mir aufgefallen, dass die Rechnung R-0038 über 60,00 € noch offen ist. Vermutlich handelt es sich um ein Versehen — ich bitte um Ausgleich in den nächsten Tagen.\n\nFalls die Zahlung bereits erfolgt ist, betrachten Sie diese Nachricht als gegenstandslos.\n\nLiebe Grüße\nLena Brandt',
+        },
+        {
+          number: 'R-0031', client: 'Anna Voigt', email: 'anna.voigt@beispiel.at', amount: '95,00 €', daysOverdue: 21, lastReminder: '1. Mahnung · 10.07.',
+          nextAction: '2. Mahnung senden (mit Verzugszinsen)', reminderSubject: '2. Mahnung zu Rechnung R-0031 — Zahlungsfrist überschritten',
+          reminderBody: 'Guten Tag Frau Voigt,\n\ntrotz Zahlungserinnerung vom 10.07. ist die Rechnung R-0031 über 95,00 € weiterhin offen (21 Tage überfällig).\n\nIch bitte um Zahlung innerhalb von 7 Tagen. Andernfalls sind wir berechtigt, gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie einen pauschalen Betreibungsschaden von 40 € zu verrechnen.\n\nLiebe Grüße\nLena Brandt',
+        },
+      ].map(o => ({ ...o, sendReminder: () => this.setState({ reminderTarget: o }) })),
+      reminderTarget: this.state.reminderTarget,
+      closeReminder: () => this.setState({ reminderTarget: null }),
+      recurring: [
+        { title: 'Trainingspaket Rocky (4er-Karte)', client: 'Maria Weber', amount: '280,00 €', frequency: 'monatlich', next: '01.08.2026', active: true },
+        { title: 'Wöchentliches Gruppentraining', client: 'Sammelrechnung Gruppe A', amount: '120,00 €', frequency: 'wöchentlich', next: '25.07.2026', active: true },
+        { title: 'Nachsorge-Check-in Luna', client: 'Sophie Krause', amount: '45,00 €', frequency: 'monatlich', next: '05.08.2026', active: false },
+      ],
+      quarters: [
+        { label: 'Q1 2026', income: '5.180 €', expenses: '890 €', profit: '4.290 €' },
+        { label: 'Q2 2026', income: '6.420 €', expenses: '1.240 €', profit: '5.180 €' },
+        { label: 'Q3 2026 (bisher)', income: '2.340 €', expenses: '410 €', profit: '1.930 €' },
+      ],
+      kmRate: this.state.kmRate ?? '',
+      kmResult: this.state.kmRate ? (parseFloat(this.state.kmRate.replace(',', '.')) * 0.5).toFixed(2).replace('.', ',') + ' €' : '— €',
+      setKm: (e) => this.setState({ kmRate: e.target.value }),
+      showHeaderCta: tab === 'out' || tab === 'in',
+      outgoing: [
+        { date: '15.07.', number: 'R-0042', client: 'Maria Weber', service: 'Erstberatung — Rocky', amount: '80,00 €', status: 'Bezahlt', statusBg: '#e5efdf', statusColor: '#4c6b3f' },
+        { date: '12.07.', number: 'R-0041', client: 'Sophie Krause', service: 'Folgetermin — Luna', amount: '60,00 €', status: 'Bezahlt', statusBg: '#e5efdf', statusColor: '#4c6b3f' },
+        { date: '10.07.', number: 'R-0040', client: 'Tobias Nowak', service: 'Hausbesuch — Bruno', amount: '95,00 €', status: 'Offen', statusBg: '#fdeee0', statusColor: '#a85b1e' },
+        { date: '05.07.', number: 'R-0039', client: 'Jana Peters', service: 'Video-Check-in — Nala', amount: '45,00 €', status: 'Offen', statusBg: '#fdeee0', statusColor: '#a85b1e' },
+        { date: '01.07.', number: 'R-0038', client: 'Frank Ostermann', service: 'Folgetermin — Max', amount: '60,00 €', status: 'Überfällig', statusBg: '#fbe4e0', statusColor: '#b3402a' },
+      ].map(r => ({ ...r, preview: () => this.setState({ previewInvoice: r }) })),
+      incoming: [
+        { date: '14.07.', name: 'Trainingsmaterial GmbH', category: 'Leckerlis & Leinen', amount: '86,40 €', status: 'Bezahlt', statusBg: '#e5efdf', statusColor: '#4c6b3f' },
+        { date: '08.07.', name: 'BüroPlus', category: 'Bürobedarf', amount: '32,90 €', status: 'Bezahlt', statusBg: '#e5efdf', statusColor: '#4c6b3f' },
+        { date: '03.07.', name: 'Fortbildung Hundeverhalten e.V.', category: 'Weiterbildung', amount: '210,00 €', status: 'Bezahlt', statusBg: '#e5efdf', statusColor: '#4c6b3f' },
+        { date: '01.07.', name: 'Telekom', category: 'Telefon & Internet', amount: '39,90 €', status: 'Offen', statusBg: '#fdeee0', statusColor: '#a85b1e' },
+        { date: '28.06.', name: 'Kfz-Werkstatt Müller', category: 'Fahrzeugkosten', amount: '145,00 €', status: 'Bezahlt', statusBg: '#e5efdf', statusColor: '#4c6b3f' },
+      ],
+      euerRows: [
+        { label: 'Betriebseinnahmen', amount: '2.340,00 €', weight: 700, color: '#3a2f27' },
+        { label: 'Betriebsausgaben', amount: '− 410,00 €', weight: 700, color: '#3a2f27' },
+        { label: 'Gewinn (vor Steuern)', amount: '1.930,00 €', weight: 800, color: '#6b8e5a' },
+        { label: 'davon Umsatzsteuer', amount: '0,00 € (§ 6 Abs. 1 Z 27 UStG)', weight: 400, color: '#8a7b6a' },
+        { label: 'Rücklage Einkommensteuer (ca. 20%)', amount: '386,00 €', weight: 400, color: '#8a7b6a' },
+      ],
+      showModal: this.state.showModal,
+      previewInvoice: this.state.previewInvoice,
+      closePreview: () => this.setState({ previewInvoice: null }),
+      newButtonLabel: tab === 'in' ? '+ Beleg erfassen' : '+ Neue Rechnung',
+      modalIsIncoming: this.state.modalType === 'in',
+      modalIsOutgoing: this.state.modalType !== 'in',
+      openNew: () => this.setState({ showModal: true, modalType: this.state.tab === 'in' ? 'in' : 'out' }),
+      closeNew: () => this.setState({ showModal: false }),
+      stopClick: (e) => e.stopPropagation(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

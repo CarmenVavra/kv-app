@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&amp;family=Nunito+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb { background:#ddd0bf; border-radius:8px; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+  @media (max-width:860px) {
+    [data-sidebar] { display:none; }
+    [data-bottomnav] { display:flex; }
+    body { padding-bottom:66px; }
+  }
+</style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; background:#f4ede4; color:#3a2f27;">
+
+  <aside data-sidebar style="width:220px; flex-shrink:0; background:#fffaf3; border-right:1px solid #e7dcc9; display:flex; flex-direction:column; padding:28px 18px; gap:28px;">
+    <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+      <div style="width:38px; height:38px; border-radius:12px; background:#b5651d; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:16px; height:16px; border-radius:50%; background:#f4ede4;"></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:16.5px; line-height:1.25; letter-spacing:0.01em;">Mein Hund<br><span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+    </div>
+
+    <nav style="display:flex; flex-direction:column; gap:4px;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="5">
+        <a href="{{ item.href }}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; text-decoration:none; color:inherit; background:{{ item.active }};" style-hover="background:#f4ede4;">
+          <div style="width:20px; height:20px; border-radius:6px; flex-shrink:0;">{{ item.icon }}</div>
+          <span>{{ item.label }}</span>
+          <sc-if value="{{ item.badge }}">
+            <span style="margin-left:auto; background:#e0793c; color:#fff; font-size:11px; font-weight:800; padding:2px 7px; border-radius:20px;">{{ item.badge }}</span>
+          </sc-if>
+        </a>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; background:#f4ede4; border-radius:12px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:#6b8e5a; flex-shrink:0;"></div>
+      <div style="font-size:13px; line-height:1.3;">
+        <div style="font-weight:700;">Lena Brandt</div>
+        <div style="color:#8a7b6a;">Hundeverhaltensberaterin</div>
+      </div>
+    </div>
+  </aside>
+
+  <nav data-bottomnav style="display:none; position:fixed; bottom:0; left:0; right:0; background:#fffaf3; border-top:1px solid #e7dcc9; padding:6px 2px; align-items:center; justify-content:space-around; z-index:20;">
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+      <a href="{{ item.href }}" style="display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; color:#3a2f27; font-size:10px; font-weight:700; padding:6px 8px; position:relative;">
+        <div style="font-size:19px;">{{ item.icon }}</div>
+        <span>{{ item.label }}</span>
+        <sc-if value="{{ item.badge }}">
+          <span style="position:absolute; top:0; right:0; background:#e0793c; color:#fff; font-size:9px; font-weight:800; padding:1px 4px; border-radius:20px;">{{ item.badge }}</span>
+        </sc-if>
+      </a>
+    </sc-for>
+  </nav>
+
+  <main style="flex:1; padding:32px 40px; display:flex; flex-direction:column; gap:24px; min-width:0;">
+
+    <header style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+      <div>
+        <div style="font-family:'Fraunces',serif; font-size:26px; font-weight:600;">Klienten &amp; Hunde</div>
+        <div style="color:#8a7b6a; font-size:14px; margin-top:4px;">{{ clients.length }} aktive Klienten</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <input placeholder="Klient oder Hund suchen…" style="border:1px solid #e7dcc9; background:#fffaf3; border-radius:10px; padding:11px 16px; font-size:14px; width:240px; font-family:inherit;">
+        <button onClick="{{ openNew }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;" style-hover="background:#96521a;">+ Neuer Klient</button>
+      </div>
+    </header>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+        <button style="border:1px solid #e7dcc9; background:{{ f.active }}; color:{{ f.color }}; border-radius:20px; padding:8px 16px; font-weight:700; font-size:13px; cursor:pointer;">{{ f.label }}</button>
+      </sc-for>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;">
+      <sc-for list="{{ clients }}" as="c" hint-placeholder-count="8">
+        <a href="Klientenprofil.dc.html" style="text-decoration:none; color:inherit; background:#fffaf3; border:1px solid #e7dcc9; border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:12px; cursor:pointer;" style-hover="background:#fff5e8; border-color:#e0793c;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:48px; height:48px; border-radius:14px; background:{{ c.color }}; flex-shrink:0;"></div>
+            <div style="min-width:0; flex:1;">
+              <div style="font-weight:700; font-size:15px;">{{ c.dog }}</div>
+              <div style="color:#8a7b6a; font-size:12.5px;">{{ c.breed }}</div>
+            </div>
+            <sc-if value="{{ c.unread }}">
+              <div style="width:9px; height:9px; border-radius:50%; background:#e0793c; flex-shrink:0;"></div>
+            </sc-if>
+          </div>
+          <div style="font-size:13px; color:#8a7b6a; border-top:1px solid #e7dcc9; padding-top:10px;">Halter/in: <span style="color:#3a2f27; font-weight:700;">{{ c.owner }}</span></div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <sc-for list="{{ c.tags }}" as="t" hint-placeholder-count="2">
+              <span style="background:#f4ede4; font-size:11px; font-weight:700; padding:4px 9px; border-radius:20px; color:#6b5a45;">{{ t }}</span>
+            </sc-for>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:#8a7b6a;">
+            <span>Letzter Termin: {{ c.lastVisit }}</span>
+            <span>{{ c.sessions }} Sitzungen</span>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showModal }}">
+      <div style="position:fixed; inset:0; background:rgba(58,47,39,0.35); display:flex; align-items:center; justify-content:center; z-index:10;" onClick="{{ closeNew }}">
+        <div style="background:#fffaf3; border-radius:20px; padding:28px; width:440px; max-width:90vw; max-height:85vh; overflow-y:auto; display:flex; flex-direction:column; gap:14px;" onClick="{{ stopClick }}">
+          <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">Neuen Klienten erfassen</div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Hundename
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="z.B. Rocky" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Rasse
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="z.B. Mischling" />
+            </label>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Alter
+            <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; max-width:140px;" placeholder="z.B. 3 Jahre" />
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Halter/in
+            <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="z.B. Maria Weber" />
+          </label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">E-Mail
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="maria@beispiel.de" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Telefon
+              <input style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" placeholder="+49 …" />
+            </label>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Verhaltensthema
+            <select style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:#3a2f27;">
+              <option>Leinenaggression</option>
+              <option>Stress</option>
+              <option>Mantrailing</option>
+              <option>Impulskontrolle</option>
+              <option>Welpentraining</option>
+              <option>Sonstiges</option>
+            </select>
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Notizen
+            <textarea rows="3" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; resize:vertical;" placeholder="Erste Eindrücke, Besonderheiten…"></textarea>
+          </label>
+
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+            <button onClick="{{ closeNew }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+            <button onClick="{{ closeNew }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Klient speichern</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { showModal: false };
+  renderVals() {
+    return {
+      showModal: this.state.showModal,
+      openNew: () => this.setState({ showModal: true }),
+      closeNew: () => this.setState({ showModal: false }),
+      stopClick: (e) => e.stopPropagation(),
+      navItems: [
+        { label: 'Dashboard', icon: '📊', badge: null, href: 'Dashboard.dc.html', active: 'transparent' },
+        { label: 'Kalender', icon: '📅', badge: null, href: 'Kalender.dc.html', active: 'transparent' },
+        { label: 'Nachrichten', icon: '💬', badge: '3', href: 'Nachrichten.dc.html', active: 'transparent' },
+        { label: 'Klienten', icon: '🐾', badge: null, href: 'Klienten.dc.html', active: '#f4ede4' },
+        { label: 'Buchhaltung', icon: '🧾', badge: null, href: 'Buchhaltung.dc.html', active: 'transparent' },
+        { label: 'Einstellungen', icon: '⚙️', badge: null, href: 'Einstellungen.dc.html', active: 'transparent' },
+      ],
+      filters: [
+        { label: 'Alle', active: '#b5651d', color: '#fff' },
+        { label: 'Leinenaggression', active: '#fffaf3', color: '#3a2f27' },
+        { label: 'Stress', active: '#fffaf3', color: '#3a2f27' },
+        { label: 'Mantrailing', active: '#fffaf3', color: '#3a2f27' },
+        { label: 'Impulskontrolle', active: '#fffaf3', color: '#3a2f27' },
+      ],
+      clients: [
+        { dog: 'Rocky', breed: 'Mischling, 3 J.', owner: 'Maria Weber', tags: ['Leinenaggression'], color: '#b5651d', unread: true, lastVisit: '15. Juli', sessions: 6 },
+        { dog: 'Luna', breed: 'Border Collie, 2 J.', owner: 'Sophie Krause', tags: ['Trennungsangst'], color: '#6b8e5a', unread: true, lastVisit: '10. Juli', sessions: 4 },
+        { dog: 'Bruno', breed: 'Labrador, 5 J.', owner: 'Tobias Nowak', tags: ['Impulskontrolle'], color: '#e0793c', unread: true, lastVisit: '8. Juli', sessions: 9 },
+        { dog: 'Nala', breed: 'Schäferhund, 1 J.', owner: 'Jana Peters', tags: ['Welpentraining'], color: '#8a7b6a', unread: false, lastVisit: '2. Juli', sessions: 2 },
+        { dog: 'Max', breed: 'Beagle, 4 J.', owner: 'Frank Ostermann', tags: ['Jagdtrieb'], color: '#3a2f27', unread: false, lastVisit: '28. Juni', sessions: 5 },
+        { dog: 'Emma', breed: 'Pudel, 6 J.', owner: 'Nadine Fischer', tags: ['Angstverhalten'], color: '#6b8e5a', unread: false, lastVisit: '20. Juni', sessions: 12 },
+        { dog: 'Charlie', breed: 'Cocker Spaniel, 2 J.', owner: 'Anna Voigt', tags: ['Bellen'], color: '#b5651d', unread: false, lastVisit: '18. Juni', sessions: 3 },
+        { dog: 'Bella', breed: 'Dackel, 7 J.', owner: 'Peter Hahn', tags: ['Ressourcenverteidigung'], color: '#e0793c', unread: false, lastVisit: '10. Juni', sessions: 7 },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

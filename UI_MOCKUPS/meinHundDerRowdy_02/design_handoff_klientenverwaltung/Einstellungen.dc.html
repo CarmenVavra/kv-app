@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb { background:#ddd0bf; border-radius:8px; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+  input[type=checkbox] { accent-color:#b5651d; }
+  @media (max-width:860px) {
+    [data-sidebar] { display:none; }
+    [data-bottomnav] { display:flex; }
+    body { padding-bottom:66px; }
+  }
+</style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; background:#f4ede4; color:#3a2f27;">
+
+  <aside data-sidebar style="width:220px; flex-shrink:0; background:#fffaf3; border-right:1px solid #e7dcc9; display:flex; flex-direction:column; padding:28px 18px; gap:28px;">
+    <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+      <div style="width:38px; height:38px; border-radius:12px; background:#b5651d; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:16px; height:16px; border-radius:50%; background:#f4ede4;"></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:16.5px; line-height:1.25; letter-spacing:0.01em;">Mein Hund<br/><span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+    </div>
+
+    <nav style="display:flex; flex-direction:column; gap:4px;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="5">
+        <a href="{{ item.href }}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; text-decoration:none; color:inherit; background:{{ item.active }};" style-hover="background:#f4ede4;">
+          <div style="width:20px; height:20px; border-radius:6px; flex-shrink:0;">{{ item.icon }}</div>
+          <span>{{ item.label }}</span>
+          <sc-if value="{{ item.badge }}">
+            <span style="margin-left:auto; background:#e0793c; color:#fff; font-size:11px; font-weight:800; padding:2px 7px; border-radius:20px;">{{ item.badge }}</span>
+          </sc-if>
+        </a>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; background:#f4ede4; border-radius:12px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:#6b8e5a; flex-shrink:0;"></div>
+      <div style="font-size:13px; line-height:1.3;">
+        <div style="font-weight:700;">Lena Brandt</div>
+        <div style="color:#8a7b6a;">Hundeverhaltensberaterin</div>
+      </div>
+    </div>
+  </aside>
+
+  <nav data-bottomnav style="display:none; position:fixed; bottom:0; left:0; right:0; background:#fffaf3; border-top:1px solid #e7dcc9; padding:6px 2px; align-items:center; justify-content:space-around; z-index:20;">
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+      <a href="{{ item.href }}" style="display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; color:#3a2f27; font-size:10px; font-weight:700; padding:6px 8px; position:relative;">
+        <div style="font-size:19px;">{{ item.icon }}</div>
+        <span>{{ item.label }}</span>
+        <sc-if value="{{ item.badge }}">
+          <span style="position:absolute; top:0; right:0; background:#e0793c; color:#fff; font-size:9px; font-weight:800; padding:1px 4px; border-radius:20px;">{{ item.badge }}</span>
+        </sc-if>
+      </a>
+    </sc-for>
+  </nav>
+
+  <main style="flex:1; padding:32px 40px; display:flex; flex-direction:column; gap:28px; min-width:0; max-width:820px;">
+
+    <header>
+      <div style="font-family:'Fraunces',serif; font-size:26px; font-weight:600;">Einstellungen</div>
+      <div style="color:#8a7b6a; font-size:14px; margin-top:4px;">Profil, Praxis und Benachrichtigungen verwalten</div>
+    </header>
+
+    <!-- Profile -->
+    <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:24px 26px; display:flex; flex-direction:column; gap:18px;">
+      <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Profil</div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="width:64px; height:64px; border-radius:50%; background:#6b8e5a; flex-shrink:0;"></div>
+        <button style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:9px 16px; font-weight:700; font-size:13px; cursor:pointer;">Foto ändern</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <sc-for list="{{ profileFields }}" as="f" hint-placeholder-count="4">
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a; min-width:0;">
+            {{ f.label }}
+            <input value="{{ f.value }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:#3a2f27; font-weight:400;" />
+          </label>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:24px 26px; display:flex; flex-direction:column; gap:16px;">
+      <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Benachrichtigungen</div>
+      <sc-for list="{{ notifications }}" as="n" hint-placeholder-count="4">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid #e7dcc9;">
+          <div>
+            <div style="font-weight:700; font-size:14px;">{{ n.label }}</div>
+            <div style="color:#8a7b6a; font-size:12.5px; margin-top:2px;">{{ n.desc }}</div>
+          </div>
+          <label style="position:relative; width:44px; height:26px; flex-shrink:0; display:inline-block;">
+            <input type="checkbox" checked="{{ n.on }}" style="opacity:0; width:0; height:0;" />
+            <span style="position:absolute; inset:0; background:{{ n.trackColor }}; border-radius:20px; transition:0.2s;"></span>
+            <span style="position:absolute; top:3px; left:{{ n.thumbLeft }}; width:20px; height:20px; background:#fff; border-radius:50%; transition:0.2s;"></span>
+          </label>
+        </div>
+      </sc-for>
+    </section>
+
+    <!-- Calendar sync -->
+    <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:24px 26px; display:flex; flex-direction:column; gap:16px;">
+      <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Kalender &amp; Verfügbarkeit</div>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">
+        Standard-Termindauer
+        <select style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:#3a2f27; font-weight:400; max-width:220px;">
+          <option>30 Minuten</option>
+          <option selected>60 Minuten</option>
+          <option>90 Minuten</option>
+        </select>
+      </label>
+      <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">
+        Arbeitstage
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <sc-for list="{{ weekdays }}" as="d" hint-placeholder-count="7">
+            <div style="width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; background:{{ d.bg }}; color:{{ d.color }}; cursor:pointer;">{{ d.label }}</div>
+          </sc-for>
+        </div>
+      </label>
+    </section>
+
+    <div style="display:flex; gap:12px; justify-content:flex-end;">
+      <button style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+      <button style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer;" style-hover="background:#96521a;">Änderungen speichern</button>
+    </div>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      navItems: [
+        { label: 'Dashboard', icon: '📊', badge: null, href: 'Dashboard.dc.html', active: 'transparent' },
+        { label: 'Kalender', icon: '📅', badge: null, href: 'Kalender.dc.html', active: 'transparent' },
+        { label: 'Nachrichten', icon: '💬', badge: '3', href: 'Nachrichten.dc.html', active: 'transparent' },
+        { label: 'Klienten', icon: '🐾', badge: null, href: 'Klienten.dc.html', active: 'transparent' },
+        { label: 'Buchhaltung', icon: '🧾', badge: null, href: 'Buchhaltung.dc.html', active: 'transparent' },
+        { label: 'Einstellungen', icon: '⚙️', badge: null, href: 'Einstellungen.dc.html', active: '#f4ede4' },
+      ],
+      profileFields: [
+        { label: 'Name', value: 'Lena Brandt' },
+        { label: 'E-Mail', value: 'lena@meinhundderrowdy.de' },
+        { label: 'Telefon', value: '+49 176 1234567' },
+        { label: 'Praxisname', value: 'Mein Hund der Rowdy' },
+      ],
+      notifications: [
+        { label: 'Neue Nachrichten', desc: 'E-Mail bei neuer Klientennachricht', on: true, trackColor: '#b5651d', thumbLeft: '21px' },
+        { label: 'Terminerinnerungen', desc: '1 Stunde vor jedem Termin', on: true, trackColor: '#b5651d', thumbLeft: '21px' },
+        { label: 'Neue Anfragen', desc: 'Bei neuer Erstanfrage benachrichtigen', on: true, trackColor: '#b5651d', thumbLeft: '21px' },
+        { label: 'Wöchentliche Zusammenfassung', desc: 'Übersicht jeden Montagmorgen', on: false, trackColor: '#e7dcc9', thumbLeft: '3px' },
+      ],
+      weekdays: [
+        { label: 'Mo', bg: '#f4ede4', color: '#8a7b6a' },
+        { label: 'Di', bg: '#f4ede4', color: '#8a7b6a' },
+        { label: 'Mi', bg: '#f4ede4', color: '#8a7b6a' },
+        { label: 'Do', bg: '#f4ede4', color: '#8a7b6a' },
+        { label: 'Fr', bg: '#b5651d', color: '#fff' },
+        { label: 'Sa', bg: '#b5651d', color: '#fff' },
+        { label: 'So', bg: '#b5651d', color: '#fff' },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

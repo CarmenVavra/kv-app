@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb { background:#ddd0bf; border-radius:8px; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+  @media (max-width:860px) {
+    [data-sidebar] { display:none; }
+    [data-bottomnav] { display:flex; }
+    body { padding-bottom:66px; }
+  }
+</style>
+</helmet>
+
+<div style="display:flex; min-height:100vh; background:#f4ede4; color:#3a2f27;">
+
+  <aside data-sidebar style="width:220px; flex-shrink:0; background:#fffaf3; border-right:1px solid #e7dcc9; display:flex; flex-direction:column; padding:28px 18px; gap:28px;">
+    <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+      <div style="width:38px; height:38px; border-radius:12px; background:#b5651d; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:16px; height:16px; border-radius:50%; background:#f4ede4;"></div>
+      </div>
+      <div style="font-family:'Fraunces',serif; font-weight:600; font-size:18px; line-height:1.28; letter-spacing:0.01em;">Mein Hund<br/><span style="color:#b5651d; font-style:italic; font-size:19.5px; white-space:nowrap;">der Rowdy</span></div>
+    </div>
+
+    <nav style="display:flex; flex-direction:column; gap:4px;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+        <a href="{{ item.href }}" style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer; text-decoration:none; color:inherit; background:{{ item.active }};" style-hover="background:#f4ede4;">
+          <div style="width:20px; height:20px; border-radius:6px; flex-shrink:0;">{{ item.icon }}</div>
+          <span>{{ item.label }}</span>
+          <sc-if value="{{ item.badge }}">
+            <span style="margin-left:auto; background:#e0793c; color:#fff; font-size:11px; font-weight:800; padding:2px 7px; border-radius:20px;">{{ item.badge }}</span>
+          </sc-if>
+        </a>
+      </sc-for>
+    </nav>
+
+    <div style="margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; background:#f4ede4; border-radius:12px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:#6b8e5a; flex-shrink:0;"></div>
+      <div style="font-size:13px; line-height:1.3;">
+        <div style="font-weight:700;">Lena Brandt</div>
+        <div style="color:#8a7b6a;">Hundeverhaltensberaterin</div>
+      </div>
+    </div>
+  </aside>
+
+  <nav data-bottomnav style="display:none; position:fixed; bottom:0; left:0; right:0; background:#fffaf3; border-top:1px solid #e7dcc9; padding:6px 2px; align-items:center; justify-content:space-around; z-index:20;">
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="6">
+      <a href="{{ item.href }}" style="display:flex; flex-direction:column; align-items:center; gap:2px; text-decoration:none; color:#3a2f27; font-size:10px; font-weight:700; padding:6px 8px; position:relative;">
+        <div style="font-size:19px;">{{ item.icon }}</div>
+        <span>{{ item.label }}</span>
+        <sc-if value="{{ item.badge }}">
+          <span style="position:absolute; top:0; right:0; background:#e0793c; color:#fff; font-size:9px; font-weight:800; padding:1px 4px; border-radius:20px;">{{ item.badge }}</span>
+        </sc-if>
+      </a>
+    </sc-for>
+  </nav>
+
+  <main style="flex:1; padding:32px 40px; display:flex; flex-direction:column; gap:24px; min-width:0;">
+
+    <a href="Klienten.dc.html" style="text-decoration:none; font-weight:700; font-size:13.5px; width:fit-content;">← Zurück zu Klienten</a>
+
+    <!-- Profile header -->
+    <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:24px 26px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+      <div style="width:68px; height:68px; border-radius:20px; background:#b5651d; flex-shrink:0;"></div>
+      <div style="flex:1; min-width:220px;">
+        <div style="font-family:'Fraunces',serif; font-size:22px; font-weight:600;">Rocky</div>
+        <div style="color:#8a7b6a; font-size:14px; margin-top:2px;">Mischling, 3 Jahre · Halterin: Maria Weber</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+          <sc-for list="{{ tags }}" as="t" hint-placeholder-count="2">
+            <span style="background:#f4ede4; font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:20px; color:#6b5a45;">{{ t }}</span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <a href="Nachrichten.dc.html" style="text-decoration:none; border:1px solid #e7dcc9; background:#fff; color:#3a2f27; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; white-space:nowrap;" style-hover="background:#f4ede4;">Nachricht senden</a>
+        <a href="Kalender.dc.html" style="text-decoration:none; background:#b5651d; color:#fff; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; white-space:nowrap;" style-hover="background:#96521a;">Termin buchen</a>
+        <button onClick="{{ openEdit }}" style="border:1px solid #e7dcc9; background:#fff; color:#3a2f27; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;" style-hover="background:#f4ede4;">Bearbeiten</button>
+        <button onClick="{{ openDelete }}" style="border:1px solid #e7dcc9; background:#fff; color:#b3402a; border-radius:10px; padding:11px 18px; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;" style-hover="background:#fbe4e0;">Löschen</button>
+      </div>
+    </section>
+
+    <sc-if value="{{ showEdit }}">
+      <div style="position:fixed; inset:0; background:rgba(58,47,39,0.35); display:flex; align-items:center; justify-content:center; z-index:10;" onClick="{{ closeEdit }}">
+        <div style="background:#fffaf3; border-radius:20px; padding:28px; width:440px; max-width:90vw; max-height:85vh; overflow-y:auto; display:flex; flex-direction:column; gap:14px;" onClick="{{ stopClick }}">
+          <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">Klient bearbeiten</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Hundename
+              <input value="Rocky" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Rasse
+              <input value="Mischling" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+            </label>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Alter
+            <input value="3 Jahre" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; max-width:140px;" />
+          </label>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Halter/in
+            <input value="Maria Weber" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+          </label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">E-Mail
+              <input value="maria.weber@beispiel.de" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+            </label>
+            <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Telefon
+              <input value="+49 152 3344556" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit;" />
+            </label>
+          </div>
+          <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:700; color:#8a7b6a;">Verhaltensthema
+            <select style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:#3a2f27;">
+              <option selected>Leinenaggression</option>
+              <option>Stress</option>
+              <option>Mantrailing</option>
+              <option>Impulskontrolle</option>
+              <option>Welpentraining</option>
+              <option>Sonstiges</option>
+            </select>
+          </label>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+            <button onClick="{{ closeEdit }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+            <button onClick="{{ closeEdit }}" style="background:#b5651d; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Speichern</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showDelete }}">
+      <div style="position:fixed; inset:0; background:rgba(58,47,39,0.35); display:flex; align-items:center; justify-content:center; z-index:10;" onClick="{{ closeDelete }}">
+        <div style="background:#fffaf3; border-radius:20px; padding:28px; width:400px; max-width:90vw; display:flex; flex-direction:column; gap:14px;" onClick="{{ stopClick }}">
+          <div style="font-family:'Fraunces',serif; font-size:19px; font-weight:600;">Klient löschen?</div>
+          <div style="color:#6b5a45; font-size:14px; line-height:1.6;">Rocky (Maria Weber) wird inklusive Trainingsverlauf, Notizen und Terminhistorie dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+            <button onClick="{{ closeDelete }}" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; cursor:pointer;">Abbrechen</button>
+            <a href="Klienten.dc.html" style="text-decoration:none; background:#b3402a; color:#fff; border-radius:10px; padding:10px 18px; font-weight:700; font-size:14px; display:inline-flex; align-items:center;">Endgültig löschen</a>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:24px; align-items:start; min-width:0;">
+
+      <!-- Session history -->
+      <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:24px 26px; display:flex; flex-direction:column; gap:16px; min-width:0;">
+        <div style="font-family:'Fraunces',serif; font-size:18px; font-weight:600;">Trainingsverlauf</div>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex; gap:16px; padding:14px 0; border-top:1px solid #e7dcc9;">
+              <div style="width:70px; flex-shrink:0; color:#8a7b6a; font-size:12.5px; font-weight:700; padding-top:2px;">{{ s.date }}</div>
+              <div style="width:10px; flex-shrink:0; display:flex; justify-content:center; padding-top:5px;">
+                <div style="width:9px; height:9px; border-radius:50%; background:{{ s.color }};"></div>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:700; font-size:14px;">{{ s.title }}</div>
+                <div style="color:#6b5a45; font-size:13.5px; line-height:1.5; margin-top:3px;">{{ s.note }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <!-- Side info -->
+      <div style="display:flex; flex-direction:column; gap:24px; min-width:0;">
+        <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:22px 24px; display:flex; flex-direction:column; gap:12px;">
+          <div style="font-family:'Fraunces',serif; font-size:17px; font-weight:600;">Kontakt</div>
+          <div style="font-size:13.5px; color:#6b5a45; display:flex; flex-direction:column; gap:6px;">
+            <div>📧 maria.weber@beispiel.de</div>
+            <div>📞 +49 152 3344556</div>
+            <div>📍 Berlin-Kreuzberg</div>
+          </div>
+        </section>
+
+        <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:22px 24px; display:flex; flex-direction:column; gap:12px;">
+          <div style="font-family:'Fraunces',serif; font-size:17px; font-weight:600;">Nächster Termin</div>
+          <div style="background:#f4ede4; border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:4px;">
+            <div style="font-weight:800; font-size:14px;">Mo, 21. Juli · 11:00</div>
+            <div style="color:#8a7b6a; font-size:13px;">Folgetermin — Leinentraining</div>
+          </div>
+        </section>
+
+        <section style="background:#fffaf3; border:1px solid #e7dcc9; border-radius:18px; padding:22px 24px; display:flex; flex-direction:column; gap:10px;">
+          <div style="font-family:'Fraunces',serif; font-size:17px; font-weight:600;">Notizen</div>
+          <textarea rows="5" style="border:1px solid #e7dcc9; background:#fff; border-radius:10px; padding:12px; font-size:13.5px; font-family:inherit; resize:vertical; color:#3a2f27;">Reagiert stark auf andere Hunde ab ca. 10m Entfernung. Übungen zur Impulskontrolle zeigen erste Wirkung. Weiter an Aufmerksamkeit auf Halterin arbeiten.</textarea>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { showEdit: false, showDelete: false };
+  renderVals() {
+    return {
+      showEdit: this.state.showEdit,
+      showDelete: this.state.showDelete,
+      openEdit: () => this.setState({ showEdit: true }),
+      closeEdit: () => this.setState({ showEdit: false }),
+      openDelete: () => this.setState({ showDelete: true }),
+      closeDelete: () => this.setState({ showDelete: false }),
+      stopClick: (e) => e.stopPropagation(),
+      navItems: [
+        { label: 'Dashboard', icon: '📊', badge: null, href: 'Dashboard.dc.html', active: 'transparent' },
+        { label: 'Kalender', icon: '📅', badge: null, href: 'Kalender.dc.html', active: 'transparent' },
+        { label: 'Nachrichten', icon: '💬', badge: '3', href: 'Nachrichten.dc.html', active: 'transparent' },
+        { label: 'Klienten', icon: '🐾', badge: null, href: 'Klienten.dc.html', active: '#f4ede4' },
+        { label: 'Buchhaltung', icon: '🧾', badge: null, href: 'Buchhaltung.dc.html', active: 'transparent' },
+        { label: 'Einstellungen', icon: '⚙️', badge: null, href: 'Einstellungen.dc.html', active: 'transparent' },
+      ],
+      tags: ['Leinenaggression', '6 Sitzungen'],
+      sessions: [
+        { date: '15. Juli', title: 'Folgetermin — Leinentraining', note: 'Deutlich ruhigeres Verhalten bei Begegnungen ab 8m. Weiter mit Distanztraining.', color: '#b5651d' },
+        { date: '01. Juli', title: 'Folgetermin', note: 'Übung zur Impulskontrolle eingeführt. Rocky reagiert gut auf Rückruf.', color: '#6b8e5a' },
+        { date: '17. Juni', title: 'Hausbesuch', note: 'Umfeld analysiert, Trigger identifiziert: andere Hunde an der Leine.', color: '#e0793c' },
+        { date: '03. Juni', title: 'Erstberatung', note: 'Ausführliches Anamnesegespräch, Trainingsplan erstellt.', color: '#8a7b6a' },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

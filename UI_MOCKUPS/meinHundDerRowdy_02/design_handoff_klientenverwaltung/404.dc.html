@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f4ede4; font-family:'Nunito Sans',sans-serif; color:#3a2f27; }
+  a { color:#b5651d; }
+  a:hover { color:#8f4f16; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; text-align:center; gap:24px;">
+
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div style="width:38px; height:38px; border-radius:12px; background:#b5651d; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <div style="width:16px; height:16px; border-radius:50%; background:#f4ede4;"></div>
+    </div>
+    <div style="font-family:'Fraunces',serif; font-weight:600; font-size:17px; letter-spacing:0.01em;">Mein Hund <span style="color:#b5651d; font-style:italic;">der Rowdy</span></div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
+    <div style="font-family:'Fraunces',serif; font-size:96px; font-weight:600; color:#b5651d; line-height:1; letter-spacing:-0.02em;">404</div>
+    <div style="font-family:'Fraunces',serif; font-size:24px; font-weight:600;">Diese Fährte verliert sich…</div>
+    <p style="color:#6b5a45; font-size:15px; line-height:1.6; margin:0; max-width:380px;">Die gesuchte Seite existiert nicht oder wurde verschoben. Schnüffel woanders weiter.</p>
+  </div>
+
+  <div style="display:flex; gap:14px; flex-wrap:wrap; justify-content:center;">
+    <a href="Dashboard.dc.html" style="text-decoration:none; background:#b5651d; color:#fff; padding:13px 24px; border-radius:12px; font-weight:700; font-size:14.5px;" style-hover="background:#96521a;">Zum Dashboard</a>
+    <a href="Landingpage.dc.html" style="text-decoration:none; background:#fffaf3; border:1px solid #e7dcc9; color:#3a2f27; padding:13px 24px; border-radius:12px; font-weight:700; font-size:14.5px;" style-hover="background:#f4ede4;">Zur Website</a>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>
