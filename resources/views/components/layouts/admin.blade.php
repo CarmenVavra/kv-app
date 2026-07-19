@@ -7,6 +7,7 @@
         ['label' => 'Buchhaltung', 'route' => 'admin.accounting.index', 'icon' => 'receipt'],
         ['label' => 'Einstellungen', 'route' => 'admin.settings.index', 'icon' => 'settings'],
     ];
+    $setting = \App\Models\Setting::current();
 @endphp
 <!DOCTYPE html>
 <html lang="de">
@@ -48,9 +49,13 @@
             </nav>
 
             <div class="mt-auto flex items-center gap-2.5 p-3 bg-bg rounded-xl">
-                <span class="w-[34px] h-[34px] rounded-full bg-secondary flex-shrink-0" aria-hidden="true"></span>
+                @if ($setting->avatar_path)
+                    <img src="{{ Storage::disk('public')->url($setting->avatar_path) }}" alt="" class="w-[34px] h-[34px] rounded-full flex-shrink-0 object-cover" aria-hidden="true">
+                @else
+                    <span class="w-[34px] h-[34px] rounded-full bg-secondary flex-shrink-0" aria-hidden="true"></span>
+                @endif
                 <div class="text-[13px] leading-tight">
-                    <div class="font-bold">{{ auth()->user()?->name }}</div>
+                    <div class="font-bold">{{ $setting->name }}</div>
                     <div class="text-text-muted">Hundeverhaltensberaterin</div>
                 </div>
             </div>

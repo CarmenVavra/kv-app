@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InquiryController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function (): void {
@@ -55,5 +56,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
         Route::post('/fahrtkosten', [MileageController::class, 'store'])->name('mileage.store');
     });
 
-    Route::view('/einstellungen', 'admin.settings.index')->name('settings.index');
+    Route::get('/einstellungen', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/einstellungen', [SettingsController::class, 'update'])->name('settings.update');
 });

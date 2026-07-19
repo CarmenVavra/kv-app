@@ -1,7 +1,10 @@
 <?php
 
 use App\Enums\InquiryStatus;
+use App\Mail\NewInquiryNotification;
 use App\Models\Inquiry;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Mail;
 
 it('creates an inquiry from the contact form', function () {
     $this->post(route('contact.store'), [
@@ -37,4 +40,32 @@ it('rejects an incomplete contact form and redirects back to the kontakt anchor'
         ->assertSessionHasErrors(['name', 'email', 'dog_name', 'message']);
 
     expect(Inquiry::count())->toBe(0);
+});
+
+it('notifies the admin by mail when notify_new_inquiries is enabled', function () {
+    Mail::fake();
+    Setting::current()->update(['notify_new_inquiries' => true, 'email' => 'carmen@gregor.at']);
+
+    $this->post(route('contact.store'), [
+        'name' => 'Maria Weber',
+        'email' => 'maria@beispiel.at',
+        'dog_name' => 'Rocky',
+        'message' => 'Rocky reagiert stark auf andere Hunde an der Leine.',
+    ]);
+
+    Mail::assertQueued(NewInquiryNotification::class, fn ($mail) => $mail->hasTo('carmen@gregor.at'));
+});
+
+it('does not notify the admin when notify_new_inquiries is disabled', function () {
+    Mail::fake();
+    Setting::current()->update(['notify_new_inquiries' => false, 'email' => 'carmen@gregor.at']);
+
+    $this->post(route('contact.store'), [
+        'name' => 'Maria Weber',
+        'email' => 'maria@beispiel.at',
+        'dog_name' => 'Rocky',
+        'message' => 'Rocky reagiert stark auf andere Hunde an der Leine.',
+    ]);
+
+    Mail::assertNotQueued(NewInquiryNotification::class);
 });

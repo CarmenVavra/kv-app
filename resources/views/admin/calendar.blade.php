@@ -115,7 +115,7 @@
                     Dauer
                     <select name="duration_minutes" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
                         @foreach ([30, 45, 60, 90] as $minutes)
-                            <option value="{{ $minutes }}" @selected((int) old('duration_minutes', 60) === $minutes)>{{ $minutes }} Minuten</option>
+                            <option value="{{ $minutes }}" @selected((int) old('duration_minutes', $defaultAppointmentDuration) === $minutes)>{{ $minutes }} Minuten</option>
                         @endforeach
                     </select>
                 </label>

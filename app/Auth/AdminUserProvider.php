@@ -2,6 +2,7 @@
 
 namespace App\Auth;
 
+use App\Models\Setting;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Cache;
@@ -20,7 +21,7 @@ class AdminUserProvider implements UserProvider
     {
         return new AdminUser(
             email: (string) config('admin.email'),
-            name: 'Carmen',
+            name: Setting::current()->name,
             passwordHash: (string) config('admin.password_hash'),
         );
     }

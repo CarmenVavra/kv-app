@@ -2,6 +2,7 @@
 
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Setting;
 use Illuminate\Auth\Middleware\Authenticate;
 
 it('shows the month grid and the selected day agenda', function () {
@@ -41,6 +42,15 @@ it('creates an appointment', function () {
     $appointment = Appointment::sole();
     expect($appointment->client_id)->toBe($client->id)
         ->and($appointment->status->value)->toBe('bestaetigt');
+});
+
+it('preselects the default appointment duration from the settings', function () {
+    Setting::current()->update(['default_appointment_duration' => 90]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->get(route('admin.calendar'))
+        ->assertOk()
+        ->assertSee('<option value="90" selected>90 Minuten</option>', false);
 });
 
 it('rejects an appointment for a client that does not exist', function () {

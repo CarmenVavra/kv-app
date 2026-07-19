@@ -199,6 +199,49 @@ handler for any `NotFoundHttpException`, independent of `APP_DEBUG` — `Handler
 404 renders in local dev too, not just in production. 403/500 custom pages are left for M8 (Politur) per the
 plan's milestone split.
 
+### Einstellungen (M7): `Setting` is a singleton, every toggle drives something real
+
+`App\Models\Setting::current()` (`firstOrCreate([], [...])`) is the one place that reads/writes the single
+settings row — no `Setting::first()` scattered around that would return `null` on a brand-new install. **All
+defaults are listed explicitly in `current()`'s create-array, not left to the migration's column defaults** —
+hit this the hard way while building it: Eloquent does not reload DB-applied column defaults into the model
+instance after `create()`, so a freshly-created row's `notify_appointment_reminders`/`working_days`/etc. were
+`null` in memory immediately afterward (even though the DB row itself had the correct default), which silently
+made `SendAppointmentReminders` skip every reminder right after the first-ever settings read. The migration
+keeps its column defaults too (harmless belt-and-suspenders for any row created outside `current()`), but
+`current()`'s explicit values are what actually matters.
+
+**Every notification toggle on the page is wired to a real feature, not a placeholder switch**:
+- *Terminerinnerungen* gates the existing M3 `appointments:send-reminders` command (checked at the top of
+  `SendAppointmentReminders::handle()`, before it queries any appointments).
+- *Neue Anfragen* gates a new `App\Mail\NewInquiryNotification`, sent from `ContactController` right after
+  creating the `Inquiry`, only if the toggle is on **and** `Setting.email` is set (no admin email on file ⇒ no
+  notification, same "don't send into the void" logic as the M5 dunning email guard).
+- *Wöchentliche Zusammenfassung* is a new `reports:weekly-summary` command (`App\Console\Commands\
+  SendWeeklySummary`, scheduled Mondays 07:00 in `routes/console.php`) + `App\Mail\WeeklySummaryMail`, a small
+  digest (appointments in the next 7 days, inquiries in the last 7 days, open-invoices count/sum) reusing the
+  same stat shapes as the Dashboard/Buchhaltung tiles rather than a new reporting service. Guarded the same
+  way as the other two.
+
+The mockup's 4th toggle, *Neue Nachrichten* ("E-Mail bei neuer Klientennachricht"), was dropped — it's about
+the Nachrichten/chat feature that was cut from scope back in M1, so there's nothing for it to notify about.
+
+**`default_appointment_duration` actually changes the Kalender "+ Neuer Termin" form's preselected duration**
+(`AppointmentController::index()` now passes it in; `calendar.blade.php`'s duration `<select>` reads it via
+`old('duration_minutes', $defaultAppointmentDuration)` instead of a hardcoded `60`) — a settings field with no
+observable effect anywhere else in the app would fail the same "no dead toggles" bar as the notification ones.
+**`working_days` is stored and shown as toggle-chips (matching the mockup's Fr/Sa/So-highlighted default) but
+is not enforced anywhere** — M3's Kalender doesn't gray out non-working days, and retrofitting that wasn't part
+of this milestone's scope; the field exists for future use, not silently ignored data.
+
+**The admin's display name has one source of truth now**: `App\Auth\AdminUserProvider::user()` builds the
+`AdminUser` with `name: Setting::current()->name`, and the sidebar/dashboard greeting read the same
+`Setting::current()->name` — rename yourself in Einstellungen and the login/dashboard name updates everywhere
+immediately, instead of a hardcoded string in the auth layer that Einstellungen couldn't actually change.
+Avatar photos upload to the `public` disk (`avatars/…`, same low-sensitivity precedent as M4's expense
+receipts — no client data in a profile photo) and render in the sidebar when set, falling back to the plain
+color circle otherwise.
+
 ### Custom multi-column grid layouts: always `minmax(0, Nfr)` + a stacking breakpoint
 
 Every custom two-column layout in this app (Kalender's month-grid+agenda, Klientenprofil's

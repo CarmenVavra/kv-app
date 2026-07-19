@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -50,6 +51,7 @@ class AppointmentController extends Controller
             'agenda' => $agenda,
             'clients' => Client::query()->orderBy('dog_name')->get(),
             'preselectedClientId' => $request->query('klient'),
+            'defaultAppointmentDuration' => Setting::current()->default_appointment_duration,
         ]);
     }
 

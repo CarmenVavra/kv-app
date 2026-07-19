@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('appointments:send-reminders')->everyFifteenMinutes();
 Schedule::command('invoices:generate-recurring')->daily();
+Schedule::command('reports:weekly-summary')->weeklyOn(1, '07:00');

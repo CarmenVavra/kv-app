@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Mail\AppointmentReminderMail;
 use App\Models\Appointment;
+use App\Models\Setting;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -28,6 +29,12 @@ class SendAppointmentReminders extends Command
      */
     public function handle(): void
     {
+        if (! Setting::current()->notify_appointment_reminders) {
+            $this->info('Terminerinnerungen sind in den Einstellungen deaktiviert.');
+
+            return;
+        }
+
         $appointments = Appointment::query()
             ->whereNull('reminder_sent_at')
             ->whereBetween('starts_at', [now(), now()->addHour()])
