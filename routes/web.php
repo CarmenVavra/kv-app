@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'public.landing')->name('landing');
 Route::view('/preise', 'public.pricing')->name('pricing');
+Route::view('/meine-geschichte', 'public.story')->name('story');
 Route::post('/kontakt', ContactController::class)->name('contact.store');
 
 Route::view('/impressum', 'legal.impressum')->name('legal.impressum');
