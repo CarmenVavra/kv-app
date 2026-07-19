@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Storage;
 // fehlen Session/CSRF/$errors, die die View braucht.
 
 it('shows the settings page with the current values', function () {
-    Setting::current()->update(['name' => 'Carmen Brandt', 'praxisname' => 'Mein Hund der Rowdy']);
+    Setting::current()->update(['name' => 'Carmen Gregor', 'praxisname' => 'Mein Hund der Rowdy']);
 
     $this->withoutMiddleware(Authenticate::class)
         ->get(route('admin.settings.index'))
         ->assertOk()
-        ->assertSee('Carmen Brandt')
+        ->assertSee('Carmen Gregor')
         ->assertSee('Mein Hund der Rowdy');
 });
 

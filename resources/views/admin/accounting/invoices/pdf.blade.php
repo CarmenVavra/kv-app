@@ -26,7 +26,7 @@
             <td>
                 <div class="brand">Mein Hund <em>der Rowdy</em></div>
                 {{-- Absenderadresse ist bis zum Setting-Model (M7) fest hinterlegt --}}
-                <div class="muted">Carmen Brandt<br>Musterstraße 12<br>1010 Wien</div>
+                <div class="muted">Carmen Gregor<br>Musterstraße 12<br>1010 Wien</div>
             </td>
             <td class="text-right muted">
                 <div style="font-weight: bold; color: #3a2f27; font-size: 13px;">Rechnung {{ $invoice->number }}</div>

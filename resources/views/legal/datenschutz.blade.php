@@ -1,6 +1,6 @@
 @php
     $sections = [
-        ['title' => '1. Verantwortlicher', 'body' => 'Verantwortlich für die Datenverarbeitung ist Carmen Brandt, Mein Hund der Rowdy, Musterstraße 12, 1010 Wien, lena@meinhundderrowdy.at.'],
+        ['title' => '1. Verantwortlicher', 'body' => 'Verantwortlich für die Datenverarbeitung ist Carmen Gregor, Mein Hund der Rowdy, Musterstraße 12, 1010 Wien, carmen@mhdr.at.'],
         ['title' => '2. Erhebung und Speicherung personenbezogener Daten', 'body' => 'Beim Ausfüllen des Kontaktformulars erheben wir Name, E-Mail-Adresse und den Namen deines Hundes, um dein Anliegen zu bearbeiten und ein Erstgespräch zu vereinbaren. Als Klient:in speichern wir zusätzlich Kontaktdaten, Termine, Nachrichten sowie Notizen zu Trainingsverlauf und Verhalten deines Hundes zur Durchführung der Beratung.'],
         ['title' => '3. Zweck der Verarbeitung', 'body' => 'Die Daten werden ausschließlich zur Terminorganisation, Kommunikation und Dokumentation des Beratungsverlaufs verwendet.'],
         ['title' => '4. Rechtsgrundlage', 'body' => 'Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen) sowie Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer geordneten Praxisorganisation).'],

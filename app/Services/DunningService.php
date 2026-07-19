@@ -81,7 +81,7 @@ class DunningService
                 Falls die Zahlung bereits erfolgt ist, betrachten Sie diese Nachricht als gegenstandslos.
 
                 Liebe Grüße
-                Carmen Brandt
+                Carmen Gregor
                 TEXT,
             DunningLevel::Mahnung1 => <<<TEXT
                 Guten Tag {$name},
@@ -91,7 +91,7 @@ class DunningService
                 Ich bitte um Zahlung innerhalb von 7 Tagen.
 
                 Liebe Grüße
-                Carmen Brandt
+                Carmen Gregor
                 TEXT,
             DunningLevel::Mahnung2 => <<<TEXT
                 Guten Tag {$name},
@@ -101,7 +101,7 @@ class DunningService
                 Ich bitte um Zahlung innerhalb von 7 Tagen. Andernfalls sind wir berechtigt, gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie einen pauschalen Betreibungsschaden von 40 € zu verrechnen.
 
                 Liebe Grüße
-                Carmen Brandt
+                Carmen Gregor
                 TEXT,
         };
     }
