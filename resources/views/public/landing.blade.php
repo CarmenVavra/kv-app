@@ -87,6 +87,27 @@
         </div>
     </section>
 
+    {{-- Trainingsansatz --}}
+    <section id="trainingsansatz" class="mx-auto max-w-6xl px-6 lg:px-14 py-18">
+        <div class="text-center max-w-xl mx-auto mb-11">
+            <h2 class="font-serif text-[32px] font-semibold">Mein Trainingsansatz</h2>
+        </div>
+        <div class="grid gap-5.5" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+            <div class="bg-card border border-border rounded-card p-6.5 flex flex-col gap-3">
+                <div class="font-serif font-semibold text-[17px]">Ursachen statt Symptome</div>
+                <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Wir deckeln das Bellen nicht durch Schreckreize, sondern verändern die grundlegende Emotion deines Hundes gegenüber Artgenossen.</div>
+            </div>
+            <div class="bg-card border border-border rounded-card p-6.5 flex flex-col gap-3">
+                <div class="font-serif font-semibold text-[17px]">100% Gewaltfrei</div>
+                <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Kein Leinenruck, kein Alphawurf, kein Anschreien. Wir arbeiten auf Basis von Vertrauen, Belohnung und fairer Orientierung am Halter.</div>
+            </div>
+            <div class="bg-card border border-border rounded-card p-6.5 flex flex-col gap-3">
+                <div class="font-serif font-semibold text-[17px]">Wissenschaftlich fundiert</div>
+                <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Modernes Verhaltenstraining nach neuesten kynologischen Erkenntnissen. Ich weiß durch meine Ausbildungen exakt, was im Gehirn deines Hundes vorgeht.</div>
+            </div>
+        </div>
+    </section>
+
     {{-- Über mich --}}
     <section id="ueber-mich" class="mx-auto max-w-6xl px-6 lg:px-14 py-18 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-10 lg:gap-14 items-center">
         <img
@@ -96,10 +117,10 @@
         >
         <div class="flex flex-col gap-4 min-w-0">
             <div class="font-extrabold text-[13px] text-secondary uppercase tracking-wide">Über mich</div>
-            <h2 class="font-serif text-[30px] font-semibold">Hallo, ich bin Carmen.</h2>
+            <h2 class="font-serif text-[30px] font-semibold">Vom Albtraum zum Vertrauen</h2>
             <p class="text-[color:var(--color-text-muted-2)] text-[15.5px] leading-relaxed">
-                Seit über zehn Jahren begleite ich Hunde und ihre Menschen durch schwierige Verhaltensthemen — von akuter Leinenaggression bis zu tief verwurzelten Ängsten. Meine Arbeit basiert auf wissenschaftlich fundierter, gewaltfreier Methodik und einem ehrlichen Blick auf das, was für euren Hund wirklich funktioniert.
-            </p>
+                Ich stand vor Jahren genau am selben Punkt wie du. Ein schlecht informierter Züchter und eine gewalttätige Hundeschule machten meinen Hund zu einem nervösen Bündel, das alles anbellte. Erst als ich selbst 30.000 Euro in meine fundierte Ausbildung investierte, verstand ich die Sprache meines Hundes wirklich. Heute gehen wir entspannt spazieren, weil er mir vertraut.
+             </p>
             <div class="flex gap-2.5 flex-wrap mt-1.5">
                 <span class="bg-card border border-border text-[13px] font-bold px-3.5 py-2 rounded-chip">Zert. Hundeverhaltensberaterin</span>
                 <span class="bg-card border border-border text-[13px] font-bold px-3.5 py-2 rounded-chip">Fortbildung Lerntheorie</span>
