@@ -289,6 +289,27 @@ guard name needed — `config/auth.php`'s `defaults.guard` stays `'web'`, now ba
 Logout is a `POST` (CSRF-protected), not the old `GET /logout` — the admin sidebar's "Abmelden" is a small
 inline form, matching how other state-changing admin actions in this app already work.
 
+**2026-07-19 bugfix — `sessions.user_id` must be a string, not `foreignId()`:** every authenticated request
+(any page load or POST after logging in) was silently failing to persist its session on MySQL, which surfaced
+as a `419 Page Expired` on the *next* state-changing request (creating a client, logging out, etc.) — the CSRF
+token embedded in whatever page the admin was looking at could never match the server's, because nothing had
+actually been saved since login. Took a long debugging session to pin down because it reproduced identically
+in fresh incognito windows and even a brand-new Firefox profile (i.e. clearly not a stale-cookie problem), yet
+every `curl`-based repro of a plain request cycle worked fine — the failure only appeared once a *real login*
+was in the loop. Root cause: `0001_01_01_000000_create_users_table.php`'s `sessions` migration had
+`$table->foreignId('user_id')->nullable()->index()` (an `unsigned bigint`, sized for a normal auto-increment
+`users.id`), but `App\Auth\AdminUser::getAuthIdentifier()` returns the admin's **email string** (there is no
+`users` table, see "Auth decision" above) — inserting that string into a bigint column throws a
+`QueryException` under MySQL's strict mode. `Illuminate\Session\DatabaseSessionHandler::performInsert()`
+catches that exception and silently falls back to `performUpdate()`, which affects 0 rows since the session
+was never actually inserted — so the write silently no-ops instead of erroring loudly. SQLite (what the test
+suite runs on) doesn't enforce column types this strictly, so nothing here failed a single Pest test; the
+`AdminAccessTest` regression guard only asserts the column's declared type, it can't exercise the actual MySQL
+failure. Fixed via `database/migrations/2026_07_19_064819_change_sessions_user_id_to_string.php` (a
+driver-gated `ALTER TABLE ... MODIFY user_id VARCHAR(255)`, MySQL-only, cheaper than a `migrate:fresh` that
+would've wiped every other table's dev data) plus fixing the original migration to `string('user_id')` so a
+fresh install gets it right from the start.
+
 ## What this project is
 
 "Mein Hund der Rowdy" — a client-management system ("Klientenverwaltung") for a dog-behavior consultant

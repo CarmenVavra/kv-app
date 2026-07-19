@@ -9,7 +9,7 @@ use App\Models\Client;
 
 it('lists clients and filters by behavior topic', function () {
     Client::factory()->create(['dog_name' => 'Rocky', 'behavior_topic' => BehaviorTopic::Leinenaggression]);
-    Client::factory()->create(['dog_name' => 'Luna', 'behavior_topic' => BehaviorTopic::Welpentraining]);
+    Client::factory()->create(['dog_name' => 'Luna', 'behavior_topic' => BehaviorTopic::Stress]);
 
     $this->withoutMiddleware(\Illuminate\Auth\Middleware\Authenticate::class)
         ->get(route('admin.clients.index', ['thema' => BehaviorTopic::Leinenaggression->value]))
