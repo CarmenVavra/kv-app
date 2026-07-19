@@ -56,7 +56,7 @@
                 @endif
                 <div class="text-[13px] leading-tight">
                     <div class="font-bold">{{ $setting->name }}</div>
-                    <div class="text-text-muted">Hundeverhaltensberaterin</div>
+                    <div class="text-text-muted">Verhaltensberaterin für Hunde</div>
                 </div>
             </div>
 
