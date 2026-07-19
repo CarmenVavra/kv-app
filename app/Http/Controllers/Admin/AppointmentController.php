@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAppointmentRequest;
+use App\Http\Requests\Admin\UpdateAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Setting;
@@ -62,5 +63,20 @@ class AppointmentController extends Controller
         ]);
 
         return redirect()->route('admin.calendar', ['tag' => $appointment->starts_at->toDateString()]);
+    }
+
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment): RedirectResponse
+    {
+        $appointment->update($request->validated());
+
+        return redirect()->route('admin.calendar', ['tag' => $appointment->starts_at->toDateString()]);
+    }
+
+    public function destroy(Appointment $appointment): RedirectResponse
+    {
+        $day = $appointment->starts_at->toDateString();
+        $appointment->delete();
+
+        return redirect()->route('admin.calendar', ['tag' => $day]);
     }
 }

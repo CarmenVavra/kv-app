@@ -55,6 +55,21 @@ it('skips clients without an email address', function () {
     expect($appointment->fresh()->reminder_sent_at)->toBeNull();
 });
 
+it('does not send a reminder for a cancelled appointment', function () {
+    Mail::fake();
+
+    $client = Client::factory()->create(['email' => 'maria@beispiel.de']);
+    $appointment = Appointment::factory()->for($client)->create([
+        'starts_at' => now()->addMinutes(30),
+        'status' => \App\Enums\AppointmentStatus::Abgesagt,
+    ]);
+
+    $this->artisan('appointments:send-reminders');
+
+    Mail::assertNotQueued(AppointmentReminderMail::class);
+    expect($appointment->fresh()->reminder_sent_at)->toBeNull();
+});
+
 it('does not send reminders when disabled in the settings', function () {
     Mail::fake();
     Setting::current()->update(['notify_appointment_reminders' => false]);

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\AppointmentStatus;
 use App\Mail\AppointmentReminderMail;
 use App\Models\Appointment;
 use App\Models\Setting;
@@ -37,6 +38,7 @@ class SendAppointmentReminders extends Command
 
         $appointments = Appointment::query()
             ->whereNull('reminder_sent_at')
+            ->where('status', '!=', AppointmentStatus::Abgesagt)
             ->whereBetween('starts_at', [now(), now()->addHour()])
             ->with('client')
             ->get();

@@ -63,3 +63,38 @@ it('rejects an appointment for a client that does not exist', function () {
         ])
         ->assertSessionHasErrors(['client_id']);
 });
+
+it('updates an appointment, including its status', function () {
+    $client = Client::factory()->create();
+    $appointment = Appointment::factory()->for($client)->create([
+        'starts_at' => today()->addDay()->setTime(10, 0),
+        'status' => 'bestaetigt',
+    ]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->put(route('admin.appointments.update', $appointment), [
+            'client_id' => $client->id,
+            'type' => 'folgetermin',
+            'status' => 'abgeschlossen',
+            'starts_at' => today()->addDay()->setTime(11, 0)->format('Y-m-d\TH:i'),
+            'duration_minutes' => 45,
+            'notes' => 'Verlief gut.',
+        ])
+        ->assertRedirect();
+
+    $appointment->refresh();
+    expect($appointment->type->value)->toBe('folgetermin')
+        ->and($appointment->status->value)->toBe('abgeschlossen')
+        ->and($appointment->duration_minutes)->toBe(45)
+        ->and($appointment->notes)->toBe('Verlief gut.');
+});
+
+it('deletes an appointment', function () {
+    $appointment = Appointment::factory()->create();
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->delete(route('admin.appointments.destroy', $appointment))
+        ->assertRedirect();
+
+    expect(Appointment::find($appointment->id))->toBeNull();
+});
