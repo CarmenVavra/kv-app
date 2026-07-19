@@ -45,3 +45,19 @@ it('renders a custom 404 page for unknown routes', function () {
         ->assertNotFound()
         ->assertSee('Diese Fährte verliert sich');
 });
+
+it('renders a custom 403 page for forbidden requests', function () {
+    \Illuminate\Support\Facades\Route::get('/test-403', fn () => abort(403));
+
+    $this->get('/test-403')
+        ->assertForbidden()
+        ->assertSee('Hier ist Sitz und Bleib gefragt');
+});
+
+it('renders a custom 500 page for server errors', function () {
+    \Illuminate\Support\Facades\Route::get('/test-500', fn () => abort(500));
+
+    $this->get('/test-500')
+        ->assertServerError()
+        ->assertSee('Da ist etwas schiefgelaufen');
+});

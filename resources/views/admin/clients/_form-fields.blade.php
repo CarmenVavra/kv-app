@@ -59,7 +59,7 @@
     </label>
 </div>
 
-<div class="grid grid-cols-[1fr_120px_1fr] gap-3 mt-3">
+<div class="grid grid-cols-[minmax(0,1fr)_120px_minmax(0,1fr)] gap-3 mt-3">
     <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
         Adresse
         <input

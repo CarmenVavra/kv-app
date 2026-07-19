@@ -1,5 +1,6 @@
 @php
     /** @var \App\Models\Setting $setting */
+    $weekdayNames = ['Mo' => 'Montag', 'Di' => 'Dienstag', 'Mi' => 'Mittwoch', 'Do' => 'Donnerstag', 'Fr' => 'Freitag', 'Sa' => 'Samstag', 'So' => 'Sonntag'];
 @endphp
 <x-layouts.admin title="Einstellungen">
     <header>
@@ -69,7 +70,7 @@
                         <div class="text-text-muted text-[12.5px] mt-0.5">{{ $toggle['desc'] }}</div>
                     </div>
                     <label class="relative inline-flex w-11 h-6.5 flex-shrink-0 cursor-pointer">
-                        <input type="checkbox" name="{{ $toggle['name'] }}" value="1" @checked(old($toggle['name'], $setting->{$toggle['name']})) class="peer sr-only">
+                        <input type="checkbox" name="{{ $toggle['name'] }}" value="1" @checked(old($toggle['name'], $setting->{$toggle['name']})) aria-label="{{ $toggle['label'] }}" class="peer sr-only">
                         <span class="absolute inset-0 bg-border rounded-chip peer-checked:bg-primary transition-colors" aria-hidden="true"></span>
                         <span class="absolute top-[3px] left-[3px] w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-[18px]" aria-hidden="true"></span>
                     </label>
@@ -95,7 +96,7 @@
                 <div class="flex gap-2 flex-wrap">
                     @foreach (\App\Models\Setting::WEEKDAYS as $day)
                         <label class="cursor-pointer">
-                            <input type="checkbox" name="working_days[]" value="{{ $day }}" @checked(in_array($day, old('working_days', $setting->working_days), true)) class="peer sr-only">
+                            <input type="checkbox" name="working_days[]" value="{{ $day }}" @checked(in_array($day, old('working_days', $setting->working_days), true)) aria-label="{{ $weekdayNames[$day] }}" class="peer sr-only">
                             <span class="w-[38px] h-[38px] rounded-field flex items-center justify-center text-[13px] font-bold bg-bg text-text-muted peer-checked:bg-primary peer-checked:text-white transition-colors" aria-hidden="true">{{ $day }}</span>
                         </label>
                     @endforeach

@@ -20,7 +20,7 @@
 
         <div class="bg-bg rounded-xl px-4.5 py-4 flex justify-between items-center">
             <span class="font-bold text-sm">Erstattungsbetrag</span>
-            <span id="mileage-result" class="font-serif text-xl text-primary">— €</span>
+            <span id="mileage-result" aria-live="polite" class="font-serif text-xl text-primary">— €</span>
         </div>
 
         <button type="submit" class="bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm">

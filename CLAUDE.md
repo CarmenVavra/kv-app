@@ -310,6 +310,84 @@ driver-gated `ALTER TABLE ... MODIFY user_id VARCHAR(255)`, MySQL-only, cheaper 
 would've wiped every other table's dev data) plus fixing the original migration to `string('user_id')` so a
 fresh install gets it right from the start.
 
+### Politur (M8): A11y-Fixes, Responsive-Fix, Fehlerseiten, Deploy-Probelauf
+
+**Accessibility pass** found and fixed two real gaps, both the same underlying mistake: a custom toggle
+switch's `<label>` wrapped the checkbox plus two purely-decorative `<span aria-hidden="true">` elements that
+also happened to be the *only* visible text — since `aria-hidden` content is excluded from accessible-name
+computation, the checkbox itself ended up with no accessible name at all (a screen reader would announce just
+"checkbox, unchecked", no label). Fixed both in `resources/views/admin/settings/index.blade.php` by adding an
+explicit `aria-label` to each checkbox: the three Benachrichtigungen toggles (`aria-label="{{ $toggle['label']
+}}"`) and the seven Arbeitstage day-chips (`aria-label="{{ $weekdayNames[$day] }}"`, mapping the `Mo`/`Di`/…
+abbreviation to a full day name for clarity). Also added `aria-live="polite"` to the Fahrtkosten-Rechner's
+live result span (`_fahrtkosten.blade.php`) — its value updates via a plain `oninput` handler with no other
+signal to screen reader users that it changed. Everything else audited (modals, forms, icon buttons, images)
+was already solid from earlier milestones — all admin modals consistently open via `showModal()` (native
+Esc-to-close and focus-trap for free), and every form input already had a real associated `<label>` or an
+`sr-only` one.
+
+**Responsive QA** re-confirmed the documented breakpoint deviations still hold (public nav collapses at
+Tailwind's `lg:` 1024px, admin sidebar at `md:` 768px) and caught one real overflow bug: the client form's
+Adresse/PLZ/Ort row (`admin/clients/_form-fields.blade.php`) used the bare arbitrary-value
+`grid-cols-[1fr_120px_1fr]` — exactly the anti-pattern already called out in "Custom multi-column grid
+layouts" above, just missed in this one row when the rest of the form was built. On a narrow (mobile-width)
+modal, the two `1fr` tracks fell back to their input elements' min-content width (~184px each) instead of
+sharing the ~344px available space, blowing the row out to 512px and clipping "Ort" off the edge of the
+dialog. Fixed the same way as every other custom grid in this app: `grid-cols-[minmax(0,1fr)_120px_minmax(0,1fr)]`.
+
+**403/500 error pages** (`resources/views/errors/403.blade.php`, `500.blade.php`) extend the existing 404
+mockup aesthetic (same logo lockup, oversized serif status code, two-button footer) since the design handoff
+never included dedicated mockups for these two. Verified both are actually reachable — `abort(403)`/`abort(500)`
+throw an `HttpException`, which Laravel's `renderHttpException()` resolves against `errors.{code}` the same
+way it already does for 404, bypassing the `APP_DEBUG`-driven Ignition page regardless of debug mode (see the
+404 entry in M6 above) — confirmed via two new tests in `PublicSiteTest.php` that register an ad-hoc route
+with `abort()` and assert the custom page renders.
+
+**Cache commands** (`config:cache`/`route:cache`/`view:cache`) were verified to work cleanly — all three
+succeed, and the app continues to serve correctly (curl-smoke-tested the landing page, pricing, legal pages,
+login, guest-redirect, and a 404) with caches active. Confirmed the expected gotcha as a side effect: running
+`config:cache` locally breaks the Pest suite (35 failures) because `phpunit.xml`'s `<env>` overrides (SQLite
+`:memory:` DB, etc.) are only read via `env()` at runtime — a cached config file bakes in whatever `.env` said
+at cache time instead, so cached config must stay a deploy-only step, never run in local dev. Cleared all
+three caches back to normal afterward (confirmed 91 tests green again).
+
+**Netcup deploy dry-run**: since there's no actual Netcup access, did a full isolated rehearsal instead —
+copied the working tree (tracked files + this milestone's uncommitted changes) into a scratch directory,
+pointed `.env` at a throwaway MySQL database with `APP_ENV=production`/`APP_DEBUG=false`, and ran the real
+production pipeline end-to-end: `composer install --no-dev --optimize-autoloader` (confirmed `barryvdh/laravel-dompdf`
+is correctly in `require`, not `require-dev`, so nothing breaks), `npm ci && npm run build`, `php artisan
+migrate --force` against a genuinely empty database (a real fresh-install test of every migration, including
+the M7-era `sessions.user_id` string fix), then `config:cache`/`route:cache`/`view:cache`. This surfaced two
+real, previously-undiscovered gaps, both fixed:
+
+- **`config/app.php`'s `'timezone'` key was hardcoded to `'UTC'`, never wired to `env('APP_TIMEZONE')`** —
+  `.env`/`.env.example` had `APP_TIMEZONE=Europe/Vienna` sitting there since M0 looking like it configured the
+  app's timezone, but silently did nothing (confirmed via `php artisan about` reporting `Timezone: UTC` in the
+  dry-run copy despite the env var being set correctly). Concretely, this meant `Schedule::command(
+  'reports:weekly-summary')->weeklyOn(1, '07:00')` fired at 07:00 **UTC** — 09:00 or 08:00 Vienna time
+  depending on DST — not the 07:00 Vienna-local time the plan and the client both expect for a "Montagmorgen"
+  summary. Fixed by changing the key to `env('APP_TIMEZONE', 'UTC')`, matching newer Laravel skeletons; added
+  `tests/Feature/AppConfigTest.php` asserting `config('app.timezone') === 'Europe/Vienna'` as a regression
+  guard, since nothing else in the suite would have caught a silently-ignored env var.
+- **Nothing was ever scheduled to drain the `jobs` table in production.** Every Mailable in this app
+  (`PaymentReminderMail`, `AppointmentReminderMail`, `NewInquiryNotification`, `WeeklySummaryMail`) implements
+  `ShouldQueue` with `QUEUE_CONNECTION=database`, and locally `start.ps1` keeps a `queue:work` process running
+  continuously — but the deploy plan's only documented cron entry was `* * * * * php artisan schedule:run`,
+  which drives the three named `Schedule::command(...)` calls and nothing else. On a shared/VPS host with no
+  guaranteed persistent process supervisor (Netcup's exact plan is unknown), that means every queued mail would
+  sit in the `jobs` table forever and never send — dunning reminders, appointment reminders, new-inquiry
+  notifications, the weekly summary, all silently undelivered. Fixed without adding a second cron line: added
+  `Schedule::command('queue:work --stop-when-empty --max-time=55 --tries=3')->everyMinute()->withoutOverlapping()`
+  to `routes/console.php`, so the one already-planned `schedule:run` cron entry now also drains the queue every
+  minute — works identically on a bare shared host or a full VPS, no supervisor/systemd dependency either way.
+
+Also created `deploy.sh` (git pull → `composer install --no-dev --optimize-autoloader` → `npm ci && npm run
+build` → `php artisan migrate --force` → `php artisan storage:link` → clear-then-rebuild all three caches),
+matching the plan's original outline. `storage:link` is included explicitly because the local dev symlink
+(`public/storage`) is an absolute path into this machine's own filesystem — it isn't portable across a git
+pull to a different server and must be (re-)created there. The throwaway dry-run database and scratch copy
+were deleted after verification; nothing from the rehearsal itself was left behind.
+
 ## What this project is
 
 "Mein Hund der Rowdy" — a client-management system ("Klientenverwaltung") for a dog-behavior consultant
