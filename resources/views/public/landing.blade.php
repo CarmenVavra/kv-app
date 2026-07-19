@@ -130,6 +130,39 @@
         </div>
     </section>
 
+    {{-- Ratgeber --}}
+    <section id="ratgeber" class="bg-card border-y border-border py-18 px-6 lg:px-14">
+        <div class="mx-auto max-w-6xl">
+            <div class="text-center max-w-xl mx-auto mb-11">
+                <div class="font-extrabold text-[13px] text-secondary uppercase tracking-wide">Wissen statt Gewalt</div>
+                <h2 class="font-serif text-[32px] font-semibold mt-2.5">Der Rowdy-Ratgeber</h2>
+                <p class="text-[color:var(--color-text-muted-2)] text-[15.5px] leading-relaxed mt-3">
+                    Hier erfährst du, wie Hunde wirklich lernen, wie Stress das Verhalten beeinflusst und woran du faires Training erkennst.
+                </p>
+            </div>
+            <div class="grid gap-5.5" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+                <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
+                    <div class="font-extrabold text-[12.5px] text-secondary uppercase tracking-wide">Trainingsmethoden</div>
+                    <div class="font-serif font-semibold text-[19px] leading-snug">Warum der Leinenruck die Aggression deines Hundes verschlimmert</div>
+                    <p class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed flex-1">Erfahre, welche gefährlichen Fehlverknüpfungen im Gehirn deines Hundes entstehen, wenn mit Schmerz- und Schreckreizen gearbeitet wird.</p>
+                    <a href="{{ route('ratgeber.leinenruck') }}" class="text-secondary hover:text-primary no-underline font-bold text-sm mt-1">Weiterlesen →</a>
+                </div>
+                <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
+                    <div class="font-extrabold text-[12.5px] text-secondary uppercase tracking-wide">Hundesprache</div>
+                    <div class="font-serif font-semibold text-[19px] leading-snug">Stresssignale richtig deuten: Höre auf das Flüstern deines Hundes</div>
+                    <p class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed flex-1">Bevor ein Hund in die Leine springt, sendet er feine Signale. Wer Lippenlecken, Gähnen und Einfrieren rechtzeitig erkennt, kann Eskalationen verhindern.</p>
+                    <a href="{{ route('ratgeber.stresssignale') }}" class="text-secondary hover:text-primary no-underline font-bold text-sm mt-1">Weiterlesen →</a>
+                </div>
+                <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
+                    <div class="font-extrabold text-[12.5px] text-secondary uppercase tracking-wide">Mythos Ecke</div>
+                    <div class="font-serif font-semibold text-[19px] leading-snug">Die Dominanz-Theorie: Ein gefährliches Relikt aus alten Zeiten</div>
+                    <p class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed flex-1">Musst du wirklich als Erster durch die Tür gehen? Wir räumen gründlich mit dem Mythos des „Rudelführers“ auf und zeigen moderne Lösungswege.</p>
+                    <a href="{{ route('ratgeber.dominanz-mythos') }}" class="text-secondary hover:text-primary no-underline font-bold text-sm mt-1">Weiterlesen →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Kontakt --}}
     <section id="kontakt" class="mx-auto max-w-6xl px-6 lg:px-14 py-18">
         @if (session('status'))

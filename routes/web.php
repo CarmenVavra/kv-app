@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'public.landing')->name('landing');
 Route::view('/preise', 'public.pricing')->name('pricing');
 Route::view('/meine-geschichte', 'public.story')->name('story');
+Route::view('/ratgeber/leinenruck', 'public.ratgeber.leinenruck')->name('ratgeber.leinenruck');
+Route::view('/ratgeber/stresssignale', 'public.ratgeber.stresssignale')->name('ratgeber.stresssignale');
+Route::view('/ratgeber/dominanz-mythos', 'public.ratgeber.dominanz-mythos')->name('ratgeber.dominanz-mythos');
 Route::post('/kontakt', ContactController::class)->name('contact.store');
 
 Route::view('/impressum', 'legal.impressum')->name('legal.impressum');

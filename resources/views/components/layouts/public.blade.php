@@ -4,6 +4,7 @@
         ['label' => 'Leistungen', 'href' => route('landing').'#leistungen'],
         ['label' => 'Preise', 'href' => route('pricing')],
         ['label' => 'Über mich', 'href' => route('landing').'#ueber-mich'],
+        ['label' => 'Ratgeber', 'href' => route('landing').'#ratgeber'],
     ];
 @endphp
 <!DOCTYPE html>
