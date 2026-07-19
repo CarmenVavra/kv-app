@@ -40,3 +40,11 @@
     --radius-field: 10px;
     --radius-chip: 20px;
 }
+
+.slogan {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: #666;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}

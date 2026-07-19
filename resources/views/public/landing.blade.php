@@ -9,13 +9,15 @@
     <section class="mx-auto max-w-6xl px-6 lg:px-14 pt-12 pb-20 grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 lg:gap-14 items-center">
         <div class="flex flex-col gap-5 min-w-0">
             <div class="inline-flex items-center gap-2 bg-card border border-border rounded-chip px-3.5 py-1.5 text-[13px] font-bold text-secondary w-fit">
-                🐾 Zertifizierte Hundeverhaltensberatung
+                🐾 Gewaltfreie Hundeverhaltensberatung
             </div>
             <h1 class="font-serif font-bold text-text" style="font-size: clamp(30px, 5vw, 52px); line-height: 1.1; text-wrap: balance;">
                 Ein entspannter Hund beginnt mit Verständnis.
             </h1>
+            <p class="slogan">„Weil auch ein Rowdy nur verstanden werden will.“</p>
+
             <p class="text-[17px] leading-relaxed text-[color:var(--color-text-muted-2)] max-w-[480px]">
-                Individuelle Beratung bei Leinenaggression, Trennungsangst und Impulskontrolle — mit Geduld, Fachwissen und einem Blick für jeden einzelnen Hund.
+                Jeder Spaziergang ist ein Spießrutenlauf und dein Hund mutiert an der Leine zum rüpelhaften Rowdy? Schluss mit veralteten Methoden und Frust. Als spezialisierte Verhaltensberaterin helfe ich dir bei Artgenossenunverträglichkeit – wissenschaftlich fundiert, empathisch und garantiert gewaltfrei.
             </p>
             <div class="flex gap-3.5 flex-wrap mt-1">
                 <a href="#kontakt" class="bg-primary hover:bg-primary-hover text-white no-underline px-6.5 py-4 rounded-xl font-bold text-[15px]">Kostenloses Erstgespräch</a>
@@ -64,22 +66,22 @@
                     <div class="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c3-6 5-9 8-9s5 3 8 9"></path><circle cx="4" cy="19" r="1.4" fill="#fff" stroke="none"></circle><circle cx="20" cy="19" r="1.4" fill="#fff" stroke="none"></circle></svg>
                     </div>
-                    <div class="font-serif font-semibold text-[17px]">Leinentraining</div>
+                    <div class="font-serif font-semibold text-[17px]">Leinenaggression</div>
                     <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Gezieltes Training bei Reaktivität und Aggression an der Leine.</div>
                 </div>
                 <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
                     <div class="w-11 h-11 rounded-xl bg-accent flex items-center justify-center flex-shrink-0" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.6a4.6 4.6 0 0 0-7.8-3.3L12 6.2l-1-1A4.6 4.6 0 0 0 3.2 8.6c0 2.5 2 4.5 5.4 7.6l3.4 3 3.4-3c3.4-3.1 5.4-5.1 5.4-7.6z"></path></svg>
                     </div>
-                    <div class="font-serif font-semibold text-[17px]">Trennungsangst</div>
-                    <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Aufbau von Sicherheit und Gelassenheit beim Alleinbleiben.</div>
+                    <div class="font-serif font-semibold text-[17px]">Stress</div>
+                    <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Dein Fahrplan zu spürbar mehr Gelassenheit.</div>
                 </div>
                 <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
                     <div class="w-11 h-11 rounded-xl bg-text-muted flex items-center justify-center flex-shrink-0" aria-hidden="true">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"></path><path d="M5 9v10h14V9"></path><path d="M9 19v-6h6v6"></path></svg>
                     </div>
-                    <div class="font-serif font-semibold text-[17px]">Hausbesuche</div>
-                    <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Training direkt in eurer gewohnten Umgebung.</div>
+                    <div class="font-serif font-semibold text-[17px]">Impulskontrolle</div>
+                    <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">In der Ruhe liegt die Kraft - Impulskontrolle ist lernbar.</div>
                 </div>
             </div>
         </div>
