@@ -19,18 +19,37 @@
             <p class="text-text-muted text-sm">Admin-Login</p>
         </div>
 
-        <div class="bg-card border border-border rounded-card p-8 flex flex-col gap-5">
-            <p class="text-sm text-text-muted text-center">
-                Die Anmeldung erfolgt sicher über Auth0.
-            </p>
-            <a
-                href="{{ route('login.authorize') }}"
-                class="text-center bg-primary hover:bg-primary-hover text-white rounded-field py-3 font-bold text-sm no-underline"
-                aria-label="Mit Auth0 anmelden"
-            >
-                Mit Auth0 anmelden
-            </a>
-        </div>
+        <form method="POST" action="{{ route('login.store') }}" class="bg-card border border-border rounded-card p-8 flex flex-col gap-4">
+            @csrf
+            <label class="flex flex-col gap-1.5 text-[13px] font-bold text-text-muted">
+                E-Mail
+                <input
+                    type="email" name="email" required autofocus
+                    value="{{ old('email') }}"
+                    class="border border-border bg-white rounded-field px-3.5 py-2.5 text-sm font-normal text-text"
+                >
+            </label>
+            @error('email')
+                <p class="text-[color:var(--color-error-text)] text-xs font-bold -mt-2">{{ $message }}</p>
+            @enderror
+
+            <label class="flex flex-col gap-1.5 text-[13px] font-bold text-text-muted">
+                Passwort
+                <input
+                    type="password" name="password" required
+                    class="border border-border bg-white rounded-field px-3.5 py-2.5 text-sm font-normal text-text"
+                >
+            </label>
+
+            <label class="flex items-center gap-1.5 text-[13px] font-semibold text-[color:var(--color-text-muted-2)]">
+                <input type="checkbox" name="remember" checked class="accent-primary">
+                Angemeldet bleiben
+            </label>
+
+            <button type="submit" class="bg-primary hover:bg-primary-hover text-white rounded-field py-3 font-bold text-[14.5px] mt-1">
+                Anmelden
+            </button>
+        </form>
 
         <a href="{{ route('landing') }}" class="text-center no-underline text-text-muted text-sm font-bold">
             ← Zurück zur Website

@@ -55,9 +55,12 @@
                 </div>
             </div>
 
-            <a href="{{ route('logout') }}" class="text-sm font-bold text-text-muted hover:text-primary no-underline px-1.5">
-                Abmelden
-            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-sm font-bold text-text-muted hover:text-primary bg-none border-none cursor-pointer px-1.5">
+                    Abmelden
+                </button>
+            </form>
         </aside>
 
         <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border py-1.5 px-0.5 flex items-center justify-around z-20" aria-label="Hauptnavigation">

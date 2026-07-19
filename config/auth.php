@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-
 return [
 
     /*
@@ -16,9 +14,6 @@ return [
     */
 
     'defaults' => [
-        // "web" bleibt der App-weite Default (nie eingeloggt, kein Auth0-SDK-Aufbau noetig) -
-        // die Admin-Routen fordern den Auth0-Guard explizit per "auth:auth0-session" an
-        // (siehe routes/admin.php und die Begruendung in config/auth0.php).
         'guard' => env('AUTH_GUARD', 'web'),
     ],
 
@@ -42,7 +37,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'admin',
         ],
     ],
 
@@ -51,31 +46,16 @@ return [
     | User Providers
     |--------------------------------------------------------------------------
     |
-    | All authentication guards have a user provider, which defines how the
-    | users are actually retrieved out of your database or other storage
-    | system used by the application. Typically, Eloquent is utilized.
-    |
-    | If you have multiple user tables or models you may configure multiple
-    | providers to represent the model / table. These providers may then
-    | be assigned to any extra authentication guards you have defined.
-    |
-    | Supported: "database", "eloquent"
+    | "admin" ist kein Eloquent-Provider - er liefert den einzigen Admin-Account direkt aus der
+    | .env (siehe App\Auth\AdminUserProvider, registriert in AppServiceProvider::boot()). Es gibt
+    | bewusst keine users-Tabelle: eine Single-Admin-App braucht keine Nutzerverwaltung.
     |
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+        'admin' => [
+            'driver' => 'admin',
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
-
-    // Kein lokales Passwort-Reset: Auth0 verwaltet den kompletten Credential-Lifecycle
-    // (Login, "Passwort vergessen") ueber die Universal-Login-Seite.
 
 ];

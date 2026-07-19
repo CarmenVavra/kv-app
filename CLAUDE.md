@@ -135,6 +135,70 @@ test run.
 > — lower severity than invoice PDFs (no client billing/address data) but worth tightening the same way
 > (private disk + authenticated download route) in a follow-up if this becomes a real concern.
 
+### Öffentliche Website (M6): Landingpage, Preise, Rechtsseiten, Kontaktformular → Inquiry
+
+**Static pages stay `Route::view()`, no controller** — Landingpage, Preise, and the three Rechtsseiten
+(Impressum/AGB/Datenschutz) have no server-side logic beyond reading `request()->query('interesse')` directly
+in the Landingpage Blade view (Blade always has access to `request()`/`old()`/`$errors`/`session()` regardless
+of whether the route is `Route::view()` or a controller action), so a dedicated `LandingController`/
+`PricingController`/`LegalController` per the original plan sketch would be pure ceremony. The **only** real
+public controller is `App\Http\Controllers\Public\ContactController` (single-action `__invoke`), since it's the
+only public route with actual side effects (creating an `Inquiry`).
+
+**Inquiry → Klient conversion reuses the Klienten form, not a new one.** `Admin\InquiryController::convert()`
+type-hints the *same* `StoreClientRequest` that `Admin\ClientController::store()` uses (same target model, same
+validation), and the Anfragen-list view `@include`s the existing `admin.clients._form-fields` partial inside its
+own modal, passing an unsaved `new Client(['dog_name' => ..., 'owner_name' => ..., 'email' => ...])` (attributes
+from the `Inquiry` prefilled, never persisted) as `$client` — the partial's `$client?->dog_name` accessors work
+identically whether `$client` is a real Eloquent-fetched row or one instantiated in-memory for prefill purposes.
+`Inquiry` has no `client_id` FK back-reference after conversion (not needed by the plan; the Inquiry's job ends
+at `status = Konvertiert`).
+
+**Anfragen has no sidebar nav entry**, consistent with the earlier 5-item-sidebar scope decision — it's reached
+via a "Neue Anfragen" section + stat tile on the Dashboard (mirroring the existing "Heutige Termine" section
+pattern) linking to `/admin/anfragen`, the same way Kalender's full view is one click from its Dashboard
+preview, just without a permanent nav slot.
+
+**Contact-form validation failures redirect to `#kontakt`, not the bare landing route** — `StoreInquiryRequest`
+overrides the protected `getRedirectUrl()` (Laravel's default is `url()->previous()`, which drops URL fragments
+since browsers never send them to the server) to return `route('landing').'#kontakt'` explicitly, so a rejected
+submission re-shows the form in place instead of dumping the visitor back at the page top. `ContactController`
+mirrors this on the success path too (`redirect()->to(route('landing').'#kontakt')`) so the flash-message
+confirmation is visible without a manual scroll.
+
+**Dropped the hero "testimonial" overlay card, extending the existing Stimmen scope decision** — the mockup's
+hero image had a small hardcoded quote-card overlay ("Rocky ist wie ausgewechselt" — Maria W.) separate from
+the full Stimmen section already cut. Same underlying problem (fabricated-looking testimonial content with no
+admin authoring path), so it's dropped for consistency even though the original scope note only named the nav
+item and the dedicated section. The three hero stat numbers (10+ Jahre, 400+ Hunde, 4.9★) stayed, since those
+read as ordinary business marketing copy rather than an attributed quote from a specific named client.
+
+**Mobile nav is a bespoke `<dialog>`, not `x-admin.modal`** — reuses the same global backdrop-click-to-close
+listener in `app.js` (`event.target instanceof HTMLDialogElement && event.target.open` → `close()`) that the
+admin modals already rely on, so no new JS was needed for the hamburger menu. One real gotcha hit while
+building it: a `<dialog>` shown via `showModal()` gets `position: fixed; inset: 0` from the browser's UA
+stylesheet, which stretches it to the full viewport *height* regardless of Tailwind's `h-auto`/`max-h-none`
+utility classes (`inset: 0` sets top **and** bottom to 0, and that wins over `height:auto` since the box is
+positioned, not sized, by those offsets) — the panel rendered as a full-screen blank sheet with the links stuck
+at the top instead of a tight dropdown. Fixed by setting `bottom: auto` explicitly (inline style, needed
+higher specificity than the UA rule) so the dialog's box actually shrinks to its content height while staying
+pinned full-width to the top.
+
+**Public nav breakpoint uses Tailwind's `lg:` (1024px), not the mockup's literal 1000px** — same rounding the
+admin sidebar already did (860px in the mockup → `md:` 768px in `x-layouts.admin`), applied consistently rather
+than introducing a one-off custom breakpoint just for the public nav.
+
+**Fixed an AT/DE inconsistency in the Datenschutz mockup**: `Datenschutz.dc.html` had "10115 Berlin" and a
+`.de` email domain while `Impressum.dc.html` (correctly) had "1010 Wien" and `.at` — since the whole app is
+built for an Austrian Kleinunternehmerin, the real `legal/datenschutz.blade.php` uses the same Wien/`.at` data
+as Impressum instead of copying the mockup's mismatched placeholder.
+
+**404 page**: `resources/views/errors/404.blade.php` is picked up automatically by Laravel's default exception
+handler for any `NotFoundHttpException`, independent of `APP_DEBUG` — `Handler::renderHttpException()` checks
+`view()->exists('errors.404')` *before* falling back to the Ignition/Whoops debug page, so the custom mockup-styled
+404 renders in local dev too, not just in production. 403/500 custom pages are left for M8 (Politur) per the
+plan's milestone split.
+
 ### Custom multi-column grid layouts: always `minmax(0, Nfr)` + a stacking breakpoint
 
 Every custom two-column layout in this app (Kalender's month-grid+agenda, Klientenprofil's
@@ -150,25 +214,37 @@ Trainingsverlauf+sidebar) uses `grid-cols-1 lg:grid-cols-[minmax(0,Nfr)_minmax(0
   arbitrary-value syntax needs underscores instead of spaces between tracks:
   `lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]`.
 
-### Auth0 setup gotcha — `registerMiddleware` must stay `false`
+### Auth decision: dropped Auth0, single admin account lives in `.env` (deviates from Description.md)
 
-`config/auth0.php` sets `'registerMiddleware' => false` and `defaults.guard` in `config/auth.php` stays
-`'web'` (a plain, never-logged-in Eloquent guard), on purpose — do not "simplify" this back to the package
-defaults. If `registerMiddleware` is `true`, `auth0/login` force-appends `AuthenticatorMiddleware` to the
-*entire* `web` middleware group, which calls `auth()->shouldUse('auth0-session')` on every request. Combined
-with `SESSION_DRIVER=database`, Laravel's `DatabaseSessionHandler` then calls `auth()->guard()->id()` on
-*every* request to store it alongside the session row — which eagerly constructs the Auth0 SDK client and
-throws `` `domain` must be configured `` even for the public marketing pages, not just `/admin`. Only
-`routes/admin.php` requests the Auth0 guard, explicitly, via `auth:auth0-session` middleware — that's what
-correctly scopes the Auth0 dependency to the admin backend only. `app/Auth0/UserRepository.php` overrides the
-package's generic user wrapper to find-or-create the local `App\Models\User` by `auth0_id` and reject any
-login whose email doesn't match `config('admin.email')` (`ADMIN_EMAIL` env var).
+**2026-07-19, confirmed with the client:** M1 originally built a full Auth0 integration (Universal Login,
+`auth0/login` SDK) because `Description.md` mandated it. Revisited later: there is exactly one admin account
+(Lena) and it's always the same person — the operational value Auth0 adds (SSO, MFA, brute-force protection
+for a multi-tenant user base) doesn't apply to a single, fixed credential, so it was ripped back out in favor
+of plain Laravel session auth. This is a deliberate, confirmed deviation from the client brief's "Auth0"
+requirement, not an oversight — noted here the same way the Stimmen/Nachrichten scope cuts are, since
+`Description.md` itself is left as the historical brief and not edited after the fact.
 
-**Real Auth0 tenant credentials are still needed** (`AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`,
-`ADMIN_EMAIL` in `.env`) before `/admin/*` can actually be used or visually QA'd — until then it correctly
-500s with "`domain` must be configured" rather than silently misbehaving. Tests don't need real credentials:
-`phpunit.xml` sets syntactically-valid fake Auth0 env values so the guard can construct in the test
-environment without ever calling out to Auth0.
+**No `users` database table at all** — of the three options considered (DB user + email password-reset,
+DB user changeable only via Einstellungen, or credentials fixed in `.env` with no self-service anything), the
+client picked the simplest: `ADMIN_EMAIL` + `ADMIN_PASSWORD_HASH` in `.env`, no persistence layer, no
+"Passwort vergessen" flow (so `PasswortVergessen.dc.html` stays unbuilt — same call as the original Auth0-era
+decision, just for a different reason). Generate/rotate the hash with `php artisan admin:hash-password`, then
+paste the output into `.env` by hand; there's no in-app "change password" UI to build in M7 as a result.
+
+Because there's no Eloquent user, `App\Auth\AdminUser` (a plain `Authenticatable`) and
+`App\Auth\AdminUserProvider` (a plain `UserProvider`, registered as guard driver `'admin'` in
+`AppServiceProvider::boot()`) stand in for the usual `users` table + model. `retrieveByCredentials()` /
+`validateCredentials()` compare against `config('admin.email')` / `config('admin.password_hash')` directly —
+there's only ever one possible identity, so no query is needed. "Angemeldet bleiben" (remember-me) still works
+for real despite there being no DB row to store a `remember_token` in: the token is written to the `cache`
+store instead (`Cache::forever(...)`, already database-backed via `CACHE_STORE=database`), which is enough
+persistence for a single fixed account without reintroducing a users table just for one column.
+
+`App\Http\Controllers\Auth\LoginController` (`create`/`store`/`destroy`) replaces the old Auth0
+login/callback/logout routes; `routes/admin.php`'s middleware is now the framework's plain `auth` (no custom
+guard name needed — `config/auth.php`'s `defaults.guard` stays `'web'`, now backed by the `admin` provider).
+Logout is a `POST` (CSRF-protected), not the old `GET /logout` — the admin sidebar's "Abmelden" is a small
+inline form, matching how other state-changing admin actions in this app already work.
 
 ## What this project is
 
@@ -188,7 +264,8 @@ webserver. It has two halves:
 - **Database**: MySQL, database name `mhdr_kv_db`, default port `3306`. Local dev credentials (user/password)
   are recorded in `Description.md` — read them from there rather than duplicating them elsewhere.
 - **Frontend extras**: vanilla JavaScript/jQuery/Ajax where needed on top of Blade — no mandated SPA framework.
-- **Auth**: Auth0 for login/register (API name "rowdy API", identifier `https://rowdy.api`).
+- **Auth**: ~~Auth0 for login/register (API name "rowdy API", identifier `https://rowdy.api`)~~ — dropped
+  post-M1, see "Auth decision" below. Single admin account, plain Laravel session auth, credentials in `.env`.
 - **Deployment target**: the client's own Netcup webserver (not a PaaS) — keep deployment assumptions
   compatible with a standard shared/VPS LAMP-style host.
 

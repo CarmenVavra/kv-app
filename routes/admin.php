@@ -10,13 +10,21 @@ use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InquiryController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:auth0-session'])->prefix('admin')->name('admin.')->group(function (): void {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function (): void {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/kalender', [AppointmentController::class, 'index'])->name('calendar');
     Route::post('/kalender', [AppointmentController::class, 'store'])->name('appointments.store');
+
+    Route::prefix('anfragen')->name('inquiries.')->group(function (): void {
+        Route::get('/', [InquiryController::class, 'index'])->name('index');
+        Route::patch('/{inquiry}/kontaktiert', [InquiryController::class, 'markContacted'])->name('mark-contacted');
+        Route::post('/{inquiry}/konvertieren', [InquiryController::class, 'convert'])->name('convert');
+        Route::patch('/{inquiry}/archivieren', [InquiryController::class, 'archive'])->name('archive');
+    });
 
     Route::prefix('klienten')->name('clients.')->group(function (): void {
         Route::get('/', [ClientController::class, 'index'])->name('index');

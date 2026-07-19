@@ -13,6 +13,10 @@
             <div class="text-text-muted text-[13px] font-bold">Aktive Klienten</div>
             <div class="font-serif text-[28px] mt-1.5">{{ $activeClientsCount }}</div>
         </div>
+        <div class="bg-card border border-border rounded-card p-4.5">
+            <div class="text-text-muted text-[13px] font-bold">Neue Anfragen</div>
+            <div class="font-serif text-[28px] mt-1.5 text-primary">{{ $newInquiriesCount }}</div>
+        </div>
     </div>
 
     <section class="bg-card border border-border rounded-card p-5.5 flex flex-col gap-3.5">
@@ -39,6 +43,28 @@
             </div>
         @empty
             <p class="text-text-muted text-sm">Heute sind keine Termine geplant.</p>
+        @endforelse
+    </section>
+
+    <section class="bg-card border border-border rounded-card p-5.5 flex flex-col gap-3.5">
+        <div class="flex items-center justify-between">
+            <h2 class="font-serif font-semibold text-lg">Neue Anfragen</h2>
+            <a href="{{ route('admin.inquiries.index') }}" class="text-sm font-bold no-underline">Alle Anfragen ansehen →</a>
+        </div>
+        @forelse ($newInquiries as $inquiry)
+            <div class="flex items-center gap-4 p-3.5 rounded-xl bg-bg">
+                <div class="flex-1 min-w-0">
+                    <div class="font-bold text-[14.5px] truncate">{{ $inquiry->name }} @if ($inquiry->dog_name)· {{ $inquiry->dog_name }}@endif</div>
+                    <div class="text-text-muted text-[13px] truncate">{{ $inquiry->message }}</div>
+                </div>
+                <form method="POST" action="{{ route('admin.inquiries.mark-contacted', $inquiry) }}" class="flex-shrink-0">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="bg-white border border-border text-text text-xs font-bold px-3 py-1.5 rounded-chip whitespace-nowrap">Kontaktiert markieren</button>
+                </form>
+            </div>
+        @empty
+            <p class="text-text-muted text-sm">Keine neuen Anfragen.</p>
         @endforelse
     </section>
 </x-layouts.admin>

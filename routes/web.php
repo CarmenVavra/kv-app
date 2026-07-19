@@ -1,17 +1,19 @@
 <?php
 
-use Auth0\Laravel\Controllers\CallbackController;
-use Auth0\Laravel\Controllers\LoginController;
-use Auth0\Laravel\Controllers\LogoutController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Public\ContactController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'public.landing')->name('landing');
+Route::view('/preise', 'public.pricing')->name('pricing');
+Route::post('/kontakt', ContactController::class)->name('contact.store');
 
 Route::view('/impressum', 'legal.impressum')->name('legal.impressum');
 Route::view('/agb', 'legal.agb')->name('legal.agb');
 Route::view('/datenschutz', 'legal.datenschutz')->name('legal.datenschutz');
 
-Route::view('/login', 'auth.login')->name('login');
-Route::get('/login/auth0', LoginController::class)->name('login.authorize');
-Route::get('/callback', CallbackController::class)->name('callback');
-Route::get('/logout', LogoutController::class)->name('logout');
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [LoginController::class, 'create'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+});
+Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');

@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use App\Auth0\UserRepository;
+use App\Auth\AdminUserProvider;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,9 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Ueberschreibt Auth0\Laravel\ServiceProviderAbstract::register(), das an dieser Stelle
-        // bereits gelaufen ist (alle register()-Methoden laufen vor jeder boot()-Methode) -
-        // ersetzt den generischen Auth0-User-Wrapper durch unser eigenes User-Model.
-        $this->app->singleton('auth0.repository', fn () => new UserRepository());
+        Auth::provider('admin', fn () => new AdminUserProvider());
     }
 }

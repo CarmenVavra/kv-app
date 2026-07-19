@@ -11,15 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('auth0_id')->unique();
-            $table->string('avatar_path')->nullable();
-            $table->timestamps();
-        });
-
+        // Keine "users"-Tabelle: es gibt genau einen Admin-Account, dessen Zugangsdaten in der
+        // .env liegen (siehe App\Auth\AdminUserProvider). "sessions" bleibt, weil SESSION_DRIVER=database.
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -35,7 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
         Schema::dropIfExists('sessions');
     }
 };
