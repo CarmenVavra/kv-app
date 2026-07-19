@@ -21,7 +21,7 @@
                 <div class="font-serif font-semibold text-lg">Mein Hund <span class="text-primary italic">der Rowdy</span></div>
                 {{-- Absenderadresse ist bis zur Einstellungen-Seite (M7 / Setting-Model) fest hinterlegt --}}
                 <div class="text-text-muted text-[12.5px] mt-1.5 leading-relaxed">
-                    Lena Brandt<br>Musterstraße 12<br>1010 Wien
+                    Carmen Brandt<br>Musterstraße 12<br>1010 Wien
                 </div>
             </div>
             <div class="text-right text-[12.5px] text-text-muted leading-relaxed">

@@ -7,7 +7,7 @@
             <section class="flex flex-col gap-2">
                 <h2 class="font-serif font-semibold text-lg">Anbieterin</h2>
                 <p class="text-[15px] leading-relaxed text-text">
-                    Lena Brandt<br>
+                    Carmen Brandt<br>
                     Mein Hund der Rowdy — Hundeverhaltensberatung<br>
                     Musterstraße 12<br>
                     1010 Wien, Österreich
@@ -40,7 +40,7 @@
             <section class="flex flex-col gap-2">
                 <h2 class="font-serif font-semibold text-lg">Verantwortlich für den Inhalt</h2>
                 <p class="text-[15px] leading-relaxed text-text">
-                    Lena Brandt (Anschrift wie oben)
+                    Carmen Brandt (Anschrift wie oben)
                 </p>
             </section>
 

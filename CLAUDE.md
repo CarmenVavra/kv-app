@@ -36,7 +36,7 @@ architecture/data-model/build-order plan lives at `C:\Users\carme\.claude\plans\
 ### Scope decision (confirmed with the client, deviates from the mockup)
 
 The mockup's "Nachrichten" screen (two-way chat UI) is **out of scope** — no chat, no client-facing login, no
-public reply mechanism. Contact-form submissions become `Inquiry` records that Lena answers by ordinary email
+public reply mechanism. Contact-form submissions become `Inquiry` records that Carmen answers by ordinary email
 outside the app. The admin sidebar therefore has 5 items, not 6: Dashboard, Kalender, Klienten, Buchhaltung,
 Einstellungen.
 
@@ -218,7 +218,7 @@ Trainingsverlauf+sidebar) uses `grid-cols-1 lg:grid-cols-[minmax(0,Nfr)_minmax(0
 
 **2026-07-19, confirmed with the client:** M1 originally built a full Auth0 integration (Universal Login,
 `auth0/login` SDK) because `Description.md` mandated it. Revisited later: there is exactly one admin account
-(Lena) and it's always the same person — the operational value Auth0 adds (SSO, MFA, brute-force protection
+(Carmen) and it's always the same person — the operational value Auth0 adds (SSO, MFA, brute-force protection
 for a multi-tenant user base) doesn't apply to a single, fixed credential, so it was ripped back out in favor
 of plain Laravel session auth. This is a deliberate, confirmed deviation from the client brief's "Auth0"
 requirement, not an oversight — noted here the same way the Stimmen/Nachrichten scope cuts are, since

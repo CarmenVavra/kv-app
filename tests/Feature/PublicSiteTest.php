@@ -5,7 +5,7 @@ it('renders the landing page without the dropped Stimmen section', function () {
         ->assertOk()
         ->assertSee('Ein entspannter Hund beginnt mit Verständnis.')
         ->assertSee('Leinentraining')
-        ->assertSee('Hallo, ich bin Lena.')
+        ->assertSee('Hallo, ich bin Carmen.')
         ->assertDontSee('Stimmen')
         ->assertDontSee('Was Klient');
 });

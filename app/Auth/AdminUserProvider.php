@@ -20,7 +20,7 @@ class AdminUserProvider implements UserProvider
     {
         return new AdminUser(
             email: (string) config('admin.email'),
-            name: 'Lena',
+            name: 'Carmen',
             passwordHash: (string) config('admin.password_hash'),
         );
     }

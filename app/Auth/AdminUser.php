@@ -5,7 +5,7 @@ namespace App\Auth;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
- * Es gibt genau einen Admin-Account (Lena) - Zugangsdaten liegen in der .env, nicht in einer
+ * Es gibt genau einen Admin-Account (Carmen) - Zugangsdaten liegen in der .env, nicht in einer
  * Datenbanktabelle. Diese Klasse macht daraus trotzdem ein normales Authenticatable, damit
  * auth()->user(), die "auth"/"guest"-Middleware und Auth::attempt() unveraendert funktionieren.
  */

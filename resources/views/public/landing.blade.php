@@ -89,12 +89,12 @@
     <section id="ueber-mich" class="mx-auto max-w-6xl px-6 lg:px-14 py-18 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-10 lg:gap-14 items-center">
         <img
             src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80"
-            alt="Lena Brandt mit Hund"
+            alt="Carmen Brandt mit Hund"
             class="w-full aspect-square object-cover rounded-3xl block max-w-[420px] mx-auto lg:max-w-none"
         >
         <div class="flex flex-col gap-4 min-w-0">
             <div class="font-extrabold text-[13px] text-secondary uppercase tracking-wide">Über mich</div>
-            <h2 class="font-serif text-[30px] font-semibold">Hallo, ich bin Lena.</h2>
+            <h2 class="font-serif text-[30px] font-semibold">Hallo, ich bin Carmen.</h2>
             <p class="text-[color:var(--color-text-muted-2)] text-[15.5px] leading-relaxed">
                 Seit über zehn Jahren begleite ich Hunde und ihre Menschen durch schwierige Verhaltensthemen — von akuter Leinenaggression bis zu tief verwurzelten Ängsten. Meine Arbeit basiert auf wissenschaftlich fundierter, gewaltfreier Methodik und einem ehrlichen Blick auf das, was für euren Hund wirklich funktioniert.
             </p>

@@ -66,7 +66,7 @@
 
     <footer class="border-t border-border bg-bg mt-16" aria-label="Footer">
         <div class="mx-auto max-w-6xl px-6 lg:px-14 py-8 flex flex-wrap items-center justify-between gap-4 text-sm text-text-muted">
-            <span>&copy; {{ now()->year }} Mein Hund der Rowdy — Lena Brandt</span>
+            <span>&copy; {{ now()->year }} Mein Hund der Rowdy — Carmen Brandt</span>
             <nav class="flex gap-5" aria-label="Rechtliches">
                 <a href="{{ route('legal.impressum') }}" class="text-text-muted no-underline hover:text-primary">Impressum</a>
                 <a href="{{ route('legal.agb') }}" class="text-text-muted no-underline hover:text-primary">AGB</a>
