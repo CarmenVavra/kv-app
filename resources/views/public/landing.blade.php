@@ -122,11 +122,6 @@
                 Ich stand vor Jahren genau am selben Punkt wie du. Ein schlecht informierter Züchter und eine gewalttätige Hundeschule machten meinen Hund zu einem nervösen Bündel, das alles anbellte. Erst als ich selbst 30.000 Euro in meine fundierte Ausbildung investierte, verstand ich die Sprache meines Hundes wirklich. Heute gehen wir entspannt spazieren, weil er mir vertraut.
              </p>
             <a href="{{ route('story') }}" class="inline-flex items-center justify-center border-2 border-secondary text-secondary no-underline px-6 py-3 rounded-full font-bold text-[14.5px] hover:bg-secondary hover:text-white w-fit">Lies meine ganze Geschichte</a>
-            <div class="flex gap-2.5 flex-wrap mt-1.5">
-                <span class="bg-card border border-border text-[13px] font-bold px-3.5 py-2 rounded-chip">Zert. Hundeverhaltensberaterin</span>
-                <span class="bg-card border border-border text-[13px] font-bold px-3.5 py-2 rounded-chip">Fortbildung Lerntheorie</span>
-                <span class="bg-card border border-border text-[13px] font-bold px-3.5 py-2 rounded-chip">Mitglied Berufsverband</span>
-            </div>
         </div>
     </section>
 
@@ -174,7 +169,7 @@
             <div class="flex flex-col gap-3.5 min-w-0">
                 <h2 class="font-serif text-[30px] font-semibold" style="text-wrap: balance;">Bereit für ein entspannteres Miteinander?</h2>
                 <p class="text-[15px] leading-relaxed opacity-90 max-w-[440px]">
-                    Vereinbare ein kostenloses, unverbindliches Erstgespräch — persönlich, per Video oder telefonisch.
+                    Vereinbare ein Erstgespräch.
                 </p>
                 @if ($packageNote)
                     <div class="bg-white/15 rounded-field px-3.5 py-3 text-[13.5px] leading-relaxed">{{ $packageNote }}</div>
