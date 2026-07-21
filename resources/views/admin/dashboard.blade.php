@@ -6,15 +6,15 @@
 
     <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
         <div class="bg-card border border-border rounded-card p-4.5">
-            <div class="text-text-muted text-[13px] font-bold">Termine heute</div>
+            <a href="{{ route('admin.calendar') }}" class="text-text-muted text-[13px] font-bold no-underline hover:text-primary">Termine heute</a>
             <div class="font-serif text-[28px] mt-1.5 text-primary">{{ $todayAppointments->count() }}</div>
         </div>
         <div class="bg-card border border-border rounded-card p-4.5">
-            <div class="text-text-muted text-[13px] font-bold">Aktive Klienten</div>
+            <a href="{{ route('admin.clients.index') }}" class="text-text-muted text-[13px] font-bold no-underline hover:text-primary">Aktive Klienten</a>
             <div class="font-serif text-[28px] mt-1.5">{{ $activeClientsCount }}</div>
         </div>
         <div class="bg-card border border-border rounded-card p-4.5">
-            <div class="text-text-muted text-[13px] font-bold">Neue Anfragen</div>
+            <a href="{{ route('admin.inquiries.index', ['status' => \App\Enums\InquiryStatus::Neu->value]) }}" class="text-text-muted text-[13px] font-bold no-underline hover:text-primary">Neue Anfragen</a>
             <div class="font-serif text-[28px] mt-1.5 text-primary">{{ $newInquiriesCount }}</div>
         </div>
     </div>
