@@ -112,7 +112,7 @@
     <section id="ueber-mich" class="mx-auto max-w-6xl px-6 lg:px-14 py-18 grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-10 lg:gap-14 items-center">
         <img
             src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80"
-            alt="Carmen Gregor mit Hund"
+            alt="Carmen GREGOR mit Hund"
             class="w-full aspect-square object-cover rounded-3xl block max-w-[420px] mx-auto lg:max-w-none"
         >
         <div class="flex flex-col gap-4 min-w-0">

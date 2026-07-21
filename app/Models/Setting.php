@@ -47,7 +47,7 @@ class Setting extends Model
     public static function current(): self
     {
         return self::query()->firstOrCreate([], [
-            'name' => 'Carmen Gregor',
+            'name' => 'Carmen GREGOR',
             'praxisname' => 'Mein Hund der Rowdy',
             'notify_new_inquiries' => true,
             'notify_appointment_reminders' => true,

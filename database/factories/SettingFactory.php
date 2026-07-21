@@ -18,7 +18,7 @@ class SettingFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Carmen Gregor',
+            'name' => 'Carmen GREGOR',
             'email' => fake()->safeEmail(),
             'phone' => fake()->phoneNumber(),
             'praxisname' => 'Mein Hund der Rowdy',

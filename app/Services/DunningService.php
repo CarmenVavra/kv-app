@@ -70,7 +70,7 @@ class DunningService
     private function bodyFor(Invoice $invoice, DunningLevel $level, int $daysOverdue, ?Carbon $lastReminderSentAt): string
     {
         $name = $invoice->client->owner_name;
-        $amount = number_format((float) $invoice->total_amount, 2, ',', '.').' €';
+        $amount = number_format((float) $invoice->total_amount, 2, ',', '.') . ' €';
 
         return match ($level) {
             DunningLevel::Erinnerung => <<<TEXT
@@ -81,7 +81,7 @@ class DunningService
                 Falls die Zahlung bereits erfolgt ist, betrachten Sie diese Nachricht als gegenstandslos.
 
                 Liebe Grüße
-                Carmen Gregor
+                Carmen GREGOR
                 TEXT,
             DunningLevel::Mahnung1 => <<<TEXT
                 Guten Tag {$name},
@@ -91,7 +91,7 @@ class DunningService
                 Ich bitte um Zahlung innerhalb von 7 Tagen.
 
                 Liebe Grüße
-                Carmen Gregor
+                Carmen GREGOR
                 TEXT,
             DunningLevel::Mahnung2 => <<<TEXT
                 Guten Tag {$name},
@@ -101,7 +101,7 @@ class DunningService
                 Ich bitte um Zahlung innerhalb von 7 Tagen. Andernfalls sind wir berechtigt, gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie einen pauschalen Betreibungsschaden von 40 € zu verrechnen.
 
                 Liebe Grüße
-                Carmen Gregor
+                Carmen GREGOR
                 TEXT,
         };
     }
