@@ -64,21 +64,21 @@
                 </div>
                 <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
                     <div class="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18c3-6 5-9 8-9s5 3 8 9"></path><circle cx="4" cy="19" r="1.4" fill="#fff" stroke="none"></circle><circle cx="20" cy="19" r="1.4" fill="#fff" stroke="none"></circle></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="16.5" rx="5.2" ry="4"></ellipse><ellipse cx="5.8" cy="8.2" rx="2" ry="2.6"></ellipse><ellipse cx="11" cy="5.3" rx="2" ry="2.6"></ellipse><ellipse cx="16.5" cy="6.3" rx="2" ry="2.6"></ellipse><ellipse cx="19.8" cy="10.8" rx="1.8" ry="2.3"></ellipse></svg>
                     </div>
                     <div class="font-serif font-semibold text-[17px]">Leinenaggression</div>
                     <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Gezieltes Training bei Reaktivität und Aggression an der Leine.</div>
                 </div>
                 <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
                     <div class="w-11 h-11 rounded-xl bg-accent flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.6a4.6 4.6 0 0 0-7.8-3.3L12 6.2l-1-1A4.6 4.6 0 0 0 3.2 8.6c0 2.5 2 4.5 5.4 7.6l3.4 3 3.4-3c3.4-3.1 5.4-5.1 5.4-7.6z"></path></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"></path><polyline points="13 11 9 17 15 17 11 23"></polyline></svg>
                     </div>
                     <div class="font-serif font-semibold text-[17px]">Stress</div>
                     <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">Dein Fahrplan zu spürbar mehr Gelassenheit.</div>
                 </div>
                 <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
                     <div class="w-11 h-11 rounded-xl bg-text-muted flex items-center justify-center flex-shrink-0" aria-hidden="true">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"></path><path d="M5 9v10h14V9"></path><path d="M9 19v-6h6v6"></path></svg>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"></path><path d="M6 21h12"></path><path d="M6 3c0 5 4 7 6 9-2 2-6 4-6 9"></path><path d="M18 3c0 5-4 7-6 9 2 2 6 4 6 9"></path></svg>
                     </div>
                     <div class="font-serif font-semibold text-[17px]">Impulskontrolle</div>
                     <div class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed">In der Ruhe liegt die Kraft - Impulskontrolle ist lernbar.</div>
