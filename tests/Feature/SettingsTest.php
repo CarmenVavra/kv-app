@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Storage;
 // fehlen Session/CSRF/$errors, die die View braucht.
 
 it('shows the settings page with the current values', function () {
-    Setting::current()->update(['name' => 'Carmen GREGOR', 'praxisname' => 'Mein Hund der Rowdy']);
+    Setting::current()->update(['name' => 'Carmen Gregor', 'praxisname' => 'Mein Hund der Rowdy']);
 
     $this->withoutMiddleware(Authenticate::class)
         ->get(route('admin.settings.index'))
         ->assertOk()
-        ->assertSee('Carmen GREGOR')
+        ->assertSee('Carmen Gregor')
         ->assertSee('Mein Hund der Rowdy');
 });
 
@@ -23,7 +23,7 @@ it('updates the profile, notification toggles, appointment duration and working 
 
     $this->withoutMiddleware(Authenticate::class)
         ->put(route('admin.settings.update'), [
-            'name' => 'Carmen GREGOR',
+            'name' => 'Carmen Gregor',
             'email' => 'carmen@gregor.at',
             'phone' => '+43 660 1234567',
             'praxisname' => 'Mein Hund der Rowdy',
@@ -34,7 +34,7 @@ it('updates the profile, notification toggles, appointment duration and working 
         ->assertRedirect(route('admin.settings.index'));
 
     $setting->refresh();
-    expect($setting->name)->toBe('Carmen GREGOR')
+    expect($setting->name)->toBe('Carmen Gregor')
         ->and($setting->email)->toBe('carmen@gregor.at')
         ->and($setting->notify_appointment_reminders)->toBeTrue()
         ->and($setting->notify_new_inquiries)->toBeFalse()

@@ -55,7 +55,7 @@
                     <span class="w-[34px] h-[34px] rounded-full bg-secondary flex-shrink-0" aria-hidden="true"></span>
                 @endif
                 <div class="text-[13px] leading-tight">
-                    <div class="font-bold">{{ $setting->name }}</div>
+                    <div class="font-bold">{{ \Illuminate\Support\Str::beforeLast($setting->name, ' ') }} <span class="uppercase">{{ \Illuminate\Support\Str::afterLast($setting->name, ' ') }}</span></div>
                     <div class="text-text-muted">Verhaltensberaterin für Hunde</div>
                 </div>
             </div>

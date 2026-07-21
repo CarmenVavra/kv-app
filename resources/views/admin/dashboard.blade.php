@@ -1,6 +1,6 @@
 <x-layouts.admin title="Dashboard">
     <header>
-        <h1 class="font-serif font-semibold text-2xl">Guten Tag, {{ auth()->user()?->name }} 🐾</h1>
+        <h1 class="font-serif font-semibold text-2xl">Guten Tag, {{ \Illuminate\Support\Str::beforeLast(auth()->user()?->name, ' ') }} <span class="uppercase">{{ \Illuminate\Support\Str::afterLast(auth()->user()?->name, ' ') }}</span> 🐾</h1>
         <p class="text-text-muted text-sm mt-1">{{ today()->translatedFormat('l, d. F Y') }} · {{ $todayAppointments->count() }} Termine heute</p>
     </header>
 

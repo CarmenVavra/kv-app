@@ -4,8 +4,8 @@ it('renders the landing page without the dropped Stimmen section', function () {
     $this->get(route('landing'))
         ->assertOk()
         ->assertSee('Ein entspannter Hund beginnt mit Verständnis.')
-        ->assertSee('Leinentraining')
-        ->assertSee('Hallo, ich bin Carmen.')
+        ->assertSee('Leinenaggression')
+        ->assertSee('Vom Albtraum zum Vertrauen')
         ->assertDontSee('Stimmen')
         ->assertDontSee('Was Klient');
 });
