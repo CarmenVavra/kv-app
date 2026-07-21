@@ -95,7 +95,7 @@
         </div>
     </div>
 
-    <x-admin.modal id="edit-client-modal" title="Klient bearbeiten">
+    <x-admin.modal id="edit-client-modal" title="Klient bearbeiten" max-width="max-w-xl">
         <form method="POST" action="{{ route('admin.clients.update', $client) }}" class="flex flex-col gap-1">
             @csrf
             @method('PUT')

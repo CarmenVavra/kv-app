@@ -24,7 +24,7 @@
         </div>
     </header>
 
-    <nav class="flex gap-2.5 flex-wrap" aria-label="Nach Verhaltensthema filtern">
+    <nav class="flex gap-2.5 flex-wrap" aria-label="Nach Leistung filtern">
         <a
             href="{{ route('admin.clients.index', array_filter(['suche' => request('suche')])) }}"
             class="border border-border rounded-chip px-4 py-2 font-bold text-sm no-underline {{ ! $activeTopic ? 'bg-primary text-white' : 'bg-card text-text' }}"
@@ -64,7 +64,7 @@
         @endforelse
     </div>
 
-    <x-admin.modal id="new-client-modal" title="Neuen Klienten erfassen">
+    <x-admin.modal id="new-client-modal" title="Neuen Klienten erfassen" max-width="max-w-xl">
         <form method="POST" action="{{ route('admin.clients.store') }}" class="flex flex-col gap-1">
             @csrf
             @include('admin.clients._form-fields', ['client' => null])

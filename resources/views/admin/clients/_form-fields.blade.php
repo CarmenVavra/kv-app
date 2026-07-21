@@ -22,23 +22,24 @@
     </label>
 </div>
 
-<label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">
-    Alter
-    <input
-        type="text" name="age_text" maxlength="255" placeholder="z.B. 3 Jahre"
-        value="{{ old('age_text', $client?->age_text) }}"
-        class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text max-w-[140px]"
-    >
-</label>
-
-<label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">
-    Halter/in
-    <input
-        type="text" name="owner_name" required maxlength="255"
-        value="{{ old('owner_name', $client?->owner_name) }}"
-        class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
-    >
-</label>
+<div class="grid grid-cols-[minmax(0,140px)_minmax(0,1fr)] gap-3 mt-3">
+    <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+        Alter
+        <input
+            type="text" name="age_text" maxlength="255" placeholder="z.B. 3 Jahre"
+            value="{{ old('age_text', $client?->age_text) }}"
+            class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
+        >
+    </label>
+    <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+        Halter/in
+        <input
+            type="text" name="owner_name" required maxlength="255"
+            value="{{ old('owner_name', $client?->owner_name) }}"
+            class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
+        >
+    </label>
+</div>
 
 <div class="grid grid-cols-2 gap-3 mt-3">
     <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
@@ -87,7 +88,7 @@
 </div>
 
 <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">
-    Verhaltensthema
+    Leistung
     <select
         name="behavior_topic" required
         class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"

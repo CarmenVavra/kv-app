@@ -1,5 +1,5 @@
-@props(['id', 'title'])
-<dialog id="{{ $id }}" aria-labelledby="{{ $id }}-title" class="bg-card border border-border rounded-card p-7 w-full max-w-md backdrop:bg-[rgba(58,47,39,0.35)] m-auto max-h-[85vh] overflow-y-auto">
+@props(['id', 'title', 'maxWidth' => 'max-w-md'])
+<dialog id="{{ $id }}" aria-labelledby="{{ $id }}-title" class="bg-card border border-border rounded-card p-7 w-full {{ $maxWidth }} backdrop:bg-[rgba(58,47,39,0.35)] m-auto max-h-[85vh] overflow-y-auto">
     <div class="relative">
         <form method="dialog">
             <button
