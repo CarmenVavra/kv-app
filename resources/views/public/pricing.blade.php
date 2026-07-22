@@ -50,18 +50,13 @@
         {{-- Einzelstunde (nur Bestandskunden) --}}
         <div class="bg-gray-50 border border-dashed border-gray-300 rounded-[20px] p-7.5 flex flex-col gap-4 relative">
             <div class="absolute -top-3.5 left-6.5 bg-gray-500 text-white text-[11.5px] font-extrabold px-3 py-1.5 rounded-chip uppercase tracking-wide">Nur für Bestandskunden</div>
-            <div class="font-serif text-[19px] font-semibold text-text">Die Einzelstunde</div>
+            <div class="font-serif text-[19px] font-semibold text-text">Einzelstunde</div>
             <div class="flex items-baseline gap-1.5">
                 <div class="font-serif text-[34px] font-semibold text-text">75 €</div>
                 <div class="text-[13px] text-text-muted">/ Sitzung</div>
             </div>
             <div class="text-[13px] font-bold text-gray-500">Dauer: 60 Minuten</div>
-            <div class="text-[13.5px] text-text-muted leading-relaxed">Gezieltes Begegnungstraining an wechselnden Orten. Perfekt geeignet, um bereits gelerntes Wissen zu vertiefen. <em>Buchbar ausschließlich nach bereits absolviertem Erstgespräch, da wir ohne fundierte Verhaltensanalyse kein sicheres Training garantieren können.</em></div>
-            <div class="flex flex-col gap-2.5 mt-1 flex-1">
-                @foreach (['8 × 60 Minuten Training', 'Priorisierte Terminvergabe', 'WhatsApp-Support zwischen Terminen', '20 % günstiger als Einzeltermine'] as $feature)
-                    <div class="flex gap-2.5 items-start text-[13.5px] text-text">{!! $checkIcon('#6b8e5a') !!}<span>{{ $feature }}</span></div>
-                @endforeach
-            </div>
+            <div class="text-[13.5px] text-text-muted leading-relaxed flex-1">Gezieltes Begegnungstraining an wechselnden Orten. Perfekt geeignet, um bereits gelerntes Wissen zu vertiefen. <em>Buchbar ausschließlich nach bereits absolviertem Erstgespräch, da wir ohne fundierte Verhaltensanalyse kein sicheres Training garantieren können.</em></div>
             <a href="{{ route('landing') }}?interesse=Einzelstunde#kontakt" class="no-underline text-center bg-white border border-border text-text rounded-field py-3 font-bold text-sm mt-2 hover:bg-bg">Jetzt anfragen</a>
         </div>
     </section>

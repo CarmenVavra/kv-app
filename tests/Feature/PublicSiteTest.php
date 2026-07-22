@@ -30,7 +30,7 @@ it('renders the pricing page with all three packages', function () {
         ->assertSee('110 €')
         ->assertSee('Sicher unterwegs')
         ->assertSee('310 €')
-        ->assertSee('Die Einzelstunde')
+        ->assertSee('Einzelstunde')
         ->assertSee('75 €');
 });
 
