@@ -1,8 +1,11 @@
 <?php
 
+use App\Enums\AppointmentStatus;
+use App\Enums\AppointmentType;
 use App\Enums\ExpenseCategory;
 use App\Enums\ExpenseStatus;
 use App\Enums\InvoiceStatus;
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Invoice;
@@ -35,73 +38,125 @@ it('switches to the incoming tab via the tab query parameter', function () {
         ->assertSee('BüroPlus');
 });
 
-it('creates an outgoing invoice with a single line item and an auto-generated number', function () {
+it('creates an outgoing invoice from an open appointment and marks it billed', function () {
     Storage::fake('local');
     $client = Client::factory()->create();
+    $appointment = Appointment::factory()->for($client)->create([
+        'type' => AppointmentType::Erstberatung,
+        'status' => AppointmentStatus::Abgeschlossen,
+    ]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => \App\Enums\InvoiceService::Erstberatung->value,
-            'amount' => '80.00',
+            'appointments' => [$appointment->id],
+            'appointment_amounts' => [$appointment->id => '90.00'],
         ])
         ->assertRedirect(route('admin.accounting.index', ['tab' => 'out']));
 
     $invoice = Invoice::sole();
+    $lineItem = $invoice->lineItems()->sole();
+
     expect($invoice->number)->toBe('R-0001')
         ->and($invoice->client_id)->toBe($client->id)
-        ->and((float) $invoice->total_amount)->toBe(80.0)
-        ->and($invoice->status)->toBe(InvoiceStatus::Offen);
+        ->and((float) $invoice->total_amount)->toBe(90.0)
+        ->and($invoice->status)->toBe(InvoiceStatus::Offen)
+        ->and($lineItem->appointment_id)->toBe($appointment->id)
+        ->and($lineItem->description)->toContain('Erstberatung');
+
+    // Der Termin gilt jetzt als verrechnet und darf nicht mehr als offene Leistung erscheinen.
+    expect(Appointment::unbilled()->whereKey($appointment->id)->exists())->toBeFalse();
 });
 
 it('generates sequential invoice numbers', function () {
     Storage::fake('local');
     $client = Client::factory()->create();
     Invoice::factory()->for($client)->create(['number' => 'R-0007']);
+    $appointment = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Abgeschlossen]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => \App\Enums\InvoiceService::Leinenaggression->value,
-            'amount' => '60.00',
+            'appointments' => [$appointment->id],
+            'appointment_amounts' => [$appointment->id => '60.00'],
         ]);
 
     expect(Invoice::where('number', 'R-0008')->exists())->toBeTrue();
 });
 
-it('rejects creating an invoice without the required fields', function () {
+it('rejects creating an invoice without a client or any leistung', function () {
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [])
-        ->assertSessionHasErrors(['client_id', 'service', 'amount']);
+        ->assertSessionHasErrors(['client_id', 'appointments']);
 
     expect(Invoice::count())->toBe(0);
 });
 
-it('rejects an unknown service value', function () {
+it('only bills open appointments belonging to the selected client', function () {
+    Storage::fake('local');
     $client = Client::factory()->create();
+    $otherClient = Client::factory()->create();
+    $foreignAppointment = Appointment::factory()->for($otherClient)->create(['status' => AppointmentStatus::Abgeschlossen]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => 'gassi-service',
-            'amount' => '60.00',
+            'appointments' => [$foreignAppointment->id],
+            'appointment_amounts' => [$foreignAppointment->id => '60.00'],
+            'sonstiges' => '1',
+            'sonstiges_description' => 'Telefonberatung',
+            'sonstiges_amount' => '20.00',
         ])
-        ->assertSessionHasErrors(['service']);
+        ->assertRedirect(route('admin.accounting.index', ['tab' => 'out']));
 
-    expect(Invoice::count())->toBe(0);
+    $invoice = Invoice::sole();
+    expect($invoice->lineItems)->toHaveCount(1)
+        ->and((float) $invoice->total_amount)->toBe(20.0);
 });
 
-it('adds a mileage line item charging the client for the round trip', function () {
+it('adds a Sonstiges line item with a free description and amount', function () {
     Storage::fake('local');
     $client = Client::factory()->create();
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => \App\Enums\InvoiceService::Leinenaggression->value,
-            'amount' => '60.00',
+            'sonstiges' => '1',
+            'sonstiges_description' => 'Telefonberatung',
+            'sonstiges_amount' => '25.00',
+        ])
+        ->assertRedirect(route('admin.accounting.index', ['tab' => 'out']));
+
+    $invoice = Invoice::sole();
+    $lineItem = $invoice->lineItems()->sole();
+
+    expect($lineItem->description)->toBe('Telefonberatung')
+        ->and($lineItem->appointment_id)->toBeNull()
+        ->and((float) $lineItem->amount)->toBe(25.0);
+});
+
+it('requires a description and amount when Sonstiges is checked', function () {
+    $client = Client::factory()->create();
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.accounting.invoices.store'), [
+            'client_id' => $client->id,
+            'sonstiges' => '1',
+        ])
+        ->assertSessionHasErrors(['sonstiges_description', 'sonstiges_amount']);
+
+    expect(Invoice::count())->toBe(0);
+});
+
+it('adds a mileage line item as km times the configured rate', function () {
+    Storage::fake('local');
+    $client = Client::factory()->create();
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.accounting.invoices.store'), [
+            'client_id' => $client->id,
             'charge_mileage' => '1',
-            'mileage_km' => '12',
+            'mileage_km' => '24',
         ])
         ->assertRedirect(route('admin.accounting.index', ['tab' => 'out']));
 
@@ -109,44 +164,40 @@ it('adds a mileage line item charging the client for the round trip', function (
     $mileageItem = $invoice->lineItems()->where('description', 'like', 'Fahrtkosten%')->sole();
 
     expect($mileageItem->description)->toContain('24,0 km')
-        ->and($mileageItem->description)->toContain('Hin- und Rückfahrt')
         ->and((float) $mileageItem->amount)->toBe(12.0)
-        ->and((float) $invoice->total_amount)->toBe(72.0);
+        ->and((float) $invoice->total_amount)->toBe(12.0);
 });
 
-it('adds a Kurzparkscheine line item at the entered amount', function () {
+it('adds a Kurzparkschein line item as hours times two half-hour blocks times the rate', function () {
     Storage::fake('local');
     $client = Client::factory()->create();
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => \App\Enums\InvoiceService::Leinenaggression->value,
-            'amount' => '60.00',
             'charge_parking' => '1',
-            'parking_amount' => '4.50',
+            'parking_hours' => '2',
         ])
         ->assertRedirect(route('admin.accounting.index', ['tab' => 'out']));
 
     $invoice = Invoice::sole();
-    $parkingItem = $invoice->lineItems()->where('description', 'Kurzparkscheine')->sole();
+    $parkingItem = $invoice->lineItems()->where('description', 'like', 'Kurzparkschein%')->sole();
 
-    expect((float) $parkingItem->amount)->toBe(4.5)
-        ->and((float) $invoice->total_amount)->toBe(64.5);
+    // 2 Stunden = 4 Halbstunden-Bloecke x 1,20 EUR Standard-Tarif = 4,80 EUR.
+    expect((float) $parkingItem->amount)->toBe(4.8)
+        ->and((float) $invoice->total_amount)->toBe(4.8);
 });
 
-it('requires the km when charging mileage and the amount when charging parking', function () {
+it('requires the km when charging mileage and the hours when charging parking', function () {
     $client = Client::factory()->create();
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => \App\Enums\InvoiceService::Leinenaggression->value,
-            'amount' => '60.00',
             'charge_mileage' => '1',
             'charge_parking' => '1',
         ])
-        ->assertSessionHasErrors(['mileage_km', 'parking_amount']);
+        ->assertSessionHasErrors(['mileage_km', 'parking_hours']);
 
     expect(Invoice::count())->toBe(0);
 });

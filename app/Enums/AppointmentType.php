@@ -18,4 +18,15 @@ enum AppointmentType: string
             self::VideoCheckin => 'Video-Check-in',
         };
     }
+
+    /**
+     * Erstberatung 90 EUR, jede weitere Termin-Art pauschal 60 EUR.
+     */
+    public function defaultInvoiceAmount(): float
+    {
+        return match ($this) {
+            self::Erstberatung => 90.00,
+            default => 60.00,
+        };
+    }
 }

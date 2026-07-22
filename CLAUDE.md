@@ -111,8 +111,8 @@ creation.
 gebraucht"): a plain `oninput` handler multiplies km × rate, no jQuery/Ajax needed for a client-side
 multiplication. Submitting creates both an `Expense` (category Fahrzeugkosten, status Bezahlt — this is a
 reimbursement you're recording for yourself, not something owed to a third party) and a `MileageEntry` row that
-snapshots `rate_per_km` at creation time, so a later change to `config('accounting.kilometergeld_pro_km')`
-never rewrites historical entries.
+snapshots `rate_per_km` at creation time, so a later change to the rate (see the 2026-07-22 note below — this
+now lives on `Setting`, not `config/accounting.php`) never rewrites historical entries.
 
 **EÜR/Jahresübersicht** — `App\Services\EuerCalculator` sums on a strict cash basis: an invoice counts as
 Einnahmen when `paid_at` falls in the period, never `issue_date` (matches the Kleinunternehmer/Ist-Besteuerung
@@ -134,6 +134,46 @@ test run.
 > means an uploaded receipt's URL is reachable by anyone who has it, without going through the admin auth guard
 > — lower severity than invoice PDFs (no client billing/address data) but worth tightening the same way
 > (private disk + authenticated download route) in a follow-up if this becomes a real concern.
+
+**2026-07-22 — "Neue Ausgangsrechnung" now bills a client's open appointments, not a fixed service catalog:**
+the client explicitly described an accumulating, per-client set of unbilled services ("Ein Klient hat gewisse
+offene Leistungen, die noch verrechnet werden müssen") — the only existing domain concept that naturally
+accumulates multiple pending-billing items per client is `Appointment`, so "offene Leistung" is now defined as
+`Appointment::scopeUnbilled()` (`status = Abgeschlossen` and no linked `InvoiceLineItem` yet), not a manually
+curated list. This replaced an earlier, narrower iteration of this same dialog (a single `App\Enums\InvoiceService`
+dropdown with one fixed line item) — that enum has been deleted outright rather than kept alongside the new
+appointment-based flow, since a static catalog and a live per-client open-items list are two different answers
+to the same question and only one can be true.
+
+`InvoiceLineItem` gained a nullable `appointment_id` (not `Invoice` — one invoice can now bill several open
+appointments at once, "Ich möchte pro Rechnung mehrere Leistungen erfassen", so the link has to live at the
+line-item level; `Invoice`'s own pre-existing unused `appointment_id` column was left alone rather than folded
+into this, since removing it wasn't asked for and isn't necessary for this feature to work correctly). The
+"Neue Ausgangsrechnung" dialog pre-renders every client's open appointments (grouped, one hidden block per
+client) and a small vanilla-JS function swaps which block is visible on `client_id` change — no new AJAX
+endpoint, consistent with this app's existing no-SPA/minimal-JS stance, and fine at this app's scale (one admin,
+a small client list). Each open appointment is its own checkbox + an editable, type-defaulted amount
+(`AppointmentType::defaultInvoiceAmount()`: Erstberatung 90 €, everything else 60 €) so several can be billed
+on one invoice; "Sonstige Leistung" is a free description+amount pair that's always available regardless of
+whether the selected client has any open appointments, for one-off charges with no matching appointment.
+`InvoiceController::store()` re-derives the billable appointment set server-side
+(`Appointment::whereIn(...)->where('client_id', ...)->unbilled()`) rather than trusting the submitted
+`appointments[]` IDs outright, so a manipulated request can't bill someone else's appointment or double-bill
+an already-invoiced one.
+
+Fahrtkosten/Kurzparkschein on this dialog are genuinely new line items, not the M5 Fahrtkosten-Rechner
+Expense flow (which stays a separate, self-reimbursement concept) — these bill the *client*. Fahrtkosten is a
+plain `gefahrene Kilometer × Kilometergeld` (no automatic round-trip doubling — an earlier iteration of this
+same feature doubled a one-way entry for "Hin- und Rückfahrt", but the client's follow-up description was
+explicit that the entered km is simply multiplied by the rate, so the admin enters however many km were
+actually driven). Kurzparkschein is `Stunden × 2 × Halbstunden-Tarif` — the client was explicit that this
+factor-of-2 must not be dropped, since the real Viennese Kurzparkschein tariff is priced per half hour, not
+per hour. Both rates (`kilometergeld_pro_km`, `kurzparkschein_tarif_pro_halbe_stunde`) moved from
+`config/accounting.php` to `Setting` (Einstellungen → "Tarife") since the client asked for them to be
+admin-editable, not just `.env`-editable like the Mahnwesen Basiszinssatz — `App\Services\MileageCalculator`
+(used by both this feature and the existing M5 Fahrtkosten-Rechner) and the new `App\Services\ParkingCalculator`
+both read from `Setting::current()` now, so a rate change applies everywhere the rate is used, not just one of
+the two features that happen to need it.
 
 ### Öffentliche Website (M6): Landingpage, Preise, Rechtsseiten, Kontaktformular → Inquiry
 

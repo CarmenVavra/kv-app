@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Appointment extends Model
 {
@@ -41,6 +42,11 @@ class Appointment extends Model
         return $this->belongsTo(Client::class);
     }
 
+    public function invoiceLineItem(): HasOne
+    {
+        return $this->hasOne(InvoiceLineItem::class);
+    }
+
     public function scopeOnDay(Builder $query, Carbon $day): Builder
     {
         return $query->whereBetween('starts_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()]);
@@ -49,5 +55,14 @@ class Appointment extends Model
     public function scopeUpcoming(Builder $query): Builder
     {
         return $query->where('starts_at', '>=', now())->orderBy('starts_at');
+    }
+
+    /**
+     * "Offene Leistung": ein abgeschlossener Termin, der noch auf keiner Rechnung als
+     * Rechnungsposten aufscheint.
+     */
+    public function scopeUnbilled(Builder $query): Builder
+    {
+        return $query->where('status', AppointmentStatus::Abgeschlossen)->whereDoesntHave('invoiceLineItem');
     }
 }

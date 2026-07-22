@@ -15,6 +15,7 @@ class InvoiceLineItem extends Model
 
     protected $fillable = [
         'invoice_id',
+        'appointment_id',
         'description',
         'quantity',
         'unit_price',
@@ -31,6 +32,11 @@ class InvoiceLineItem extends Model
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function appointment(): BelongsTo
+    {
+        return $this->belongsTo(Appointment::class);
     }
 
     protected function amount(): Attribute

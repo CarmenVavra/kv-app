@@ -13,9 +13,6 @@ return [
     // Pauschaler Betreibungsschaden, ab der 2. Mahnung (AT, § 1333 Abs. 2 ABGB).
     'betreibungsschaden' => 40.00,
 
-    // Amtliches Kilometergeld Oesterreich.
-    'kilometergeld_pro_km' => 0.50,
-
     // Grobe Ruecklage-Schaetzung fuer die Einkommensteuer (keine Steuerberatung).
     'steuerruecklage_quote' => 0.20,
 ];

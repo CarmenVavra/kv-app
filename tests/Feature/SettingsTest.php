@@ -30,6 +30,8 @@ it('updates the profile, notification toggles, appointment duration and working 
             'notify_appointment_reminders' => '1',
             'default_appointment_duration' => '90',
             'working_days' => ['Mo', 'Di'],
+            'kilometergeld_pro_km' => '0.55',
+            'kurzparkschein_tarif_pro_halbe_stunde' => '1.30',
         ])
         ->assertRedirect(route('admin.settings.index'));
 
@@ -40,7 +42,9 @@ it('updates the profile, notification toggles, appointment duration and working 
         ->and($setting->notify_new_inquiries)->toBeFalse()
         ->and($setting->notify_weekly_summary)->toBeFalse()
         ->and($setting->default_appointment_duration)->toBe(90)
-        ->and($setting->working_days)->toBe(['Mo', 'Di']);
+        ->and($setting->working_days)->toBe(['Mo', 'Di'])
+        ->and((float) $setting->kilometergeld_pro_km)->toBe(0.55)
+        ->and((float) $setting->kurzparkschein_tarif_pro_halbe_stunde)->toBe(1.3);
 });
 
 it('uploads a profile photo', function () {
@@ -51,6 +55,8 @@ it('uploads a profile photo', function () {
         ->put(route('admin.settings.update'), [
             'name' => $setting->name,
             'default_appointment_duration' => 60,
+            'kilometergeld_pro_km' => $setting->kilometergeld_pro_km,
+            'kurzparkschein_tarif_pro_halbe_stunde' => $setting->kurzparkschein_tarif_pro_halbe_stunde,
             'photo' => UploadedFile::fake()->create('foto.jpg', 100, 'image/jpeg'),
         ])
         ->assertRedirect(route('admin.settings.index'));
@@ -66,4 +72,13 @@ it('rejects updating settings without the required name field', function () {
             'default_appointment_duration' => 60,
         ])
         ->assertSessionHasErrors(['name']);
+});
+
+it('rejects updating settings without the required tariff fields', function () {
+    $this->withoutMiddleware(Authenticate::class)
+        ->put(route('admin.settings.update'), [
+            'name' => 'Carmen Gregor',
+            'default_appointment_duration' => 60,
+        ])
+        ->assertSessionHasErrors(['kilometergeld_pro_km', 'kurzparkschein_tarif_pro_halbe_stunde']);
 });

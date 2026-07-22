@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Setting;
+
 class MileageCalculator
 {
     public function ratePerKm(): float
     {
-        return (float) config('accounting.kilometergeld_pro_km');
+        return (float) Setting::current()->kilometergeld_pro_km;
     }
 
     public function calculate(float $km): float

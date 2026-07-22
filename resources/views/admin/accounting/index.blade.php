@@ -83,39 +83,70 @@
         @include('admin.accounting._jahr', ['quarters' => $quarters, 'yearlyProfit' => $yearlyProfit, 'euro' => $euro])
     @endif
 
-    <x-admin.modal id="new-invoice-modal" title="Neue Ausgangsrechnung">
+    <x-admin.modal id="new-invoice-modal" title="Neue Ausgangsrechnung" max-width="max-w-xl">
         <form method="POST" action="{{ route('admin.accounting.invoices.store') }}" class="flex flex-col gap-3.5">
             @csrf
             <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
                 Klient
-                <select name="client_id" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                <select
+                    name="client_id" required
+                    onchange="mhdrShowOpenAppointments(this.value)"
+                    class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
+                >
                     <option value="">– auswählen –</option>
                     @foreach ($clients as $client)
                         <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->dog_name }} ({{ $client->owner_name }})</option>
                     @endforeach
                 </select>
             </label>
-            <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
-                Leistung
-                <select
-                    name="service" id="invoice-service" required
-                    onchange="document.getElementById('invoice-amount').value = this.selectedOptions[0].dataset.amount ?? ''"
-                    class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
-                >
-                    <option value="">– auswählen –</option>
-                    @foreach (\App\Enums\InvoiceService::cases() as $service)
-                        <option
-                            value="{{ $service->value }}"
-                            data-amount="{{ $service->defaultAmount() }}"
-                            @selected(old('service') === $service->value)
-                        >{{ $service->label() }}</option>
+
+            @error('appointments') <p class="text-[color:var(--color-error-text)] text-xs font-bold">{{ $message }}</p> @enderror
+
+            <div>
+                <span class="text-sm font-bold text-text-muted">Offene Leistungen</span>
+                <div class="flex flex-col gap-2 mt-1.5">
+                    <p data-open-appointments="" class="text-text-muted text-[13px] {{ old('client_id') ? 'hidden' : '' }}">
+                        Bitte zuerst einen Klienten auswählen.
+                    </p>
+                    @foreach ($clients as $client)
+                        <div data-open-appointments="{{ $client->id }}" class="flex flex-col gap-2 {{ old('client_id') == $client->id ? '' : 'hidden' }}">
+                            @forelse ($openAppointments->get($client->id, collect()) as $appointment)
+                                <label class="flex items-center gap-2.5 text-sm bg-bg rounded-field px-3 py-2.5">
+                                    <input type="checkbox" name="appointments[]" value="{{ $appointment->id }}" @checked(in_array($appointment->id, old('appointments', []))) class="w-4 h-4 flex-shrink-0">
+                                    <span class="flex-1">{{ $appointment->type->label() }} ({{ $appointment->starts_at->format('d.m.Y') }})</span>
+                                    <input
+                                        type="number" step="0.01" min="0.01" name="appointment_amounts[{{ $appointment->id }}]"
+                                        value="{{ old("appointment_amounts.{$appointment->id}", $appointment->type->defaultInvoiceAmount()) }}"
+                                        aria-label="Betrag für {{ $appointment->type->label() }} ({{ $appointment->starts_at->format('d.m.Y') }})"
+                                        class="border border-border bg-white rounded-field px-2.5 py-1.5 text-sm w-24 flex-shrink-0"
+                                    >
+                                </label>
+                            @empty
+                                <p class="text-text-muted text-[13px]">Keine offenen Termine für diesen Klienten.</p>
+                            @endforelse
+                        </div>
                     @endforeach
-                </select>
+                </div>
+            </div>
+
+            <label class="flex items-center gap-2 text-sm font-bold text-text-muted">
+                <input
+                    type="checkbox" name="sonstiges" value="1"
+                    onchange="document.getElementById('sonstiges-fields').classList.toggle('hidden', !this.checked)"
+                    @checked(old('sonstiges')) class="w-4 h-4"
+                >
+                Sonstige Leistung
             </label>
-            <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
-                Betrag (€)
-                <input type="number" step="0.01" min="0.01" name="amount" id="invoice-amount" value="{{ old('amount') }}" required placeholder="90,00" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
-            </label>
+            <div id="sonstiges-fields" class="grid grid-cols-[minmax(0,1fr)_120px] gap-3 {{ old('sonstiges') ? '' : 'hidden' }}">
+                <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                    Beschreibung
+                    <input type="text" name="sonstiges_description" value="{{ old('sonstiges_description') }}" placeholder="z.B. Telefonberatung" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                </label>
+                <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+                    Betrag (€)
+                    <input type="number" step="0.01" min="0.01" name="sonstiges_amount" value="{{ old('sonstiges_amount') }}" placeholder="60,00" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                </label>
+            </div>
 
             <label class="flex items-center gap-2 text-sm font-bold text-text-muted">
                 <input
@@ -123,24 +154,36 @@
                     onchange="document.getElementById('mileage-km-field').classList.toggle('hidden', !this.checked)"
                     @checked(old('charge_mileage')) class="w-4 h-4"
                 >
-                Fahrtkosten verrechnen (Hin- und Rückfahrt)
+                Fahrtkosten verrechnen
             </label>
             <label id="mileage-km-field" class="flex flex-col gap-1.5 text-sm font-bold text-text-muted {{ old('charge_mileage') ? '' : 'hidden' }}">
-                Kilometer (einfache Strecke)
-                <input type="number" step="0.1" min="0.1" name="mileage_km" value="{{ old('mileage_km') }}" placeholder="12" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                Gefahrene Kilometer
+                <input
+                    type="number" step="0.1" min="0.1" name="mileage_km" value="{{ old('mileage_km') }}" placeholder="24"
+                    data-rate="{{ $ratePerKm }}"
+                    oninput="document.getElementById('mileage-preview').textContent = this.value ? (parseFloat(this.value.replace(',', '.')) * parseFloat(this.dataset.rate)).toLocaleString('de-AT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €' : '';"
+                    class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
+                >
+                <span id="mileage-preview" class="text-text-muted text-[12.5px] font-normal" aria-live="polite"></span>
             </label>
 
             <label class="flex items-center gap-2 text-sm font-bold text-text-muted">
                 <input
                     type="checkbox" name="charge_parking" value="1"
-                    onchange="document.getElementById('parking-amount-field').classList.toggle('hidden', !this.checked)"
+                    onchange="document.getElementById('parking-hours-field').classList.toggle('hidden', !this.checked)"
                     @checked(old('charge_parking')) class="w-4 h-4"
                 >
-                Kurzparkscheine verrechnen
+                Kurzparkschein verrechnen
             </label>
-            <label id="parking-amount-field" class="flex flex-col gap-1.5 text-sm font-bold text-text-muted {{ old('charge_parking') ? '' : 'hidden' }}">
-                Betrag Kurzparkscheine (€)
-                <input type="number" step="0.01" min="0.01" name="parking_amount" value="{{ old('parking_amount') }}" placeholder="4,50" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            <label id="parking-hours-field" class="flex flex-col gap-1.5 text-sm font-bold text-text-muted {{ old('charge_parking') ? '' : 'hidden' }}">
+                Parkdauer (Stunden)
+                <input
+                    type="number" step="0.5" min="0.5" name="parking_hours" value="{{ old('parking_hours') }}" placeholder="2"
+                    data-rate="{{ $parkingRatePerHalfHour }}"
+                    oninput="document.getElementById('parking-preview').textContent = this.value ? (parseFloat(this.value.replace(',', '.')) * 2 * parseFloat(this.dataset.rate)).toLocaleString('de-AT', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €' : '';"
+                    class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
+                >
+                <span id="parking-preview" class="text-text-muted text-[12.5px] font-normal" aria-live="polite"></span>
             </label>
 
             <div class="flex gap-2.5 justify-end mt-2">
@@ -149,6 +192,14 @@
             </div>
         </form>
     </x-admin.modal>
+
+    <script>
+        function mhdrShowOpenAppointments(clientId) {
+            document.querySelectorAll('[data-open-appointments]').forEach(function (el) {
+                el.classList.toggle('hidden', el.dataset.openAppointments !== clientId);
+            });
+        }
+    </script>
 
     <x-admin.modal id="new-expense-modal" title="Eingangsrechnung erfassen">
         <form method="POST" action="{{ route('admin.accounting.expenses.store') }}" enctype="multipart/form-data" class="flex flex-col gap-3.5">
@@ -229,7 +280,7 @@
         </form>
     </x-admin.modal>
 
-    @if ($errors->any() && old('service') !== null)
+    @if ($errors->any() && old('mileage_km') !== null)
         <script>document.getElementById('new-invoice-modal').showModal();</script>
     @elseif ($errors->any() && old('supplier') !== null)
         <script>document.getElementById('new-expense-modal').showModal();</script>

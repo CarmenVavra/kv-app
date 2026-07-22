@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Invoice;
@@ -11,6 +12,7 @@ use App\Models\RecurringInvoiceTemplate;
 use App\Services\DunningService;
 use App\Services\EuerCalculator;
 use App\Services\MileageCalculator;
+use App\Services\ParkingCalculator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -25,6 +27,7 @@ class AccountingController extends Controller
         DunningService $dunningService,
         EuerCalculator $euerCalculator,
         MileageCalculator $mileageCalculator,
+        ParkingCalculator $parkingCalculator,
     ): View {
         $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : 'out';
 
@@ -36,8 +39,11 @@ class AccountingController extends Controller
             'invoices' => $invoices,
             'expenses' => $expenses,
             'clients' => Client::query()->orderBy('dog_name')->get(),
+            'openAppointments' => Appointment::query()->unbilled()->orderBy('starts_at')->get()->groupBy('client_id'),
+            'ratePerKm' => $mileageCalculator->ratePerKm(),
+            'parkingRatePerHalfHour' => $parkingCalculator->ratePerHalfHour(),
             'stats' => $this->stats($invoices, $expenses),
-            ...$this->tabData($tab, $invoices, $dunningService, $euerCalculator, $mileageCalculator),
+            ...$this->tabData($tab, $invoices, $dunningService, $euerCalculator),
         ]);
     }
 
@@ -49,7 +55,6 @@ class AccountingController extends Controller
         Collection $invoices,
         DunningService $dunningService,
         EuerCalculator $euerCalculator,
-        MileageCalculator $mileageCalculator,
     ): array {
         return match ($tab) {
             'mahnwesen' => [
@@ -59,9 +64,6 @@ class AccountingController extends Controller
             ],
             'wiederkehrend' => [
                 'templates' => RecurringInvoiceTemplate::query()->with('client')->orderBy('title')->get(),
-            ],
-            'fahrtkosten' => [
-                'ratePerKm' => $mileageCalculator->ratePerKm(),
             ],
             'euer' => [
                 'euer' => $euerCalculator->summarize(today()->startOfMonth()->toImmutable(), today()->endOfMonth()->toImmutable()),

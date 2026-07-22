@@ -134,8 +134,9 @@ it('generates an invoice pdf automatically when an invoice is created', function
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
             'client_id' => $client->id,
-            'service' => \App\Enums\InvoiceService::Erstberatung->value,
-            'amount' => '80.00',
+            'sonstiges' => '1',
+            'sonstiges_description' => 'Erstberatung',
+            'sonstiges_amount' => '80.00',
         ]);
 
     $invoice = Invoice::sole();

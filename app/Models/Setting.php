@@ -24,6 +24,8 @@ class Setting extends Model
         'notify_weekly_summary',
         'default_appointment_duration',
         'working_days',
+        'kilometergeld_pro_km',
+        'kurzparkschein_tarif_pro_halbe_stunde',
     ];
 
     protected function casts(): array
@@ -33,6 +35,8 @@ class Setting extends Model
             'notify_appointment_reminders' => 'boolean',
             'notify_weekly_summary' => 'boolean',
             'working_days' => 'array',
+            'kilometergeld_pro_km' => 'decimal:2',
+            'kurzparkschein_tarif_pro_halbe_stunde' => 'decimal:2',
         ];
     }
 
@@ -54,6 +58,8 @@ class Setting extends Model
             'notify_weekly_summary' => false,
             'default_appointment_duration' => 60,
             'working_days' => ['Fr', 'Sa', 'So'],
+            'kilometergeld_pro_km' => 0.50,
+            'kurzparkschein_tarif_pro_halbe_stunde' => 1.20,
         ]);
     }
 }

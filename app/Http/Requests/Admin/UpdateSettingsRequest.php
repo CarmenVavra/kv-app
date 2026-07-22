@@ -30,6 +30,8 @@ class UpdateSettingsRequest extends FormRequest
             'default_appointment_duration' => ['required', 'integer', Rule::in([30, 45, 60, 90])],
             'working_days' => ['array'],
             'working_days.*' => [Rule::in(Setting::WEEKDAYS)],
+            'kilometergeld_pro_km' => ['required', 'numeric', 'min:0.01', 'max:9.99'],
+            'kurzparkschein_tarif_pro_halbe_stunde' => ['required', 'numeric', 'min:0.01', 'max:99.99'],
         ];
     }
 }

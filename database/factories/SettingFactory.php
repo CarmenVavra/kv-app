@@ -27,6 +27,8 @@ class SettingFactory extends Factory
             'notify_weekly_summary' => false,
             'default_appointment_duration' => 60,
             'working_days' => ['Fr', 'Sa', 'So'],
+            'kilometergeld_pro_km' => 0.50,
+            'kurzparkschein_tarif_pro_halbe_stunde' => 1.20,
         ];
     }
 }
