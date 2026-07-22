@@ -55,6 +55,20 @@ model. Confirmed with the client: a training plan belongs to exactly one dog, so
 gets multiple `Client` rows (owner data repeated each time), not one owner row `hasMany` dogs. See the plan
 file for the full model list and rationale.
 
+**2026-07-22 — `Appointment` now also carries a "Leistung" (`behavior_topic`, the same `BehaviorTopic` enum
+the Klienten form labels "Leistung"), alongside its existing "Terminart" (`AppointmentType`).** The client
+asked for a Leistung dropdown in the "Neuer Termin" dialog — these are two orthogonal facets of a session:
+*Terminart* is the session format (Erstberatung/Folgetermin/Hausbesuch/Video-Check-in, and it's what drives
+`defaultInvoiceAmount()`), *Leistung* is the behavioural topic worked on (Leinenaggression/Stress/…). A dog's
+`Client.behavior_topic` is its overall theme; a single appointment can still address a different topic, so the
+appointment gets its own field rather than inheriting the client's. The column is `nullable` (pre-existing
+appointments predate it) but the form validates it `required` for new/edited appointments, mirroring the
+Klienten "Leistung" select (required, no empty option, defaults to the first enum case). Shown as
+"{Terminart} · {Leistung}" wherever an appointment renders (Kalender-Agenda, Klientenprofil Trainingsverlauf +
+"Nächster Termin"), guarded with `@if ($appointment->behavior_topic)` so null-topic legacy rows don't render a
+stray "· ". Not folded into the invoice line-item description (which still uses `type->label()`) — wasn't asked
+for and the two labels serve different purposes.
+
 ### Buchhaltung Kern (M4): Invoice.status is computed, Expense.status is stored
 
 `Invoice` has no `status` column — it's an accessor (`InvoiceStatus` enum: Offen/Bezahlt/Überfällig) derived

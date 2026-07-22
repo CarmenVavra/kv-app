@@ -21,14 +21,24 @@
     </select>
 </label>
 
-<label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">
-    Terminart
-    <select name="type" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
-        @foreach (\App\Enums\AppointmentType::cases() as $type)
-            <option value="{{ $type->value }}" @selected($value('type', $appointment?->type?->value) === $type->value)>{{ $type->label() }}</option>
-        @endforeach
-    </select>
-</label>
+<div class="grid grid-cols-2 gap-3 mt-3">
+    <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+        Terminart
+        <select name="type" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            @foreach (\App\Enums\AppointmentType::cases() as $type)
+                <option value="{{ $type->value }}" @selected($value('type', $appointment?->type?->value) === $type->value)>{{ $type->label() }}</option>
+            @endforeach
+        </select>
+    </label>
+    <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
+        Leistung
+        <select name="behavior_topic" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            @foreach (\App\Enums\BehaviorTopic::cases() as $topic)
+                <option value="{{ $topic->value }}" @selected($value('behavior_topic', $appointment?->behavior_topic?->value) === $topic->value)>{{ $topic->label() }}</option>
+            @endforeach
+        </select>
+    </label>
+</div>
 
 @if ($appointment)
     <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">

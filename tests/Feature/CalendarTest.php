@@ -34,6 +34,7 @@ it('creates an appointment', function () {
         ->post(route('admin.appointments.store'), [
             'client_id' => $client->id,
             'type' => 'erstberatung',
+            'behavior_topic' => 'stress',
             'starts_at' => today()->addDay()->setTime(10, 0)->format('Y-m-d\TH:i'),
             'duration_minutes' => 60,
         ])
@@ -41,7 +42,23 @@ it('creates an appointment', function () {
 
     $appointment = Appointment::sole();
     expect($appointment->client_id)->toBe($client->id)
-        ->and($appointment->status->value)->toBe('bestaetigt');
+        ->and($appointment->status->value)->toBe('bestaetigt')
+        ->and($appointment->behavior_topic->value)->toBe('stress');
+});
+
+it('requires a Leistung when creating an appointment', function () {
+    $client = Client::factory()->create();
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.appointments.store'), [
+            'client_id' => $client->id,
+            'type' => 'erstberatung',
+            'starts_at' => today()->addDay()->setTime(10, 0)->format('Y-m-d\TH:i'),
+            'duration_minutes' => 60,
+        ])
+        ->assertSessionHasErrors(['behavior_topic']);
+
+    expect(Appointment::count())->toBe(0);
 });
 
 it('preselects the default appointment duration from the settings', function () {
@@ -75,6 +92,7 @@ it('updates an appointment, including its status', function () {
         ->put(route('admin.appointments.update', $appointment), [
             'client_id' => $client->id,
             'type' => 'folgetermin',
+            'behavior_topic' => 'impulskontrolle',
             'status' => 'abgeschlossen',
             'starts_at' => today()->addDay()->setTime(11, 0)->format('Y-m-d\TH:i'),
             'duration_minutes' => 45,
@@ -84,6 +102,7 @@ it('updates an appointment, including its status', function () {
 
     $appointment->refresh();
     expect($appointment->type->value)->toBe('folgetermin')
+        ->and($appointment->behavior_topic->value)->toBe('impulskontrolle')
         ->and($appointment->status->value)->toBe('abgeschlossen')
         ->and($appointment->duration_minutes)->toBe(45)
         ->and($appointment->notes)->toBe('Verlief gut.');

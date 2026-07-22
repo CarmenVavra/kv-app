@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
+use App\Enums\BehaviorTopic;
 use Carbon\Carbon;
 use Database\Factories\AppointmentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +21,7 @@ class Appointment extends Model
     protected $fillable = [
         'client_id',
         'type',
+        'behavior_topic',
         'starts_at',
         'duration_minutes',
         'status',
@@ -31,6 +33,7 @@ class Appointment extends Model
     {
         return [
             'type' => AppointmentType::class,
+            'behavior_topic' => BehaviorTopic::class,
             'status' => AppointmentStatus::class,
             'starts_at' => 'datetime',
             'reminder_sent_at' => 'datetime',
