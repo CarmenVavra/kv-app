@@ -25,6 +25,7 @@ class Appointment extends Model
         'starts_at',
         'duration_minutes',
         'status',
+        'cancellation_fee',
         'notes',
         'reminder_sent_at',
     ];
@@ -35,9 +36,42 @@ class Appointment extends Model
             'type' => AppointmentType::class,
             'behavior_topic' => BehaviorTopic::class,
             'status' => AppointmentStatus::class,
+            'cancellation_fee' => 'boolean',
             'starts_at' => 'datetime',
             'reminder_sent_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Auswahlwerte fuer die Inline-Status-Steuerung im Trainingsverlauf. "Abgesagt" ist bewusst in
+     * zwei Zeilen aufgeteilt (mit/ohne Stornogebuehr), da die Gebuehrenfrage die einzige zusaetzliche
+     * Information ist, die eine Absage fuer die Verrechnung braucht - der Controller mappt die beiden
+     * abgesagt_*-Werte auf status = Abgesagt + cancellation_fee true/false.
+     *
+     * @return array<string, string>
+     */
+    public static function statusOptions(): array
+    {
+        return [
+            AppointmentStatus::Ausstehend->value => AppointmentStatus::Ausstehend->label(),
+            AppointmentStatus::Bestaetigt->value => AppointmentStatus::Bestaetigt->label(),
+            AppointmentStatus::Abgeschlossen->value => AppointmentStatus::Abgeschlossen->label(),
+            'abgesagt_mit_gebuehr' => 'Abgesagt · mit Stornogebühr',
+            'abgesagt_ohne_gebuehr' => 'Abgesagt · keine Stornogebühr',
+        ];
+    }
+
+    /**
+     * Der zur aktuellen Kombination aus status + cancellation_fee passende statusOptions()-Schluessel
+     * (fuer das <select>-Vorbelegen im Trainingsverlauf).
+     */
+    public function statusOptionValue(): string
+    {
+        if ($this->status === AppointmentStatus::Abgesagt) {
+            return $this->cancellation_fee ? 'abgesagt_mit_gebuehr' : 'abgesagt_ohne_gebuehr';
+        }
+
+        return $this->status->value;
     }
 
     public function client(): BelongsTo
@@ -57,6 +91,17 @@ class Appointment extends Model
             : $this->type->label();
     }
 
+    /**
+     * Beschriftung auf der Rechnung / im Rechnungsdialog. Eine abgesagte (aber gebuehrenpflichtige)
+     * Leistung wird als Stornogebuehr ausgewiesen, eine erbrachte Leistung normal als Terminart · Leistung.
+     */
+    public function billingLabel(): string
+    {
+        return $this->status === AppointmentStatus::Abgesagt
+            ? 'Stornogebühr · '.$this->type->label()
+            : $this->typeAndTopicLabel();
+    }
+
     public function invoiceLineItem(): HasOne
     {
         return $this->hasOne(InvoiceLineItem::class);
@@ -73,21 +118,27 @@ class Appointment extends Model
     }
 
     /**
-     * "Offene Leistung": ein bereits stattgefundener (in der Vergangenheit liegender), nicht
-     * abgesagter Termin, der noch auf keiner Rechnung als Rechnungsposten aufscheint.
+     * "Offene Leistung": ein noch nicht verrechneter Termin, dessen Leistung tatsaechlich zu
+     * verrechnen ist - entweder weil sie erbracht wurde (status = Abgeschlossen) oder weil eine
+     * kurzfristige Absage eine Stornogebuehr ausgeloest hat (status = Abgesagt + cancellation_fee).
      *
-     * Urspruenglich war die Bedingung status = Abgeschlossen; in der Praxis pflegt die Nutzerin
-     * diesen Status aber nicht (jeder Termin bleibt "Bestaetigt"), sodass nie etwas verrechenbar
-     * war. Ein vergangener, nicht abgesagter Termin gilt daher als erbrachte Leistung - das trifft
-     * die urspruengliche Absicht ("abgeschlossene Termine verrechnen"), ohne dass jeder Termin von
-     * Hand auf Abgeschlossen gesetzt werden muss. Zukuenftige Termine erscheinen bewusst nicht
-     * (Leistung noch nicht erbracht), abgesagte ebenfalls nicht (keine Leistung erbracht).
+     * Die Nutzerin pflegt den Status jetzt aktiv im Trainingsverlauf ("erst nach erbrachter Leistung
+     * verrechnen"), deshalb ist die Verrechenbarkeit wieder statusgetrieben statt an das blosse
+     * Datum gekoppelt: bestaetigte/ausstehende Termine (noch nicht erbracht) und folgenlos abgesagte
+     * Termine sind bewusst nicht verrechenbar.
      */
     public function scopeUnbilled(Builder $query): Builder
     {
         return $query
-            ->where('status', '!=', AppointmentStatus::Abgesagt)
-            ->where('starts_at', '<=', now())
+            ->where(function (Builder $billable): void {
+                $billable
+                    ->where('status', AppointmentStatus::Abgeschlossen)
+                    ->orWhere(function (Builder $cancelledWithFee): void {
+                        $cancelledWithFee
+                            ->where('status', AppointmentStatus::Abgesagt)
+                            ->where('cancellation_fee', true);
+                    });
+            })
             ->whereDoesntHave('invoiceLineItem');
     }
 }

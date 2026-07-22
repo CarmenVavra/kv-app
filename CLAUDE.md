@@ -182,16 +182,34 @@ per-client open-items list are two different answers to the same question and on
 
 > **2026-07-22 (later same day) — `scopeUnbilled()` no longer requires `status = Abgeschlossen`.** It was
 > originally `status = Abgeschlossen AND whereDoesntHave('invoiceLineItem')` (the interpretation confirmed via
-> AskUserQuestion). In real use the client leaves every appointment at its creation default `Bestaetigt` and
-> never flips it to `Abgeschlossen`, so a client with many past, clearly-billable sessions showed "Keine
-> offenen Termine für diesen Klienten" and nothing could ever be invoiced. The scope is now **`status !=
-> Abgesagt` AND `starts_at <= now()` AND no linked `InvoiceLineItem`** — i.e. any past (already-rendered),
-> non-cancelled, not-yet-billed appointment counts as an offene Leistung, regardless of the Bestaetigt/
-> Abgeschlossen/Ausstehend status the admin may or may not maintain. This keeps faith with the original intent
-> ("abgeschlossene Termine verrechnen" ⇒ bill sessions that have happened) without depending on a status field
-> the user doesn't touch. Future appointments are deliberately excluded (service not yet rendered), as are
-> cancelled ones. Tests that need a billable appointment now set an explicit past `starts_at` (the factory's
-> `starts_at` is random `-1..+1 month`, so a future roll would otherwise silently drop it from the scope).
+> AskUserQuestion). A first fix loosened it to "past + not cancelled + unbilled" because the client left every
+> appointment at the creation default `Bestaetigt` and never flipped it, so nothing was ever billable. **That
+> loosening was then reverted the same day** once the client asked for an inline status control (see the note
+> below): with a way to set status per row, billing is status-driven again and the date-based rule is gone.
+> Current scope: **no linked `InvoiceLineItem` AND (`status = Abgeschlossen` OR (`status = Abgesagt` AND
+> `cancellation_fee = true`))** — a rendered session, or a late-cancelled one that owes a Stornogebühr. See the
+> Trainingsverlauf-status note below for the full rationale.
+
+> **2026-07-22 (later same day) — inline Termin-Status im Trainingsverlauf + status-driven billing + Storno.**
+> The client wanted, per Trainingsverlauf row on the Klientenprofil, to see and set the appointment status
+> ("Anfangs sehe ich Bestätigt", changeable to Abgeschlossen / Abgesagt), and to "erst nach erbrachter Leistung
+> verrechnen". Implemented as a per-row auto-submitting `<select>` (`AppointmentController::updateStatus`, route
+> `admin.appointments.update-status`, PATCH). "Abgesagt" is split into two select options — *mit Stornogebühr* /
+> *keine Stornogebühr* — because the fee is the only extra bit a cancellation needs for billing. A new nullable
+> `appointments.cancellation_fee` boolean holds it (null unless status = Abgesagt); the controller maps the two
+> `abgesagt_*` option values to `status = Abgesagt` + the flag, and resets the flag to null for any other status.
+> The 24-hour rule ("Stornogebühr wenn < 24 h vor Trainingsbeginn abgesagt") is shown as a guidance hint under
+> the heading — the admin picks the variant, it is **not** auto-computed from `starts_at`, so a fee can be
+> waived as goodwill. Because status is now actively maintained, `scopeUnbilled()` went back to status-driven
+> (Abgeschlossen, or Abgesagt-with-fee) — the exact "erst nach erbrachter Leistung verrechnen" the client asked
+> for; `Bestaetigt`/`Ausstehend` (not yet rendered) and folgenlos-abgesagte appointments are deliberately not
+> billable. A billable cancelled appointment shows on the invoice as `Appointment::billingLabel()` →
+> "Stornogebühr · {Terminart}" (vs. the normal "{Terminart} · {Leistung}" for a rendered session); its amount
+> pre-fills to the session's `defaultInvoiceAmount()` and stays editable in the dialog, since the actual
+> cancellation fee is a business choice (often less than the full session). The inline control lives only in the
+> Trainingsverlauf (past appointments) — cancelling a *future* appointment is still done via the Kalender edit
+> modal (whose plain Abgesagt leaves `cancellation_fee` null ⇒ not billable), which is the right place for the
+> pre-session cancel flow.
 
 `InvoiceLineItem` gained a nullable `appointment_id` (not `Invoice` — one invoice can now bill several open
 appointments at once, "Ich möchte pro Rechnung mehrere Leistungen erfassen", so the link has to live at the

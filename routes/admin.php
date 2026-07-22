@@ -21,6 +21,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::post('/kalender', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::put('/kalender/{appointment}', [AppointmentController::class, 'update'])->name('appointments.update');
     Route::delete('/kalender/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
+    Route::patch('/kalender/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.update-status');
 
     Route::prefix('anfragen')->name('inquiries.')->group(function (): void {
         Route::get('/', [InquiryController::class, 'index'])->name('index');

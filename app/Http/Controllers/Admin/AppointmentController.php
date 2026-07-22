@@ -79,4 +79,26 @@ class AppointmentController extends Controller
 
         return redirect()->route('admin.calendar', ['tag' => $day]);
     }
+
+    /**
+     * Schnelles Setzen des Termin-Status direkt aus dem Trainingsverlauf des Klientenprofils.
+     * "Abgesagt" kommt in zwei Varianten (mit/ohne Stornogebuehr), die hier auf status = Abgesagt
+     * + cancellation_fee gemappt werden; jeder andere Status setzt cancellation_fee zurueck auf null.
+     */
+    public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status_option' => ['required', 'in:'.implode(',', array_keys(Appointment::statusOptions()))],
+        ]);
+
+        [$status, $fee] = match ($validated['status_option']) {
+            'abgesagt_mit_gebuehr' => [AppointmentStatus::Abgesagt, true],
+            'abgesagt_ohne_gebuehr' => [AppointmentStatus::Abgesagt, false],
+            default => [AppointmentStatus::from($validated['status_option']), null],
+        };
+
+        $appointment->update(['status' => $status, 'cancellation_fee' => $fee]);
+
+        return redirect()->route('admin.clients.show', $appointment->client);
+    }
 }

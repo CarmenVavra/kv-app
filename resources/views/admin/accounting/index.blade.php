@@ -113,11 +113,11 @@
                             @forelse ($openAppointments->get($client->id, collect()) as $appointment)
                                 <label class="flex items-center gap-2.5 text-sm bg-bg rounded-field px-3 py-2.5">
                                     <input type="checkbox" name="appointments[]" value="{{ $appointment->id }}" @checked(in_array($appointment->id, old('appointments', []))) class="w-4 h-4 flex-shrink-0">
-                                    <span class="flex-1">{{ $appointment->typeAndTopicLabel() }} ({{ $appointment->starts_at->format('d.m.Y') }})</span>
+                                    <span class="flex-1">{{ $appointment->billingLabel() }} ({{ $appointment->starts_at->format('d.m.Y') }})</span>
                                     <input
                                         type="number" step="0.01" min="0.01" name="appointment_amounts[{{ $appointment->id }}]"
                                         value="{{ old("appointment_amounts.{$appointment->id}", $appointment->type->defaultInvoiceAmount()) }}"
-                                        aria-label="Betrag für {{ $appointment->typeAndTopicLabel() }} ({{ $appointment->starts_at->format('d.m.Y') }})"
+                                        aria-label="Betrag für {{ $appointment->billingLabel() }} ({{ $appointment->starts_at->format('d.m.Y') }})"
                                         class="border border-border bg-white rounded-field px-2.5 py-1.5 text-sm w-24 flex-shrink-0"
                                     >
                                 </label>

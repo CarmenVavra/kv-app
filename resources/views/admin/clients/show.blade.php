@@ -34,9 +34,13 @@
 
     <div class="grid gap-6 items-start grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <section class="bg-card border border-border rounded-card p-6 flex flex-col gap-1">
-            <h2 class="font-serif font-semibold text-lg mb-3">Trainingsverlauf</h2>
+            <h2 class="font-serif font-semibold text-lg">Trainingsverlauf</h2>
+            <p class="text-text-muted text-[12.5px] mb-3 leading-relaxed">
+                Status je Termin setzen — verrechnet werden nur abgeschlossene Leistungen. Eine kurzfristige
+                Absage (weniger als 24 Stunden vor Trainingsbeginn) mit Stornogebühr wird ebenfalls verrechenbar.
+            </p>
             @forelse ($pastAppointments as $appointment)
-                <div class="flex gap-4 py-3.5 border-t border-border">
+                <div class="flex gap-4 py-3.5 border-t border-border items-start">
                     <div class="w-[70px] flex-shrink-0 text-text-muted text-xs font-bold pt-0.5">
                         {{ $appointment->starts_at->translatedFormat('d. F') }}
                     </div>
@@ -49,6 +53,20 @@
                             <div class="text-[color:var(--color-text-muted-2)] text-[13.5px] leading-relaxed mt-0.5">{{ $appointment->notes }}</div>
                         @endif
                     </div>
+                    <form method="POST" action="{{ route('admin.appointments.update-status', $appointment) }}" class="flex-shrink-0">
+                        @csrf
+                        @method('PATCH')
+                        <select
+                            name="status_option"
+                            onchange="this.form.submit()"
+                            aria-label="Status für {{ $appointment->typeAndTopicLabel() }} am {{ $appointment->starts_at->format('d.m.Y') }}"
+                            class="border border-border bg-white rounded-field px-2.5 py-1.5 text-xs font-bold text-text cursor-pointer"
+                        >
+                            @foreach (\App\Models\Appointment::statusOptions() as $value => $label)
+                                <option value="{{ $value }}" @selected($appointment->statusOptionValue() === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </form>
                 </div>
             @empty
                 <p class="text-text-muted text-sm">Noch keine Termine erfasst.</p>

@@ -108,6 +108,40 @@ it('updates an appointment, including its status', function () {
         ->and($appointment->notes)->toBe('Verlief gut.');
 });
 
+it('sets an appointment status inline from the training history', function () {
+    $appointment = Appointment::factory()->create(['status' => 'bestaetigt']);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->patch(route('admin.appointments.update-status', $appointment), ['status_option' => 'abgeschlossen'])
+        ->assertRedirect(route('admin.clients.show', $appointment->client));
+
+    expect($appointment->fresh()->status->value)->toBe('abgeschlossen');
+});
+
+it('maps the two Abgesagt options to a cancellation fee flag', function () {
+    $withFee = Appointment::factory()->create(['status' => 'bestaetigt']);
+    $withoutFee = Appointment::factory()->create(['status' => 'bestaetigt']);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->patch(route('admin.appointments.update-status', $withFee), ['status_option' => 'abgesagt_mit_gebuehr']);
+    $this->withoutMiddleware(Authenticate::class)
+        ->patch(route('admin.appointments.update-status', $withoutFee), ['status_option' => 'abgesagt_ohne_gebuehr']);
+
+    expect($withFee->fresh()->status->value)->toBe('abgesagt')
+        ->and($withFee->fresh()->cancellation_fee)->toBeTrue()
+        ->and($withoutFee->fresh()->status->value)->toBe('abgesagt')
+        ->and($withoutFee->fresh()->cancellation_fee)->toBeFalse();
+});
+
+it('clears the cancellation fee flag when moving away from Abgesagt', function () {
+    $appointment = Appointment::factory()->create(['status' => 'abgesagt', 'cancellation_fee' => true]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->patch(route('admin.appointments.update-status', $appointment), ['status_option' => 'abgeschlossen']);
+
+    expect($appointment->fresh()->cancellation_fee)->toBeNull();
+});
+
 it('deletes an appointment', function () {
     $appointment = Appointment::factory()->create();
 

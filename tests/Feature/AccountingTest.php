@@ -57,7 +57,7 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
         'type' => AppointmentType::Erstberatung,
         'behavior_topic' => BehaviorTopic::Leinenaggression,
         'starts_at' => now()->subWeek(),
-        'status' => AppointmentStatus::Bestaetigt,
+        'status' => AppointmentStatus::Abgeschlossen,
     ]);
 
     $this->withoutMiddleware(Authenticate::class)
@@ -85,28 +85,51 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
     expect(Appointment::unbilled()->whereKey($appointment->id)->exists())->toBeFalse();
 });
 
-it('treats any past, non-cancelled, unbilled appointment as an offene Leistung', function () {
+it('counts only rendered or fee-bearing-cancelled, unbilled appointments as offene Leistungen', function () {
     $client = Client::factory()->create();
 
-    // Verrechenbar: vergangen, nicht abgesagt, noch nicht verrechnet (Status egal).
-    $pastConfirmed = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
-    $pastPending = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Ausstehend]);
+    // Verrechenbar: erbracht (Abgeschlossen) oder kurzfristig abgesagt mit Stornogebühr.
+    $completed = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Abgeschlossen]);
+    $cancelledWithFee = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Abgesagt, 'cancellation_fee' => true]);
 
-    // Nicht verrechenbar:
-    $future = Appointment::factory()->for($client)->create(['starts_at' => now()->addWeek(), 'status' => AppointmentStatus::Bestaetigt]);
-    $cancelled = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Abgesagt]);
-    $billed = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
+    // Nicht verrechenbar: noch nicht erbracht, folgenlos abgesagt oder bereits verrechnet.
+    $confirmed = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Bestaetigt]);
+    $pending = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Ausstehend]);
+    $cancelledNoFee = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Abgesagt, 'cancellation_fee' => false]);
+    $billed = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Abgeschlossen]);
     Invoice::factory()->for($client)->create()->lineItems()->create([
         'appointment_id' => $billed->id, 'description' => 'x', 'quantity' => 1, 'unit_price' => 60,
     ]);
 
     $unbilledIds = Appointment::unbilled()->pluck('id');
 
-    expect($unbilledIds)->toContain($pastConfirmed->id)
-        ->toContain($pastPending->id)
-        ->not->toContain($future->id)
-        ->not->toContain($cancelled->id)
+    expect($unbilledIds)->toContain($completed->id)
+        ->toContain($cancelledWithFee->id)
+        ->not->toContain($confirmed->id)
+        ->not->toContain($pending->id)
+        ->not->toContain($cancelledNoFee->id)
         ->not->toContain($billed->id);
+});
+
+it('bills a fee-bearing cancelled appointment as a Stornogebühr line item', function () {
+    Storage::fake('local');
+    $client = Client::factory()->create();
+    $cancelled = Appointment::factory()->for($client)->create([
+        'type' => AppointmentType::Folgetermin,
+        'starts_at' => now()->subDay(),
+        'status' => AppointmentStatus::Abgesagt,
+        'cancellation_fee' => true,
+    ]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.accounting.invoices.store'), [
+            'client_id' => $client->id,
+            'appointments' => [$cancelled->id],
+            'appointment_amounts' => [$cancelled->id => '60.00'],
+        ])
+        ->assertRedirect(route('admin.accounting.index', ['tab' => 'out']));
+
+    expect(Invoice::sole()->lineItems()->sole()->description)->toContain('Stornogebühr');
 });
 
 it('shows an open appointment with its Leistung in the new-invoice dialog', function () {
@@ -115,7 +138,7 @@ it('shows an open appointment with its Leistung in the new-invoice dialog', func
         'type' => AppointmentType::Erstberatung,
         'behavior_topic' => BehaviorTopic::Impulskontrolle,
         'starts_at' => now()->subWeek(),
-        'status' => AppointmentStatus::Bestaetigt,
+        'status' => AppointmentStatus::Abgeschlossen,
     ]);
 
     $this->withoutMiddleware(Authenticate::class)
@@ -128,7 +151,7 @@ it('generates sequential invoice numbers', function () {
     Storage::fake('local');
     $client = Client::factory()->create();
     Invoice::factory()->for($client)->create(['number' => 'R-0007']);
-    $appointment = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
+    $appointment = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Abgeschlossen]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
@@ -152,7 +175,7 @@ it('only bills open appointments belonging to the selected client', function () 
     Storage::fake('local');
     $client = Client::factory()->create();
     $otherClient = Client::factory()->create();
-    $foreignAppointment = Appointment::factory()->for($otherClient)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
+    $foreignAppointment = Appointment::factory()->for($otherClient)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Abgeschlossen]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
