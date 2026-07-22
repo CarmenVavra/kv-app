@@ -44,7 +44,7 @@
                         <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ $client->color }}"></span>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="font-bold text-sm">{{ $appointment->type->label() }}@if ($appointment->behavior_topic) · {{ $appointment->behavior_topic->label() }}@endif</div>
+                        <div class="font-bold text-sm">{{ $appointment->typeAndTopicLabel() }}</div>
                         @if ($appointment->notes)
                             <div class="text-[color:var(--color-text-muted-2)] text-[13.5px] leading-relaxed mt-0.5">{{ $appointment->notes }}</div>
                         @endif
@@ -70,7 +70,7 @@
                 @if ($nextAppointment)
                     <div class="bg-bg rounded-xl p-3.5 flex flex-col gap-1">
                         <div class="font-extrabold text-sm">{{ $nextAppointment->starts_at->translatedFormat('D, d. F · H:i') }}</div>
-                        <div class="text-text-muted text-[13px]">{{ $nextAppointment->type->label() }}@if ($nextAppointment->behavior_topic) · {{ $nextAppointment->behavior_topic->label() }}@endif</div>
+                        <div class="text-text-muted text-[13px]">{{ $nextAppointment->typeAndTopicLabel() }}</div>
                     </div>
                 @else
                     <p class="text-text-muted text-sm">Kein Termin geplant.</p>

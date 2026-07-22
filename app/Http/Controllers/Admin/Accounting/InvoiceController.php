@@ -43,7 +43,7 @@ class InvoiceController extends Controller
         foreach ($appointments as $appointment) {
             $invoice->lineItems()->create([
                 'appointment_id' => $appointment->id,
-                'description' => $appointment->type->label().' ('.$appointment->starts_at->format('d.m.Y').')',
+                'description' => $appointment->typeAndTopicLabel().' ('.$appointment->starts_at->format('d.m.Y').')',
                 'quantity' => 1,
                 'unit_price' => $request->input(
                     "appointment_amounts.{$appointment->id}",

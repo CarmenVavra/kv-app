@@ -45,6 +45,18 @@ class Appointment extends Model
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * "Terminart · Leistung" fuer Anzeigen, in denen beide Facetten eines Termins zusammengehoeren
+     * (Kalender-Agenda, Klientenprofil, offene Leistungen im Rechnungsdialog). Faellt auf die reine
+     * Terminart zurueck, wenn ein (aelterer) Termin noch keine Leistung hat.
+     */
+    public function typeAndTopicLabel(): string
+    {
+        return $this->behavior_topic
+            ? $this->type->label().' · '.$this->behavior_topic->label()
+            : $this->type->label();
+    }
+
     public function invoiceLineItem(): HasOne
     {
         return $this->hasOne(InvoiceLineItem::class);

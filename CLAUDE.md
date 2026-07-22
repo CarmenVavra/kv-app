@@ -63,11 +63,15 @@ asked for a Leistung dropdown in the "Neuer Termin" dialog — these are two ort
 `Client.behavior_topic` is its overall theme; a single appointment can still address a different topic, so the
 appointment gets its own field rather than inheriting the client's. The column is `nullable` (pre-existing
 appointments predate it) but the form validates it `required` for new/edited appointments, mirroring the
-Klienten "Leistung" select (required, no empty option, defaults to the first enum case). Shown as
-"{Terminart} · {Leistung}" wherever an appointment renders (Kalender-Agenda, Klientenprofil Trainingsverlauf +
-"Nächster Termin"), guarded with `@if ($appointment->behavior_topic)` so null-topic legacy rows don't render a
-stray "· ". Not folded into the invoice line-item description (which still uses `type->label()`) — wasn't asked
-for and the two labels serve different purposes.
+Klienten "Leistung" select (required, no empty option, defaults to the first enum case). The composed
+"{Terminart} · {Leistung}" label lives in one place — `Appointment::typeAndTopicLabel()` (falls back to the
+bare Terminart for null-topic legacy rows) — and is reused by the Kalender-Agenda, the Klientenprofil
+(Trainingsverlauf + "Nächster Termin"), the "offene Leistungen" checkboxes in the Rechnungsdialog, **and** the
+generated invoice line-item `description` (`InvoiceController::store()`), so the Leistung the admin picked on a
+Termin is visible both when creating the invoice and on the finished invoice/PDF — not just the Terminart. (An
+earlier iteration of this note said the Leistung was deliberately *not* folded into the line-item description;
+that was reversed the same day when the client reported the just-picked Leistung wasn't visible in the
+"Neue Ausgangsrechnung" dialog.)
 
 ### Buchhaltung Kern (M4): Invoice.status is computed, Expense.status is stored
 

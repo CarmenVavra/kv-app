@@ -2,6 +2,7 @@
 
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
+use App\Enums\BehaviorTopic;
 use App\Enums\ExpenseCategory;
 use App\Enums\ExpenseStatus;
 use App\Enums\InvoiceStatus;
@@ -54,6 +55,7 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
     $client = Client::factory()->create();
     $appointment = Appointment::factory()->for($client)->create([
         'type' => AppointmentType::Erstberatung,
+        'behavior_topic' => BehaviorTopic::Leinenaggression,
         'status' => AppointmentStatus::Abgeschlossen,
     ]);
 
@@ -74,10 +76,26 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
         ->and($invoice->status)->toBe(InvoiceStatus::Offen)
         ->and($invoice->due_date->toDateString())->toBe(today()->addDays(7)->toDateString())
         ->and($lineItem->appointment_id)->toBe($appointment->id)
-        ->and($lineItem->description)->toContain('Erstberatung');
+        // Leistung (Verhaltensthema) gehoert mit auf den Rechnungsposten, nicht nur die Terminart.
+        ->and($lineItem->description)->toContain('Erstberatung')
+        ->and($lineItem->description)->toContain('Leinenaggression');
 
     // Der Termin gilt jetzt als verrechnet und darf nicht mehr als offene Leistung erscheinen.
     expect(Appointment::unbilled()->whereKey($appointment->id)->exists())->toBeFalse();
+});
+
+it('shows an open appointment with its Leistung in the new-invoice dialog', function () {
+    $client = Client::factory()->create();
+    Appointment::factory()->for($client)->create([
+        'type' => AppointmentType::Erstberatung,
+        'behavior_topic' => BehaviorTopic::Impulskontrolle,
+        'status' => AppointmentStatus::Abgeschlossen,
+    ]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->get(route('admin.accounting.index', ['tab' => 'out']))
+        ->assertOk()
+        ->assertSee('Erstberatung · Impulskontrolle');
 });
 
 it('generates sequential invoice numbers', function () {

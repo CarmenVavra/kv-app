@@ -67,7 +67,7 @@
                             <a href="{{ route('admin.clients.show', $appointment->client) }}" class="font-bold text-[13.5px] no-underline text-text block truncate">
                                 {{ $appointment->client->dog_name }} · {{ $appointment->client->owner_name }}
                             </a>
-                            <div class="text-text-muted text-xs truncate">{{ $appointment->type->label() }}@if ($appointment->behavior_topic) · {{ $appointment->behavior_topic->label() }}@endif</div>
+                            <div class="text-text-muted text-xs truncate">{{ $appointment->typeAndTopicLabel() }}</div>
                         </div>
                         <span class="bg-white border border-border text-text text-xs font-bold px-2.5 py-1 rounded-chip flex-shrink-0">
                             {{ $appointment->status->label() }}
