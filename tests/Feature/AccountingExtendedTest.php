@@ -66,7 +66,7 @@ it('sends a payment reminder using exactly the edited subject and body, not the 
     Mail::assertQueued(App\Mail\PaymentReminderMail::class, fn ($mail) => $mail->reminder->is($reminder));
 });
 
-it('charges interest and a collection fee only once the 2nd Mahnung is sent', function () {
+it('charges interest but never a collection fee once the 2nd Mahnung is sent (B2C)', function () {
     Mail::fake();
 
     $client = Client::factory()->create(['email' => 'anna@beispiel.at']);
@@ -82,7 +82,7 @@ it('charges interest and a collection fee only once the 2nd Mahnung is sent', fu
         ]);
 
     $reminder = PaymentReminder::where('level', DunningLevel::Mahnung2)->sole();
-    expect((float) $reminder->collection_fee)->toBe(40.0)
+    expect((float) $reminder->collection_fee)->toBe(0.0)
         ->and((float) $reminder->interest_amount)->toBeGreaterThan(0.0);
 });
 

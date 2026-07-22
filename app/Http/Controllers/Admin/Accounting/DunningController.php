@@ -19,14 +19,13 @@ class DunningController extends Controller
         }
 
         $level = $dunningService->nextLevel($invoice);
-        $chargesFees = $level->chargesInterestAndFee();
 
         $reminder = $invoice->paymentReminders()->create([
             'level' => $level,
             'subject' => $request->validated('subject'),
             'body' => $request->validated('body'),
-            'interest_amount' => $chargesFees ? $dunningService->interestAmount($invoice) : 0,
-            'collection_fee' => $chargesFees ? $dunningService->collectionFee() : 0,
+            'interest_amount' => $level->chargesInterest() ? $dunningService->interestAmount($invoice) : 0,
+            'collection_fee' => 0, // Kein pauschaler Betreibungsschaden gegenueber Verbrauchern (B2C).
             'sent_at' => now(),
         ]);
 

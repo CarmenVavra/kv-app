@@ -1,8 +1,9 @@
 <div class="bg-bg rounded-xl px-4.5 py-3.5 text-[13px] text-[color:var(--color-text-muted-2)] leading-relaxed flex flex-col gap-3">
     <p>
-        In Österreich üblich: erst eine kostenlose Zahlungserinnerung, danach 1.–2. Mahnung. Ab der 2. Mahnung
-        dürfen im B2B-Verkehr gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie ein pauschaler
-        Betreibungsschaden von 40 € verrechnet werden. Die Spalte <strong class="text-text">Mahnstufe</strong>
+        In Österreich üblich: erst eine kostenlose Zahlungserinnerung, danach 1.–2. Mahnung. Gegenüber
+        Privatkund:innen (Verbraucher) dürfen ab der 2. Mahnung die gesetzlichen Verzugszinsen von 4 % p.a.
+        (§ 1000 ABGB) verrechnet werden — der pauschale Betreibungsschaden von 40 € (§ 1333 Abs. 2 ABGB) gilt
+        nur zwischen Unternehmern und fällt hier nicht an. Die Spalte <strong class="text-text">Mahnstufe</strong>
         zeigt je Rechnung die anhand der Verzugstage empfohlene Stufe (bereits gesendete Mahnungen werden nie
         unterschritten).
     </p>
@@ -71,8 +72,8 @@
                     <p class="text-text-muted text-[13px] mb-3">
                         Wird per E-Mail an <strong class="text-text">{{ $invoice->client->owner_name }}</strong>
                         ({{ $invoice->client->email ?? '–' }}) gesendet — Betreff und Text kannst du vor dem Senden noch anpassen.
-                        @if ($draft['fee'] > 0)
-                            Verzugszinsen: {{ $euro($draft['interest']) }}, Betreibungsschaden: {{ $euro($draft['fee']) }}.
+                        @if ($draft['interest'] > 0)
+                            Enthaltene Verzugszinsen (4 % p.a.): {{ $euro($draft['interest']) }}.
                         @endif
                     </p>
                     <form method="POST" action="{{ route('admin.accounting.dunning.send', $invoice) }}" class="flex flex-col gap-3">

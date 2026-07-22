@@ -25,7 +25,7 @@ it('advances one dunning level per prior reminder, capped at the 2nd Mahnung', f
     expect($service->nextLevel($invoice))->toBe(DunningLevel::Mahnung2);
 });
 
-it('only charges interest and a collection fee from the 2nd Mahnung onward', function () {
+it('only charges interest from the 2nd Mahnung onward, and never a collection fee (B2C)', function () {
     $invoice = Invoice::factory()->overdue()->create();
     $invoice->lineItems()->create(['description' => 'Erstberatung', 'quantity' => 1, 'unit_price' => 100]);
     $service = new DunningService;
@@ -33,15 +33,24 @@ it('only charges interest and a collection fee from the 2nd Mahnung onward', fun
     $draft = $service->draft($invoice);
     expect($draft['level'])->toBe(DunningLevel::Erinnerung)
         ->and($draft['interest'])->toBe(0.0)
-        ->and($draft['fee'])->toBe(0.0);
+        ->and($draft)->not->toHaveKey('fee');
 
     $invoice->paymentReminders()->create(['level' => DunningLevel::Erinnerung, 'subject' => 's', 'body' => 'b', 'sent_at' => now()->subDays(10)]);
     $invoice->paymentReminders()->create(['level' => DunningLevel::Mahnung1, 'subject' => 's', 'body' => 'b', 'sent_at' => now()->subDays(3)]);
 
     $draft = $service->draft($invoice->fresh());
     expect($draft['level'])->toBe(DunningLevel::Mahnung2)
-        ->and($draft['interest'])->toBeGreaterThan(0.0)
-        ->and($draft['fee'])->toBe(40.0);
+        ->and($draft['interest'])->toBeGreaterThan(0.0);
+});
+
+it('computes the consumer default interest rate of 4 % p.a. pro rata', function () {
+    $this->freezeTime();
+
+    // 100 € offen, im Test kuenstlich 365 Tage ueberfaellig => exakt 4 % = 4,00 €.
+    $invoice = Invoice::factory()->create(['due_date' => now()->subDays(365), 'paid_at' => null]);
+    $invoice->lineItems()->create(['description' => 'Erstberatung', 'quantity' => 1, 'unit_price' => 100]);
+
+    expect((new DunningService)->interestAmount($invoice->fresh()))->toBe(4.0);
 });
 
 it('has no Mahnstufe for a paid or not-yet-overdue invoice', function () {

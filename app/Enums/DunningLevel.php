@@ -36,8 +36,8 @@ enum DunningLevel: string
     {
         return match ($this) {
             self::Erinnerung => 'Zahlungserinnerung (ca. 3–5 Tage nach Verzug): höflich, ohne Gebühren, neue Frist 5 Tage.',
-            self::Mahnung1 => '1. Mahnung (ca. 10–14 Tage nach Verzug): bestimmterer Ton, Mahnspesen und Verzugszinsen möglich.',
-            self::Mahnung2 => '2. und letzte Mahnung (ca. 20–25 Tage nach Verzug): deutliche Aufforderung mit Androhung von Inkasso oder gerichtlichen Schritten.',
+            self::Mahnung1 => '1. Mahnung (ca. 10–14 Tage nach Verzug): bestimmterer Ton, noch ohne Zinsen.',
+            self::Mahnung2 => '2. und letzte Mahnung (ca. 20–25 Tage nach Verzug): deutliche Aufforderung, Verzugszinsen (4 % p.a.), Androhung von Inkasso oder gerichtlichen Schritten.',
         };
     }
 
@@ -90,10 +90,11 @@ enum DunningLevel: string
     }
 
     /**
-     * Verzugszinsen/Betreibungsschaden duerfen im B2B-Verkehr in Oesterreich erst ab der 2. Mahnung
-     * verrechnet werden - nicht bei der kostenlosen Erinnerung oder der 1. Mahnung.
+     * Gesetzliche Verzugszinsen (B2C: 4 % p.a., § 1000 ABGB) werden erst ab der 2. Mahnung
+     * verrechnet - nicht bei der kostenlosen Erinnerung oder der 1. Mahnung. Ein pauschaler
+     * Betreibungsschaden (40 €, § 1333 Abs. 2 ABGB) faellt gegenueber Verbrauchern gar nicht an.
      */
-    public function chargesInterestAndFee(): bool
+    public function chargesInterest(): bool
     {
         return $this === self::Mahnung2;
     }

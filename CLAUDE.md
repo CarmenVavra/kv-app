@@ -127,12 +127,25 @@ were the last 4, added on top of M4's Ausgangs-/Eingangsrechnungen).
 
 **Mahnwesen** — `App\Services\DunningService` is the single place that knows the Austrian dunning rules:
 `DunningLevel` (Erinnerung → Mahnung1 → Mahnung2, capped — `next()` on the 2nd Mahnung returns itself) is
-derived from the invoice's *last* `PaymentReminder`, not stored on the invoice. Verzugszinsen (9,2 % over
-Basiszinssatz p.a., § 456 UGB) and the flat 40 € Betreibungsschaden (§ 1333 Abs. 2 ABGB) are computed **only**
-when `DunningLevel::chargesInterestAndFee()` is true, i.e. from the 2nd Mahnung onward — never on the free
-Erinnerung or the 1st Mahnung. The Basiszinssatz itself fluctuates and isn't fetched live; it's a configurable
-approximation in `config/accounting.php` (`BASISZINSSATZ` env var) — update it there if it drifts, don't
-hardcode 9,2 % as the *whole* rate anywhere. `DunningService::draft()` pre-fills subject/body for the reminder
+derived from the invoice's *last* `PaymentReminder`, not stored on the invoice. Verzugszinsen are computed
+**only** when `DunningLevel::chargesInterest()` is true, i.e. from the 2nd Mahnung onward — never on the free
+Erinnerung or the 1st Mahnung.
+
+> **2026-07-22 — the business is B2C, so the dunning fee model was corrected from the original B2B assumption.**
+> The client confirmed she has *only private customers* (Verbraucher), never companies. The first M5 build had
+> copied the B2B rules: Verzugszinsen of 9,2 % over Basiszinssatz p.a. (§ 456 UGB) **plus** a flat 40 €
+> Betreibungsschaden (§ 1333 Abs. 2 ABGB) from the 2nd Mahnung. Both are **B2B-only** and were wrong here.
+> Current model: the statutory **consumer** default rate of **4 % p.a.** (§ 1000 ABGB), and **no**
+> Betreibungsschaden at all. Concretely: `config/accounting.php` now has a single `verzugszinssatz` (0.04,
+> `VERZUGSZINSSATZ` env-overridable) instead of `basiszinssatz` + `verzugszinssatz_aufschlag`; the
+> `betreibungsschaden` key and `DunningService::collectionFee()` were deleted; `DunningLevel::chargesInterestAndFee()`
+> was renamed `chargesInterest()`; `draft()` no longer returns a `fee` key (only `interest`); the `DunningController`
+> always writes `collection_fee => 0` (the DB column is kept, just always zero); and the 2nd-Mahnung email body,
+> the `_dunning` intro/legend, and the `DunningLevel::timingHint()`/`config` comments were all reworded to the 4 %
+> / no-fee B2C reality. The invoice itself is *also* VAT-free under the Kleinunternehmerregelung — unrelated, but
+> both are jurisdiction facts worth keeping intact.
+
+`DunningService::draft()` pre-fills subject/body for the reminder
 modal, but the **actually sent** text is whatever the admin submits in the form (`SendPaymentReminderRequest`)
 — `PaymentReminder` stores that submitted text verbatim, not the template, so the sent record and the email
 body can never diverge (a plan-mandated test scenario). Sending is blocked server-side with a session error if
@@ -284,7 +297,7 @@ actually driven). Kurzparkschein is `Stunden × 2 × Halbstunden-Tarif` — the 
 factor-of-2 must not be dropped, since the real Viennese Kurzparkschein tariff is priced per half hour, not
 per hour. Both rates (`kilometergeld_pro_km`, `kurzparkschein_tarif_pro_halbe_stunde`) moved from
 `config/accounting.php` to `Setting` (Einstellungen → "Tarife") since the client asked for them to be
-admin-editable, not just `.env`-editable like the Mahnwesen Basiszinssatz — `App\Services\MileageCalculator`
+admin-editable, not just `.env`-editable like the Mahnwesen Verzugszinssatz — `App\Services\MileageCalculator`
 (used by both this feature and the existing M5 Fahrtkosten-Rechner) and the new `App\Services\ParkingCalculator`
 both read from `Setting::current()` now, so a rate change applies everywhere the rate is used, not just one of
 the two features that happen to need it.

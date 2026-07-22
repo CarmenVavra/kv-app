@@ -69,29 +69,23 @@ class DunningService
 
     public function interestAmount(Invoice $invoice): float
     {
-        $annualRate = (float) config('accounting.basiszinssatz') + (float) config('accounting.verzugszinssatz_aufschlag');
+        $annualRate = (float) config('accounting.verzugszinssatz');
 
         return round((float) $invoice->total_amount * $annualRate * ($this->daysOverdue($invoice) / 365), 2);
     }
 
-    public function collectionFee(): float
-    {
-        return (float) config('accounting.betreibungsschaden');
-    }
-
     /**
      * Stellt Betreff/Text/Zinsen fuer die naechste faellige Mahnstufe zusammen, editierbar
-     * bevor der tatsaechliche Versand erfolgt.
+     * bevor der tatsaechliche Versand erfolgt. Gegenueber Verbrauchern (B2C) faellt kein
+     * pauschaler Betreibungsschaden an, daher gibt es hier nur Verzugszinsen, keine Gebuehr.
      *
-     * @return array{level: DunningLevel, daysOverdue: int, subject: string, body: string, interest: float, fee: float}
+     * @return array{level: DunningLevel, daysOverdue: int, subject: string, body: string, interest: float}
      */
     public function draft(Invoice $invoice): array
     {
         $level = $this->nextLevel($invoice);
         $daysOverdue = $this->daysOverdue($invoice);
-        $chargesFees = $level->chargesInterestAndFee();
-        $interest = $chargesFees ? $this->interestAmount($invoice) : 0.0;
-        $fee = $chargesFees ? $this->collectionFee() : 0.0;
+        $interest = $level->chargesInterest() ? $this->interestAmount($invoice) : 0.0;
 
         $lastReminder = $invoice->paymentReminders()->orderByDesc('sent_at')->first();
 
@@ -101,7 +95,6 @@ class DunningService
             'subject' => $this->subjectFor($invoice, $level),
             'body' => $this->bodyFor($invoice, $level, $daysOverdue, $lastReminder?->sent_at),
             'interest' => $interest,
-            'fee' => $fee,
         ];
     }
 
@@ -145,7 +138,7 @@ class DunningService
 
                 trotz Zahlungserinnerung vom {$lastReminderSentAt?->format('d.m.')} ist die Rechnung {$invoice->number} über {$amount} weiterhin offen ({$daysOverdue} Tage überfällig).
 
-                Ich bitte um Zahlung innerhalb von 7 Tagen. Andernfalls sind wir berechtigt, gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie einen pauschalen Betreibungsschaden von 40 € zu verrechnen.
+                Ich bitte um Zahlung innerhalb von 7 Tagen. Andernfalls sind wir berechtigt, die gesetzlichen Verzugszinsen von 4 % p.a. (§ 1000 ABGB) zu verrechnen.
 
                 Liebe Grüße
                 Carmen GREGOR
