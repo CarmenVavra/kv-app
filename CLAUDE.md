@@ -174,12 +174,24 @@ test run.
 **2026-07-22 — "Neue Ausgangsrechnung" now bills a client's open appointments, not a fixed service catalog:**
 the client explicitly described an accumulating, per-client set of unbilled services ("Ein Klient hat gewisse
 offene Leistungen, die noch verrechnet werden müssen") — the only existing domain concept that naturally
-accumulates multiple pending-billing items per client is `Appointment`, so "offene Leistung" is now defined as
-`Appointment::scopeUnbilled()` (`status = Abgeschlossen` and no linked `InvoiceLineItem` yet), not a manually
-curated list. This replaced an earlier, narrower iteration of this same dialog (a single `App\Enums\InvoiceService`
-dropdown with one fixed line item) — that enum has been deleted outright rather than kept alongside the new
-appointment-based flow, since a static catalog and a live per-client open-items list are two different answers
-to the same question and only one can be true.
+accumulates multiple pending-billing items per client is `Appointment`, so "offene Leistung" is defined by
+`Appointment::scopeUnbilled()`, not a manually curated list. This replaced an earlier, narrower iteration of
+this same dialog (a single `App\Enums\InvoiceService` dropdown with one fixed line item) — that enum has been
+deleted outright rather than kept alongside the new appointment-based flow, since a static catalog and a live
+per-client open-items list are two different answers to the same question and only one can be true.
+
+> **2026-07-22 (later same day) — `scopeUnbilled()` no longer requires `status = Abgeschlossen`.** It was
+> originally `status = Abgeschlossen AND whereDoesntHave('invoiceLineItem')` (the interpretation confirmed via
+> AskUserQuestion). In real use the client leaves every appointment at its creation default `Bestaetigt` and
+> never flips it to `Abgeschlossen`, so a client with many past, clearly-billable sessions showed "Keine
+> offenen Termine für diesen Klienten" and nothing could ever be invoiced. The scope is now **`status !=
+> Abgesagt` AND `starts_at <= now()` AND no linked `InvoiceLineItem`** — i.e. any past (already-rendered),
+> non-cancelled, not-yet-billed appointment counts as an offene Leistung, regardless of the Bestaetigt/
+> Abgeschlossen/Ausstehend status the admin may or may not maintain. This keeps faith with the original intent
+> ("abgeschlossene Termine verrechnen" ⇒ bill sessions that have happened) without depending on a status field
+> the user doesn't touch. Future appointments are deliberately excluded (service not yet rendered), as are
+> cancelled ones. Tests that need a billable appointment now set an explicit past `starts_at` (the factory's
+> `starts_at` is random `-1..+1 month`, so a future roll would otherwise silently drop it from the scope).
 
 `InvoiceLineItem` gained a nullable `appointment_id` (not `Invoice` — one invoice can now bill several open
 appointments at once, "Ich möchte pro Rechnung mehrere Leistungen erfassen", so the link has to live at the

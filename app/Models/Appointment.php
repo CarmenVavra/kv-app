@@ -73,11 +73,21 @@ class Appointment extends Model
     }
 
     /**
-     * "Offene Leistung": ein abgeschlossener Termin, der noch auf keiner Rechnung als
-     * Rechnungsposten aufscheint.
+     * "Offene Leistung": ein bereits stattgefundener (in der Vergangenheit liegender), nicht
+     * abgesagter Termin, der noch auf keiner Rechnung als Rechnungsposten aufscheint.
+     *
+     * Urspruenglich war die Bedingung status = Abgeschlossen; in der Praxis pflegt die Nutzerin
+     * diesen Status aber nicht (jeder Termin bleibt "Bestaetigt"), sodass nie etwas verrechenbar
+     * war. Ein vergangener, nicht abgesagter Termin gilt daher als erbrachte Leistung - das trifft
+     * die urspruengliche Absicht ("abgeschlossene Termine verrechnen"), ohne dass jeder Termin von
+     * Hand auf Abgeschlossen gesetzt werden muss. Zukuenftige Termine erscheinen bewusst nicht
+     * (Leistung noch nicht erbracht), abgesagte ebenfalls nicht (keine Leistung erbracht).
      */
     public function scopeUnbilled(Builder $query): Builder
     {
-        return $query->where('status', AppointmentStatus::Abgeschlossen)->whereDoesntHave('invoiceLineItem');
+        return $query
+            ->where('status', '!=', AppointmentStatus::Abgesagt)
+            ->where('starts_at', '<=', now())
+            ->whereDoesntHave('invoiceLineItem');
     }
 }

@@ -56,7 +56,8 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
     $appointment = Appointment::factory()->for($client)->create([
         'type' => AppointmentType::Erstberatung,
         'behavior_topic' => BehaviorTopic::Leinenaggression,
-        'status' => AppointmentStatus::Abgeschlossen,
+        'starts_at' => now()->subWeek(),
+        'status' => AppointmentStatus::Bestaetigt,
     ]);
 
     $this->withoutMiddleware(Authenticate::class)
@@ -84,12 +85,37 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
     expect(Appointment::unbilled()->whereKey($appointment->id)->exists())->toBeFalse();
 });
 
+it('treats any past, non-cancelled, unbilled appointment as an offene Leistung', function () {
+    $client = Client::factory()->create();
+
+    // Verrechenbar: vergangen, nicht abgesagt, noch nicht verrechnet (Status egal).
+    $pastConfirmed = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
+    $pastPending = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Ausstehend]);
+
+    // Nicht verrechenbar:
+    $future = Appointment::factory()->for($client)->create(['starts_at' => now()->addWeek(), 'status' => AppointmentStatus::Bestaetigt]);
+    $cancelled = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Abgesagt]);
+    $billed = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
+    Invoice::factory()->for($client)->create()->lineItems()->create([
+        'appointment_id' => $billed->id, 'description' => 'x', 'quantity' => 1, 'unit_price' => 60,
+    ]);
+
+    $unbilledIds = Appointment::unbilled()->pluck('id');
+
+    expect($unbilledIds)->toContain($pastConfirmed->id)
+        ->toContain($pastPending->id)
+        ->not->toContain($future->id)
+        ->not->toContain($cancelled->id)
+        ->not->toContain($billed->id);
+});
+
 it('shows an open appointment with its Leistung in the new-invoice dialog', function () {
     $client = Client::factory()->create();
     Appointment::factory()->for($client)->create([
         'type' => AppointmentType::Erstberatung,
         'behavior_topic' => BehaviorTopic::Impulskontrolle,
-        'status' => AppointmentStatus::Abgeschlossen,
+        'starts_at' => now()->subWeek(),
+        'status' => AppointmentStatus::Bestaetigt,
     ]);
 
     $this->withoutMiddleware(Authenticate::class)
@@ -102,7 +128,7 @@ it('generates sequential invoice numbers', function () {
     Storage::fake('local');
     $client = Client::factory()->create();
     Invoice::factory()->for($client)->create(['number' => 'R-0007']);
-    $appointment = Appointment::factory()->for($client)->create(['status' => AppointmentStatus::Abgeschlossen]);
+    $appointment = Appointment::factory()->for($client)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
@@ -126,7 +152,7 @@ it('only bills open appointments belonging to the selected client', function () 
     Storage::fake('local');
     $client = Client::factory()->create();
     $otherClient = Client::factory()->create();
-    $foreignAppointment = Appointment::factory()->for($otherClient)->create(['status' => AppointmentStatus::Abgeschlossen]);
+    $foreignAppointment = Appointment::factory()->for($otherClient)->create(['starts_at' => now()->subWeek(), 'status' => AppointmentStatus::Bestaetigt]);
 
     $this->withoutMiddleware(Authenticate::class)
         ->post(route('admin.accounting.invoices.store'), [
