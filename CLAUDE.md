@@ -119,9 +119,12 @@ there (Dunning, Recurring, Mileage, Report, InvoicePdf) — `AccountingControlle
 routing) stays one level up next to `DashboardController`, matching the existing flat convention for
 page-level controllers.
 
-The Buchhaltung tab bar always renders all 7 tabs (real `?tab=` query-param routes, not client state, per the
-plan). As of M5 all 7 are fully built (Mahnwesen, Wiederkehrend, Fahrtkosten and EA-Rechnung/Jahresübersicht
-were the last 4, added on top of M4's Ausgangs-/Eingangsrechnungen).
+The Buchhaltung tab bar renders 6 tabs (real `?tab=` query-param routes, not client state, per the plan):
+Ausgangsrechnungen, Eingangsrechnungen, Mahnwesen, Fahrtkosten, EA-Rechnung, Jahresübersicht. (M5 originally
+built 7 including a "Wiederkehrend" tab; it was **removed on the client's request 2026-07-22** — see the note
+in the M5 section below.) An unknown/removed `?tab=` value falls back to `out` (Ausgangsrechnungen) via the
+`in_array(..., self::TABS)` guard in `AccountingController::index`, so old bookmarks to `?tab=wiederkehrend`
+degrade gracefully instead of erroring.
 
 ### Buchhaltung erweitert (M5): Mahnwesen, Wiederkehrend, Fahrtkosten, EÜR, echte PDFs
 
@@ -182,13 +185,21 @@ the client has no email on file (mockup doesn't show this case since its data is
 > into the row's existing `@php … @endphp` block instead. This column is still decision-support only; nothing
 > is sent automatically.
 
-**Wiederkehrend** — `RecurringInvoiceTemplate` + the daily-scheduled `invoices:generate-recurring` command
-(`GenerateRecurringInvoices`). Idempotency (plan-mandated: no duplicate on a second same-day run) comes from
-calling `$template->advanceNextRunDate()` *immediately* after generating each invoice, inside the same loop
-iteration — the next run's `where('next_run_date', '<=', today())` filter then naturally excludes it, so there
-is no separate "already ran today" guard column to keep in sync. A "Pausieren/Aktivieren" toggle was added
-(mockup only shows a static Aktiv/Pausiert badge) since without one a template could never be paused after
-creation.
+**Wiederkehrend — REMOVED 2026-07-22 on the client's request** ("wird nicht benötigt"). This tab and its whole
+feature were deleted: `RecurringInvoiceTemplate` model/factory, the `invoices:generate-recurring` command
+(`GenerateRecurringInvoices`) and its daily `Schedule::command(...)` entry, `RecurringInvoiceController`,
+`StoreRecurringInvoiceTemplateRequest`, the `RecurringFrequency` enum, `_recurring.blade.php`, the
+"Neue Vorlage" modal + tab in `accounting/index.blade.php`, the `recurring.*` routes, the
+`Client::recurringInvoiceTemplates()` relation, and the related tests. The original create-migration was kept
+(append-only history) and a new `2026_07_22_170000_drop_recurring_invoice_templates_table` migration drops the
+table (its `down()` recreates it, so the rollback path stays intact). The paragraph below is retained only as
+historical context for how the feature used to work.
+
+_(historical)_ It was `RecurringInvoiceTemplate` + the daily-scheduled `invoices:generate-recurring` command.
+Idempotency (no duplicate on a second same-day run) came from calling `$template->advanceNextRunDate()`
+*immediately* after generating each invoice, inside the same loop iteration — the next run's
+`where('next_run_date', '<=', today())` filter then naturally excluded it, so there was no separate "already ran
+today" guard column. A "Pausieren/Aktivieren" toggle existed since the mockup only showed a static badge.
 
 **Fahrtkosten** — the one place using real client-side JS per the plan ("nur für die Fahrtkosten-Live-Berechnung
 gebraucht"): a plain `oninput` handler multiplies km × rate, no jQuery/Ajax needed for a client-side
@@ -206,8 +217,8 @@ mental model already used for the M4 stat tiles). Steuerrücklage is a flat ~20 
 (Tailwind/flexbox, opened in a new tab for the browser's own print dialog) and `invoices/pdf.blade.php`
 (plain `<table>`/inline styles only — dompdf's CSS support doesn't reliably handle flexbox/grid). Every invoice
 gets a real PDF generated to the **private** `local` disk (`storage/app/private/invoices/{number}.pdf`,
-*not* the `public` disk) the moment it's created (`InvoicePdfGenerator`, called from both
-`InvoiceController::store()` and `GenerateRecurringInvoices`) — downloads go through an authenticated
+*not* the `public` disk) the moment it's created (`InvoicePdfGenerator`, called from `InvoiceController::store()`
+— it was also called from the since-removed `GenerateRecurringInvoices`) — downloads go through an authenticated
 controller route rather than a public URL, and `InvoicePdfController::download()` regenerates on demand if the
 file is ever missing (e.g. invoices created before this existed). Tests that trigger PDF generation must
 `Storage::fake('local')` first, or dompdf writes real files under `storage/app/private/invoices/` during the
@@ -317,7 +328,8 @@ back this without N+1 queries.
 Also added a "Zahlungsziel: 7 Tage" line plus a friendly payment-term sentence citing the concrete due date
 ("...bis spätestens {due_date}. Vielen Dank für Ihr Vertrauen!") to both views, since neither previously said
 anything about a payment deadline at all. This surfaced a latent inconsistency: `due_date` was actually being
-computed as `issue_date + 14 days` in both `InvoiceController::store()` and `GenerateRecurringInvoices`, while
+computed as `issue_date + 14 days` in both `InvoiceController::store()` and the since-removed
+`GenerateRecurringInvoices`, while
 `DunningService`'s reminder texts already asked for payment "innerhalb von 7 Tagen" — the two numbers had
 never matched. The client confirmed the real payment term is 7 days, so both `+14` call sites were corrected
 to `+7`, making `due_date` (and therefore `InvoiceStatus::Ueberfaellig`/Mahnwesen eligibility) consistent with
@@ -561,7 +573,9 @@ real, previously-undiscovered gaps, both fixed:
   (`PaymentReminderMail`, `AppointmentReminderMail`, `NewInquiryNotification`, `WeeklySummaryMail`) implements
   `ShouldQueue` with `QUEUE_CONNECTION=database`, and locally `start.ps1` keeps a `queue:work` process running
   continuously — but the deploy plan's only documented cron entry was `* * * * * php artisan schedule:run`,
-  which drives the three named `Schedule::command(...)` calls and nothing else. On a shared/VPS host with no
+  which drives the named `Schedule::command(...)` calls and nothing else (there were three at the time of this
+  M8 note; the `invoices:generate-recurring` one was later removed with the Wiederkehrend feature, leaving two
+  plus the queue-drainer below). On a shared/VPS host with no
   guaranteed persistent process supervisor (Netcup's exact plan is unknown), that means every queued mail would
   sit in the `jobs` table forever and never send — dunning reminders, appointment reminders, new-inquiry
   notifications, the weekly summary, all silently undelivered. Fixed without adding a second cron line: added

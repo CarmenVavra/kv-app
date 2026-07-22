@@ -9,7 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('appointments:send-reminders')->everyFifteenMinutes();
-Schedule::command('invoices:generate-recurring')->daily();
 Schedule::command('reports:weekly-summary')->weeklyOn(1, '07:00');
 
 // Alle Mailables (PaymentReminderMail, AppointmentReminderMail, NewInquiryNotification,

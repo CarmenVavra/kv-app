@@ -1,12 +1,10 @@
 <?php
 
 use App\Enums\DunningLevel;
-use App\Enums\RecurringFrequency;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\MileageEntry;
 use App\Models\PaymentReminder;
-use App\Models\RecurringInvoiceTemplate;
 use App\Services\InvoicePdfGenerator;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Mail;
@@ -98,35 +96,6 @@ it('rejects sending a reminder when the client has no email on file', function (
         ->assertSessionHasErrors(['email']);
 
     expect(PaymentReminder::count())->toBe(0);
-});
-
-it('creates a recurring invoice template', function () {
-    $client = Client::factory()->create();
-
-    $this->withoutMiddleware(Authenticate::class)
-        ->post(route('admin.accounting.recurring.store'), [
-            'title' => 'Trainingspaket Rocky',
-            'client_id' => $client->id,
-            'description' => 'Trainingspaket',
-            'amount' => '280.00',
-            'frequency' => RecurringFrequency::Monatlich->value,
-            'next_run_date' => today()->addMonth()->toDateString(),
-        ])
-        ->assertRedirect(route('admin.accounting.index', ['tab' => 'wiederkehrend']));
-
-    $template = RecurringInvoiceTemplate::sole();
-    expect($template->title)->toBe('Trainingspaket Rocky')
-        ->and($template->active)->toBeTrue();
-});
-
-it('toggles a recurring template between active and paused', function () {
-    $template = RecurringInvoiceTemplate::factory()->create(['active' => true]);
-
-    $this->withoutMiddleware(Authenticate::class)
-        ->patch(route('admin.accounting.recurring.toggle-active', $template))
-        ->assertRedirect(route('admin.accounting.index', ['tab' => 'wiederkehrend']));
-
-    expect($template->fresh()->active)->toBeFalse();
 });
 
 it('records a mileage entry as a linked, already-paid expense', function () {

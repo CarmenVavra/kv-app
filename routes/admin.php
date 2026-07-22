@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\Accounting\ExpenseController;
 use App\Http\Controllers\Admin\Accounting\InvoiceController;
 use App\Http\Controllers\Admin\Accounting\InvoicePdfController;
 use App\Http\Controllers\Admin\Accounting\MileageController;
-use App\Http\Controllers\Admin\Accounting\RecurringInvoiceController;
 use App\Http\Controllers\Admin\AccountingController;
 use App\Http\Controllers\Admin\AppointmentController;
 use App\Http\Controllers\Admin\ClientController;
@@ -52,9 +51,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
         Route::patch('/ausgaben/{expense}/bezahlt', [ExpenseController::class, 'markPaid'])->name('expenses.mark-paid');
 
         Route::post('/mahnwesen/{invoice}/senden', [DunningController::class, 'send'])->name('dunning.send');
-
-        Route::post('/wiederkehrend', [RecurringInvoiceController::class, 'store'])->name('recurring.store');
-        Route::patch('/wiederkehrend/{recurringInvoiceTemplate}/umschalten', [RecurringInvoiceController::class, 'toggleActive'])->name('recurring.toggle-active');
 
         Route::post('/fahrtkosten', [MileageController::class, 'store'])->name('mileage.store');
     });

@@ -8,7 +8,6 @@ use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\RecurringInvoiceTemplate;
 use App\Models\Setting;
 use App\Services\DunningService;
 use App\Services\EuerCalculator;
@@ -21,7 +20,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AccountingController extends Controller
 {
-    private const TABS = ['out', 'in', 'mahnwesen', 'wiederkehrend', 'fahrtkosten', 'euer', 'jahr'];
+    private const TABS = ['out', 'in', 'mahnwesen', 'fahrtkosten', 'euer', 'jahr'];
 
     public function index(
         Request $request,
@@ -64,9 +63,6 @@ class AccountingController extends Controller
                 'overdue' => $invoices
                     ->filter(fn (Invoice $invoice) => $invoice->status === InvoiceStatus::Ueberfaellig)
                     ->map(fn (Invoice $invoice) => ['invoice' => $invoice, 'draft' => $dunningService->draft($invoice)]),
-            ],
-            'wiederkehrend' => [
-                'templates' => RecurringInvoiceTemplate::query()->with('client')->orderBy('title')->get(),
             ],
             'euer' => [
                 'euer' => $euerCalculator->summarize(today()->startOfMonth()->toImmutable(), today()->endOfMonth()->toImmutable()),
