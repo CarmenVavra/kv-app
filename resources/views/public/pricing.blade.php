@@ -40,7 +40,7 @@
             <div class="text-[13px] font-bold text-white">Umfang: Analyse + 3 Praxisstunden</div>
             <div class="text-[13.5px] text-white/85 leading-relaxed">Für Hundehalter, die eine kontinuierliche Begleitung beim Thema Leinenaggression suchen. Wir arbeiten intensiv an der Orientierung am Halter und tasten uns schrittweise an kontrollierte Hundebegegnungen heran.</div>
             <div class="flex flex-col gap-2.5 mt-1 flex-1">
-                @foreach (['1 × 90 Minuten Erstgespräch bei Ihnen vor Ort', '3 × 60 Minuten Training', 'Laufende Anpassung des Trainingsplans', 'WhatsApp-Support zwischen Terminen', 'Vorrang bei der Terminvergabe', '7 % günstiger als Einzeltermine'] as $feature)
+                @foreach (['1 × 90 Minuten Erstgespräch bei Ihnen vor Ort', '3 × 60 Minuten Training', 'Laufende Anpassung des Trainingsplans', 'WhatsApp-Support zwischen Terminen', 'Priorisierte Terminvergabe', '7 % günstiger als Einzeltermine'] as $feature)
                     <div class="flex gap-2.5 items-start text-[13.5px] text-white">{!! $checkIcon('#fff') !!}<span>{{ $feature }}</span></div>
                 @endforeach
             </div>
