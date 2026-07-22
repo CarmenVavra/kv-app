@@ -32,12 +32,13 @@
         {{-- Trainingspaket 4er (highlight) --}}
         <div class="bg-primary border border-primary rounded-[20px] p-7.5 flex flex-col gap-4 relative">
             <div class="absolute -top-3.5 left-6.5 bg-white text-primary text-[11.5px] font-extrabold px-3 py-1.5 rounded-chip">Beliebt</div>
-            <div class="font-serif text-[19px] font-semibold text-white">Trainingspaket 4er</div>
+            <div class="font-serif text-[19px] font-semibold text-white">Paket „Sicher durch den Alltag“</div>
             <div class="flex items-baseline gap-1.5">
-                <div class="font-serif text-[34px] font-semibold text-white">320 €</div>
+                <div class="font-serif text-[34px] font-semibold text-white">310 €</div>
                 <div class="text-[13px] text-white/85">/ Paket</div>
             </div>
-            <div class="text-[13.5px] text-white/85 leading-relaxed">Vier Folgetermine für kontinuierlichen Fortschritt bei einem konkreten Thema.</div>
+            <div class="text-[13px] font-bold text-white">Umfang: Analyse + 3 Praxisstunden</div>
+            <div class="text-[13.5px] text-white/85 leading-relaxed">Für Hundehalter, die eine kontinuierliche Begleitung beim Thema Leinenaggression suchen. Wir arbeiten intensiv an der Orientierung am Halter und tasten uns schrittweise an kontrollierte Hundebegegnungen heran. (Inklusive Erstgespräch!)</div>
             <div class="flex flex-col gap-2.5 mt-1 flex-1">
                 @foreach (['4 × 60 Minuten Training', 'Laufende Anpassung des Plans', 'WhatsApp-Support zwischen Terminen', '10 % günstiger als Einzeltermine'] as $feature)
                     <div class="flex gap-2.5 items-start text-[13.5px] text-white">{!! $checkIcon('#fff') !!}<span>{{ $feature }}</span></div>

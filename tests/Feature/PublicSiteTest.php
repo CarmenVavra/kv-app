@@ -28,8 +28,8 @@ it('renders the pricing page with all three packages', function () {
         ->assertOk()
         ->assertSee('Das Erstgespräch &amp; Analyse', false)
         ->assertSee('110 €')
-        ->assertSee('Trainingspaket 4er')
-        ->assertSee('320 €')
+        ->assertSee('Paket „Sicher durch den Alltag“', false)
+        ->assertSee('310 €')
         ->assertSee('Trainingspaket 8er')
         ->assertSee('580 €');
 });
