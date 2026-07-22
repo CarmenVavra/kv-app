@@ -37,7 +37,11 @@
                     <a href="{{ $link['href'] }}" class="text-text no-underline hover:text-primary">{{ $link['label'] }}</a>
                 @endforeach
                 <a href="{{ route('landing') }}#kontakt" class="bg-primary hover:bg-primary-hover text-white no-underline px-5 py-2.5 rounded-field">Termin anfragen</a>
-                <a href="{{ route('login') }}" class="text-text no-underline border border-border hover:bg-card px-4.5 py-2.5 rounded-field">Admin-Login</a>
+                @auth
+                    <a href="{{ route('admin.dashboard') }}" class="text-text no-underline border border-border hover:bg-card px-4.5 py-2.5 rounded-field">Zum Admin-Bereich</a>
+                @else
+                    <a href="{{ route('login') }}" class="text-text no-underline border border-border hover:bg-card px-4.5 py-2.5 rounded-field">Admin-Login</a>
+                @endauth
             </nav>
 
             <button
@@ -56,7 +60,11 @@
             @foreach ($navLinks as $link)
                 <a href="{{ $link['href'] }}" class="text-text no-underline font-bold py-3 border-b border-border">{{ $link['label'] }}</a>
             @endforeach
-            <a href="{{ route('login') }}" class="text-text no-underline font-bold py-3 border-b border-border">Admin-Login</a>
+            @auth
+                <a href="{{ route('admin.dashboard') }}" class="text-text no-underline font-bold py-3 border-b border-border">Zum Admin-Bereich</a>
+            @else
+                <a href="{{ route('login') }}" class="text-text no-underline font-bold py-3 border-b border-border">Admin-Login</a>
+            @endauth
             <a href="{{ route('landing') }}#kontakt" class="bg-primary hover:bg-primary-hover text-white no-underline text-center font-bold py-3.5 rounded-field mt-3">Termin anfragen</a>
         </nav>
     </dialog>

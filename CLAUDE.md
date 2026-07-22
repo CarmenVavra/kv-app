@@ -47,6 +47,18 @@ Drop both the "Stimmen" nav link and the testimonials section entirely when buil
 "admin enters testimonials manually" feature either unless the client asks for it later. Public nav is
 therefore: Leistungen, Preise, Über mich, Termin anfragen, Admin-Login (5 items, not 6).
 
+**2026-07-22 — bidirectional switch between the public site and the Praxis-Backend for a logged-in admin.**
+The client asked to be able to "als Admin zwischen Webseite und Admin-Bereich wechseln". Two symmetric bits,
+both driven off `@auth` (the plain `web`/`admin` guard — no Eloquent user needed, `auth()->check()` works
+against `App\Auth\AdminUser`): (1) the public nav's last item flips from "Admin-Login" (→ `login`, guests) to
+"Zum Admin-Bereich" (→ `admin.dashboard`, authenticated) in **both** the desktop nav and the mobile `<dialog>`
+in `components/layouts/public.blade.php`; (2) the admin shell (`components/layouts/admin.blade.php`) gained a
+"Zur Website" link (→ `landing`, same tab — it's a genuine switch, and the public header offers the one-click
+way back) in the desktop sidebar footer just above "Abmelden", and as a 6th icon (globe) in the mobile bottom
+nav. A `globe` case was added to `x-admin.nav-icon`. The mobile bottom nav now carries 6 icons (the 5 sections
++ Website) — verified they still fit at 375px. This is view-only; no routes, controllers, or middleware
+changed (the `admin.dashboard`/`landing`/`login` routes all already existed).
+
 ### Data-model decision (deviates from a "normalized" reading of the mockup)
 
 `Client` is **one merged, deliberately denormalized model per dog** — dog fields (name, breed, behavior topic,

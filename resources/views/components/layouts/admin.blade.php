@@ -60,12 +60,20 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="text-sm font-bold text-text-muted hover:text-primary bg-none border-none cursor-pointer px-1.5">
-                    Abmelden
-                </button>
-            </form>
+            <div class="flex flex-col gap-1">
+                <a href="{{ route('landing') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-field font-bold text-sm no-underline text-text hover:bg-bg">
+                    <span class="w-5 h-5 flex-shrink-0" aria-hidden="true">
+                        <x-admin.nav-icon name="globe" />
+                    </span>
+                    <span>Zur Website</span>
+                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-sm font-bold text-text-muted hover:text-primary bg-none border-none cursor-pointer px-1.5">
+                        Abmelden
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border py-1.5 px-0.5 flex items-center justify-around z-20" aria-label="Hauptnavigation">
@@ -82,6 +90,16 @@
                     <span>{{ $item['label'] }}</span>
                 </a>
             @endforeach
+            <a
+                href="{{ route('landing') }}"
+                class="flex flex-col items-center gap-0.5 no-underline text-text text-[10px] font-bold px-2 py-1.5"
+                aria-label="Zur Website"
+            >
+                <span class="w-5 h-5" aria-hidden="true">
+                    <x-admin.nav-icon name="globe" />
+                </span>
+                <span>Website</span>
+            </a>
         </nav>
 
         <main id="main" class="flex-1 min-w-0 p-6 md:p-8 flex flex-col gap-6">
