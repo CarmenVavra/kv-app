@@ -2,6 +2,7 @@
 
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Setting;
 use Illuminate\Auth\Middleware\Authenticate;
 
@@ -154,6 +155,23 @@ it('sets an appointment status inline from the training history', function () {
     $this->withoutMiddleware(Authenticate::class)
         ->patch(route('admin.appointments.update-status', $appointment), ['status_option' => 'abgeschlossen'])
         ->assertRedirect(route('admin.clients.show', $appointment->client));
+
+    expect($appointment->fresh()->status->value)->toBe('abgeschlossen');
+});
+
+it('refuses to change the status once the appointment is billed', function () {
+    $client = Client::factory()->create();
+    $appointment = Appointment::factory()->for($client)->create([
+        'starts_at' => now()->subWeek(),
+        'status' => 'abgeschlossen',
+    ]);
+    $invoice = Invoice::factory()->for($client)->create();
+    $invoice->lineItems()->create(['appointment_id' => $appointment->id, 'description' => 'x', 'quantity' => 1, 'unit_price' => 60]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->patch(route('admin.appointments.update-status', $appointment), ['status_option' => 'abgesagt_ohne_gebuehr'])
+        ->assertRedirect(route('admin.clients.show', $client))
+        ->assertSessionHas('error');
 
     expect($appointment->fresh()->status->value)->toBe('abgeschlossen');
 });

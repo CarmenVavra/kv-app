@@ -1,6 +1,12 @@
 <x-layouts.admin :title="$client->dog_name">
     <a href="{{ route('admin.clients.index') }}" class="text-sm font-bold no-underline w-fit">← Zurück zu Klienten</a>
 
+    @if (session('error'))
+        <div class="bg-[color:var(--color-error-bg)] text-[color:var(--color-error-text)] rounded-xl px-4 py-3 font-bold text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <section class="bg-card border border-border rounded-card p-6 flex items-center gap-5 flex-wrap">
         <span class="w-17 h-17 rounded-2xl flex-shrink-0" style="background: {{ $client->color }}" aria-hidden="true"></span>
         <div class="flex-1 min-w-[220px]">
@@ -83,8 +89,10 @@
                         <select
                             name="status_option"
                             onchange="this.form.submit()"
+                            @disabled($billedInvoice)
+                            @if ($billedInvoice) title="Status ist gesperrt, weil zu dieser Leistung bereits Rechnung {{ $billedInvoice->number }} existiert." @endif
                             aria-label="Status für {{ $appointment->typeAndTopicLabel() }} am {{ $appointment->starts_at->format('d.m.Y') }}"
-                            class="border border-border bg-white rounded-field px-2.5 py-1.5 text-xs font-bold text-text cursor-pointer"
+                            class="border border-border rounded-field px-2.5 py-1.5 text-xs font-bold text-text {{ $billedInvoice ? 'bg-bg text-text-muted cursor-not-allowed' : 'bg-white cursor-pointer' }}"
                         >
                             @foreach (\App\Models\Appointment::statusOptions() as $value => $label)
                                 <option value="{{ $value }}" @selected($appointment->statusOptionValue() === $value)>{{ $label }}</option>

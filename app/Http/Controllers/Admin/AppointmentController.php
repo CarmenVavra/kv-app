@@ -94,6 +94,13 @@ class AppointmentController extends Controller
      */
     public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
     {
+        // Sobald zu einer Leistung eine Ausgangsrechnung existiert, ist ihr Status gesperrt —
+        // eine spaetere Statusaenderung wuerde die bereits verrechnete Leistung inkonsistent machen.
+        if ($appointment->invoiceLineItem()->exists()) {
+            return redirect()->route('admin.clients.show', $appointment->client)
+                ->with('error', 'Der Status kann nicht geändert werden, weil zu dieser Leistung bereits eine Ausgangsrechnung existiert.');
+        }
+
         $validated = $request->validate([
             'status_option' => ['required', 'in:'.implode(',', array_keys(Appointment::statusOptions()))],
         ]);
