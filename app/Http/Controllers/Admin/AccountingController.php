@@ -32,7 +32,7 @@ class AccountingController extends Controller
     ): View {
         $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : 'out';
 
-        $invoices = Invoice::query()->with(['client', 'lineItems', 'paymentReminders'])->orderByDesc('issue_date')->get();
+        $invoices = Invoice::query()->with(['client', 'lineItems', 'paymentReminders'])->orderByDesc('issue_date')->orderByDesc('id')->get();
         $expenses = Expense::query()->orderByDesc('date')->get();
 
         return view('admin.accounting.index', [
@@ -116,7 +116,7 @@ class AccountingController extends Controller
 
     private function exportInvoices(): StreamedResponse
     {
-        $rows = Invoice::query()->with(['client', 'lineItems'])->orderByDesc('issue_date')->get();
+        $rows = Invoice::query()->with(['client', 'lineItems'])->orderByDesc('issue_date')->orderByDesc('id')->get();
 
         $callback = function () use ($rows): void {
             $handle = fopen('php://output', 'w');
