@@ -97,12 +97,52 @@
             </label>
             <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
                 Leistung
-                <input type="text" name="service" value="{{ old('service') }}" required placeholder="z.B. Erstberatung" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                <select
+                    name="service" id="invoice-service" required
+                    onchange="document.getElementById('invoice-amount').value = this.selectedOptions[0].dataset.amount ?? ''"
+                    class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text"
+                >
+                    <option value="">– auswählen –</option>
+                    @foreach (\App\Enums\InvoiceService::cases() as $service)
+                        <option
+                            value="{{ $service->value }}"
+                            data-amount="{{ $service->defaultAmount() }}"
+                            @selected(old('service') === $service->value)
+                        >{{ $service->label() }}</option>
+                    @endforeach
+                </select>
             </label>
             <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
                 Betrag (€)
-                <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount') }}" required placeholder="80,00" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                <input type="number" step="0.01" min="0.01" name="amount" id="invoice-amount" value="{{ old('amount') }}" required placeholder="90,00" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
             </label>
+
+            <label class="flex items-center gap-2 text-sm font-bold text-text-muted">
+                <input
+                    type="checkbox" name="charge_mileage" value="1"
+                    onchange="document.getElementById('mileage-km-field').classList.toggle('hidden', !this.checked)"
+                    @checked(old('charge_mileage')) class="w-4 h-4"
+                >
+                Fahrtkosten verrechnen (Hin- und Rückfahrt)
+            </label>
+            <label id="mileage-km-field" class="flex flex-col gap-1.5 text-sm font-bold text-text-muted {{ old('charge_mileage') ? '' : 'hidden' }}">
+                Kilometer (einfache Strecke)
+                <input type="number" step="0.1" min="0.1" name="mileage_km" value="{{ old('mileage_km') }}" placeholder="12" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            </label>
+
+            <label class="flex items-center gap-2 text-sm font-bold text-text-muted">
+                <input
+                    type="checkbox" name="charge_parking" value="1"
+                    onchange="document.getElementById('parking-amount-field').classList.toggle('hidden', !this.checked)"
+                    @checked(old('charge_parking')) class="w-4 h-4"
+                >
+                Kurzparkscheine verrechnen
+            </label>
+            <label id="parking-amount-field" class="flex flex-col gap-1.5 text-sm font-bold text-text-muted {{ old('charge_parking') ? '' : 'hidden' }}">
+                Betrag Kurzparkscheine (€)
+                <input type="number" step="0.01" min="0.01" name="parking_amount" value="{{ old('parking_amount') }}" placeholder="4,50" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+            </label>
+
             <div class="flex gap-2.5 justify-end mt-2">
                 <button type="button" onclick="document.getElementById('new-invoice-modal').close()" class="border border-border bg-white rounded-field px-4.5 py-2.5 font-bold text-sm">Abbrechen</button>
                 <button type="submit" class="bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm">Rechnung erstellen</button>

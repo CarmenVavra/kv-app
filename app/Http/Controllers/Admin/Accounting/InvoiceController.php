@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Accounting;
 
+use App\Enums\InvoiceService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreInvoiceRequest;
 use App\Models\Invoice;
@@ -28,10 +29,28 @@ class InvoiceController extends Controller
         ]);
 
         $invoice->lineItems()->create([
-            'description' => $request->validated('service'),
+            'description' => InvoiceService::from($request->validated('service'))->label(),
             'quantity' => 1,
             'unit_price' => $request->validated('amount'),
         ]);
+
+        if ($request->boolean('charge_mileage')) {
+            $roundTripKm = (float) $request->validated('mileage_km') * 2;
+
+            $invoice->lineItems()->create([
+                'description' => 'Fahrtkosten ('.number_format($roundTripKm, 1, ',', '.').' km, Hin- und Rückfahrt)',
+                'quantity' => 1,
+                'unit_price' => round($roundTripKm * (float) config('accounting.kilometergeld_pro_km'), 2),
+            ]);
+        }
+
+        if ($request->boolean('charge_parking')) {
+            $invoice->lineItems()->create([
+                'description' => 'Kurzparkscheine',
+                'quantity' => 1,
+                'unit_price' => $request->validated('parking_amount'),
+            ]);
+        }
 
         $pdfGenerator->generate($invoice);
 
