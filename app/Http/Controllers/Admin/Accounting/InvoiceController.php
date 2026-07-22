@@ -29,7 +29,7 @@ class InvoiceController extends Controller
             'number' => $numberGenerator->next(),
             'client_id' => $request->validated('client_id'),
             'issue_date' => $issueDate,
-            'due_date' => $issueDate->copy()->addDays(14),
+            'due_date' => $issueDate->copy()->addDays(7),
         ]);
 
         // Nur Termine des gewaehlten Klienten, die tatsaechlich noch offen (abgeschlossen, aber
@@ -94,7 +94,7 @@ class InvoiceController extends Controller
 
     public function print(Invoice $invoice): View
     {
-        $invoice->load(['client', 'lineItems']);
+        $invoice->load(['client', 'lineItems.appointment']);
 
         return view('admin.accounting.invoices.print', ['invoice' => $invoice]);
     }

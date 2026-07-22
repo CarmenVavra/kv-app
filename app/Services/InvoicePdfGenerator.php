@@ -10,7 +10,7 @@ class InvoicePdfGenerator
 {
     public function generate(Invoice $invoice): string
     {
-        $invoice->loadMissing(['client', 'lineItems']);
+        $invoice->loadMissing(['client', 'lineItems.appointment']);
 
         $pdf = Pdf::loadView('admin.accounting.invoices.pdf', ['invoice' => $invoice]);
         $path = "invoices/{$invoice->number}.pdf";

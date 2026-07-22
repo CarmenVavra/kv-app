@@ -73,6 +73,34 @@ class Invoice extends Model
         });
     }
 
+    /**
+     * Das Leistungsdatum ist das Datum der tatsaechlich erbrachten Leistung(en), nicht das
+     * Rechnungsdatum - beide koennen auseinanderfallen, wenn ein Termin erst spaeter verrechnet
+     * wird. Bei mehreren Terminen mit unterschiedlichem Datum wird der Zeitraum ausgewiesen; ohne
+     * terminverknuepfte Position (z.B. reine Sonstige-Leistung) faellt es auf das Rechnungsdatum
+     * zurueck, mangels eines anderen belastbaren Datums.
+     */
+    protected function serviceDateLabel(): Attribute
+    {
+        return Attribute::get(function () {
+            $dates = $this->lineItems
+                ->pluck('appointment.starts_at')
+                ->filter()
+                ->unique(fn (Carbon $date) => $date->toDateString())
+                ->sort()
+                ->values();
+
+            if ($dates->isEmpty()) {
+                return $this->issue_date->format('d.m.Y');
+            }
+
+            $first = $dates->first()->format('d.m.Y');
+            $last = $dates->last()->format('d.m.Y');
+
+            return $first === $last ? $first : "{$first} – {$last}";
+        });
+    }
+
     public function markPaid(): void
     {
         $this->update(['paid_at' => Carbon::now()]);

@@ -39,7 +39,7 @@ class GenerateRecurringInvoices extends Command
                 'number' => $numberGenerator->next(),
                 'client_id' => $template->client_id,
                 'issue_date' => $issueDate,
-                'due_date' => $issueDate->copy()->addDays(14),
+                'due_date' => $issueDate->copy()->addDays(7),
             ]);
 
             $invoice->lineItems()->create([

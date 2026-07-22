@@ -27,7 +27,8 @@
             <div class="text-right text-[12.5px] text-text-muted leading-relaxed">
                 <div class="font-extrabold text-text text-[15px]">Rechnung {{ $invoice->number }}</div>
                 Datum: {{ $invoice->issue_date->format('d.m.Y') }}<br>
-                Leistungsdatum: {{ $invoice->issue_date->format('d.m.Y') }}
+                Leistungsdatum: {{ $invoice->service_date_label }}<br>
+                Zahlungsziel: 7 Tage
             </div>
         </div>
 
@@ -58,6 +59,10 @@
 
         <div class="mt-7 bg-bg rounded-lg px-4 py-3.5 text-[12.5px] text-[color:var(--color-text-muted-2)] leading-relaxed">
             Gemäß § 6 Abs. 1 Z 27 UStG (Kleinunternehmerregelung) wird keine Umsatzsteuer berechnet und ausgewiesen.
+        </div>
+
+        <div class="mt-3 text-[12.5px] text-text-muted leading-relaxed">
+            Ich bitte um Ausgleich des Rechnungsbetrags innerhalb von 7 Tagen, bis spätestens <strong class="text-text">{{ $invoice->due_date->format('d.m.Y') }}</strong>. Vielen Dank für Ihr Vertrauen!
         </div>
 
         <button type="button" onclick="window.print()" class="no-print mt-8 bg-primary hover:bg-primary-hover text-white rounded-field px-4.5 py-2.5 font-bold text-sm">

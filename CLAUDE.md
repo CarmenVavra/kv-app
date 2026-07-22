@@ -175,6 +175,27 @@ admin-editable, not just `.env`-editable like the Mahnwesen Basiszinssatz — `A
 both read from `Setting::current()` now, so a rate change applies everywhere the rate is used, not just one of
 the two features that happen to need it.
 
+**2026-07-22 — fixed a wrong Leistungsdatum on the invoice PDF/print view and added a Zahlungsfrist notice:**
+both `invoices/print.blade.php` and `invoices/pdf.blade.php` printed `$invoice->issue_date` twice under two
+different labels ("Datum" and "Leistungsdatum") — a copy-paste bug, since the service date and the invoice
+date are conceptually different and can genuinely diverge (an appointment billed a week or two after it
+happened, per the "offene Leistungen" flow above). Fixed by adding `Invoice::service_date_label` (an
+accessor): it collects the `starts_at` dates of every line item's linked `Appointment`, shows the single date
+when they agree, a "first – last" range when a multi-appointment invoice spans several days, and falls back to
+`issue_date` only when no line item is appointment-linked (pure Sonstiges/Fahrtkosten/Kurzparkschein invoice,
+which has no other date to anchor to). Both invoice-generating call sites
+(`InvoiceController::print()`, `InvoicePdfGenerator::generate()`) now eager-load `lineItems.appointment` to
+back this without N+1 queries.
+
+Also added a "Zahlungsziel: 7 Tage" line plus a friendly payment-term sentence citing the concrete due date
+("...bis spätestens {due_date}. Vielen Dank für Ihr Vertrauen!") to both views, since neither previously said
+anything about a payment deadline at all. This surfaced a latent inconsistency: `due_date` was actually being
+computed as `issue_date + 14 days` in both `InvoiceController::store()` and `GenerateRecurringInvoices`, while
+`DunningService`'s reminder texts already asked for payment "innerhalb von 7 Tagen" — the two numbers had
+never matched. The client confirmed the real payment term is 7 days, so both `+14` call sites were corrected
+to `+7`, making `due_date` (and therefore `InvoiceStatus::Ueberfaellig`/Mahnwesen eligibility) consistent with
+what the invoice itself now tells the client to expect.
+
 ### Öffentliche Website (M6): Landingpage, Preise, Rechtsseiten, Kontaktformular → Inquiry
 
 **Static pages stay `Route::view()`, no controller** — Landingpage, Preise, and the three Rechtsseiten

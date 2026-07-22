@@ -61,6 +61,7 @@ it('creates an outgoing invoice from an open appointment and marks it billed', f
         ->and($invoice->client_id)->toBe($client->id)
         ->and((float) $invoice->total_amount)->toBe(90.0)
         ->and($invoice->status)->toBe(InvoiceStatus::Offen)
+        ->and($invoice->due_date->toDateString())->toBe(today()->addDays(7)->toDateString())
         ->and($lineItem->appointment_id)->toBe($appointment->id)
         ->and($lineItem->description)->toContain('Erstberatung');
 
@@ -226,7 +227,39 @@ it('prints an invoice', function () {
         ->get(route('admin.accounting.invoices.print', $invoice))
         ->assertOk()
         ->assertSee($invoice->number)
-        ->assertSee('§ 6 Abs. 1 Z 27 UStG');
+        ->assertSee('§ 6 Abs. 1 Z 27 UStG')
+        ->assertSee('7 Tage')
+        ->assertSee($invoice->due_date->format('d.m.Y'));
+});
+
+it('shows the billed appointment date as Leistungsdatum, not the invoice date', function () {
+    $client = Client::factory()->create();
+    $appointment = Appointment::factory()->for($client)->create([
+        'starts_at' => today()->subWeeks(2),
+        'status' => AppointmentStatus::Abgeschlossen,
+    ]);
+    $invoice = Invoice::factory()->for($client)->create(['issue_date' => today()]);
+    $invoice->lineItems()->create([
+        'appointment_id' => $appointment->id,
+        'description' => 'Folgetermin',
+        'quantity' => 1,
+        'unit_price' => 60,
+    ]);
+
+    expect($invoice->service_date_label)->toBe($appointment->starts_at->format('d.m.Y'))
+        ->and($invoice->service_date_label)->not->toBe($invoice->issue_date->format('d.m.Y'));
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->get(route('admin.accounting.invoices.print', $invoice))
+        ->assertOk()
+        ->assertSee($appointment->starts_at->format('d.m.Y'));
+});
+
+it('falls back to the invoice date as Leistungsdatum when no line item is tied to an appointment', function () {
+    $invoice = Invoice::factory()->create(['issue_date' => today()]);
+    $invoice->lineItems()->create(['description' => 'Telefonberatung', 'quantity' => 1, 'unit_price' => 25]);
+
+    expect($invoice->service_date_label)->toBe(today()->format('d.m.Y'));
 });
 
 it('creates an expense with an uploaded receipt', function () {
