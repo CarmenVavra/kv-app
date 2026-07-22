@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Enums\AppointmentType;
 use App\Enums\BehaviorTopic;
+use App\Models\Appointment;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,6 +26,7 @@ class StoreAppointmentRequest extends FormRequest
             'behavior_topic' => ['required', Rule::enum(BehaviorTopic::class)],
             'starts_at' => ['required', 'date'],
             'duration_minutes' => ['required', 'integer', 'min:15', 'max:480'],
+            'status_option' => ['required', 'in:'.implode(',', array_keys(Appointment::statusOptions()))],
             'notes' => ['nullable', 'string'],
         ];
     }

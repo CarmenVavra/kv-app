@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\AppointmentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAppointmentRequest;
 use App\Http\Requests\Admin\UpdateAppointmentRequest;
@@ -58,9 +57,12 @@ class AppointmentController extends Controller
 
     public function store(StoreAppointmentRequest $request): RedirectResponse
     {
-        $appointment = Appointment::create($request->validated() + [
-            'status' => AppointmentStatus::Bestaetigt,
-        ]);
+        [$status, $fee] = Appointment::resolveStatusOption($request->validated('status_option'));
+
+        $appointment = Appointment::create(
+            collect($request->validated())->except('status_option')->all()
+            + ['status' => $status, 'cancellation_fee' => $fee]
+        );
 
         return redirect()->route('admin.calendar', ['tag' => $appointment->starts_at->toDateString()]);
     }

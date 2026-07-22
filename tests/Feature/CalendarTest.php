@@ -35,6 +35,7 @@ it('creates an appointment', function () {
             'client_id' => $client->id,
             'type' => 'erstberatung',
             'behavior_topic' => 'stress',
+            'status_option' => 'ausstehend',
             'starts_at' => today()->addDay()->setTime(10, 0)->format('Y-m-d\TH:i'),
             'duration_minutes' => 60,
         ])
@@ -42,8 +43,47 @@ it('creates an appointment', function () {
 
     $appointment = Appointment::sole();
     expect($appointment->client_id)->toBe($client->id)
-        ->and($appointment->status->value)->toBe('bestaetigt')
+        ->and($appointment->status->value)->toBe('ausstehend')
         ->and($appointment->behavior_topic->value)->toBe('stress');
+});
+
+it('creates an appointment as abgeschlossen directly, so it is immediately billable', function () {
+    $client = Client::factory()->create();
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.appointments.store'), [
+            'client_id' => $client->id,
+            'type' => 'folgetermin',
+            'behavior_topic' => 'stress',
+            'status_option' => 'abgeschlossen',
+            'starts_at' => today()->subDay()->setTime(10, 0)->format('Y-m-d\TH:i'),
+            'duration_minutes' => 60,
+        ])
+        ->assertRedirect();
+
+    $appointment = Appointment::sole();
+    expect($appointment->status->value)->toBe('abgeschlossen')
+        ->and(Appointment::unbilled()->whereKey($appointment->id)->exists())->toBeTrue();
+});
+
+it('creates a cancelled-with-fee appointment whose Storno is billable', function () {
+    $client = Client::factory()->create();
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.appointments.store'), [
+            'client_id' => $client->id,
+            'type' => 'folgetermin',
+            'behavior_topic' => 'stress',
+            'status_option' => 'abgesagt_mit_gebuehr',
+            'starts_at' => today()->addDay()->setTime(10, 0)->format('Y-m-d\TH:i'),
+            'duration_minutes' => 60,
+        ])
+        ->assertRedirect();
+
+    $appointment = Appointment::sole();
+    expect($appointment->status->value)->toBe('abgesagt')
+        ->and($appointment->cancellation_fee)->toBeTrue()
+        ->and(Appointment::unbilled()->whereKey($appointment->id)->exists())->toBeTrue();
 });
 
 it('requires a Leistung when creating an appointment', function () {

@@ -12,7 +12,7 @@ enum AppointmentStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Ausstehend => 'Ausstehend',
+            self::Ausstehend => 'Ausständig',
             self::Bestaetigt => 'Bestätigt',
             self::Abgeschlossen => 'Abgeschlossen',
             self::Abgesagt => 'Abgesagt',

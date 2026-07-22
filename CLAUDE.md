@@ -73,6 +73,19 @@ earlier iteration of this note said the Leistung was deliberately *not* folded i
 that was reversed the same day when the client reported the just-picked Leistung wasn't visible in the
 "Neue Ausgangsrechnung" dialog.)
 
+**2026-07-22 (follow-up) — status is now chosen when *creating* a Termin, default "Ausständig".** The "Neuer
+Termin" form previously had no status field and `store()` hardcoded `Bestaetigt`; now the same combined
+`status_option` select (Ausständig / Bestätigt / Abgeschlossen / Abgesagt · mit-|keine-Stornogebühr) appears on
+both the create and edit forms via `_form-fields.blade.php`, defaulting to `AppointmentStatus::Ausstehend` for
+new appointments (client used the Austrian term "Ausständig", so `Ausstehend->label()` was renamed to
+"Ausständig" — the enum *value* stays `'ausstehend'`, DB untouched). `status_option` moved up into
+`StoreAppointmentRequest` (so `UpdateAppointmentRequest` is now an empty subclass), and `store()` runs it
+through the shared `Appointment::resolveStatusOption()` just like `update()`/`updateStatus()`. This lets the
+admin back-fill a past session straight to Abgeschlossen (immediately billable) or record a cancellation with
+fee at creation time. The billing side (`scopeUnbilled` = Abgeschlossen or Abgesagt-with-fee) was already in
+place from the earlier note and needed no change — verified end-to-end that both statuses show as selectable
+checkboxes in the "Neue Ausgangsrechnung" dialog (the Storno one pre-filled to the configured 50 € rate).
+
 ### Buchhaltung Kern (M4): Invoice.status is computed, Expense.status is stored
 
 `Invoice` has no `status` column — it's an accessor (`InvoiceStatus` enum: Offen/Bezahlt/Überfällig) derived

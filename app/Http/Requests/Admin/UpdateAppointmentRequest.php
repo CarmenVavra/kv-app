@@ -2,17 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Models\Appointment;
-
+// Gleiche Regeln wie beim Anlegen (inkl. status_option) - der Status ist jetzt bereits im
+// StoreAppointmentRequest enthalten, daher keine eigene rules()-Ueberschreibung mehr noetig.
 class UpdateAppointmentRequest extends StoreAppointmentRequest
 {
-    /**
-     * @return array<string, mixed>
-     */
-    public function rules(): array
-    {
-        return parent::rules() + [
-            'status_option' => ['required', 'in:'.implode(',', array_keys(Appointment::statusOptions()))],
-        ];
-    }
 }

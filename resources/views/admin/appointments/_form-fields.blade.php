@@ -40,17 +40,15 @@
     </label>
 </div>
 
-@if ($appointment)
-    <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">
-        Status
-        <select name="status_option" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
-            @foreach (\App\Models\Appointment::statusOptions() as $statusValue => $statusLabel)
-                <option value="{{ $statusValue }}" @selected($appointment->statusOptionValue() === $statusValue)>{{ $statusLabel }}</option>
-            @endforeach
-        </select>
-        <span class="text-[12px] font-normal text-text-muted">Stornogebühr bei kurzfristiger Absage (weniger als 24 Stunden vor Trainingsbeginn).</span>
-    </label>
-@endif
+<label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted mt-3">
+    Status
+    <select name="status_option" required class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+        @foreach (\App\Models\Appointment::statusOptions() as $statusValue => $statusLabel)
+            <option value="{{ $statusValue }}" @selected($value('status_option', $appointment?->statusOptionValue() ?? \App\Enums\AppointmentStatus::Ausstehend->value) === $statusValue)>{{ $statusLabel }}</option>
+        @endforeach
+    </select>
+    <span class="text-[12px] font-normal text-text-muted">Stornogebühr bei kurzfristiger Absage (weniger als 24 Stunden vor Trainingsbeginn).</span>
+</label>
 
 <div class="grid grid-cols-2 gap-3 mt-3">
     <label class="flex flex-col gap-1.5 text-sm font-bold text-text-muted">
