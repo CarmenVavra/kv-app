@@ -28,7 +28,7 @@ it('renders the pricing page with all three packages', function () {
         ->assertOk()
         ->assertSee('Erstgespräch &amp; Analyse', false)
         ->assertSee('110 €')
-        ->assertSee('Paket „Sicher durch den Alltag“', false)
+        ->assertSee('Sicher unterwegs')
         ->assertSee('310 €')
         ->assertSee('Die Einzelstunde')
         ->assertSee('75 €');

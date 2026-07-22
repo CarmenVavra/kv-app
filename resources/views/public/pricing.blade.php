@@ -29,10 +29,10 @@
             <a href="{{ route('landing') }}?interesse=Erstberatung#kontakt" class="no-underline text-center bg-white border border-border text-text rounded-field py-3 font-bold text-sm mt-2 hover:bg-bg">Jetzt anfragen</a>
         </div>
 
-        {{-- Trainingspaket 4er (highlight) --}}
+        {{-- Sicher unterwegs (highlight) --}}
         <div class="bg-primary border border-primary rounded-[20px] p-7.5 flex flex-col gap-4 relative">
             <div class="absolute -top-3.5 left-6.5 bg-white text-primary text-[11.5px] font-extrabold px-3 py-1.5 rounded-chip">Beliebt</div>
-            <div class="font-serif text-[19px] font-semibold text-white">Paket „Sicher durch den Alltag“</div>
+            <div class="font-serif text-[19px] font-semibold text-white">Sicher unterwegs</div>
             <div class="flex items-baseline gap-1.5">
                 <div class="font-serif text-[34px] font-semibold text-white">310 €</div>
                 <div class="text-[13px] text-white/85">/ Paket</div>
@@ -44,7 +44,7 @@
                     <div class="flex gap-2.5 items-start text-[13.5px] text-white">{!! $checkIcon('#fff') !!}<span>{{ $feature }}</span></div>
                 @endforeach
             </div>
-            <a href="{{ route('landing') }}?interesse=Trainingspaket+4er#kontakt" class="no-underline text-center bg-white text-primary rounded-field py-3 font-bold text-sm mt-2 hover:opacity-90">Paket buchen</a>
+            <a href="{{ route('landing') }}?interesse=Sicher+unterwegs#kontakt" class="no-underline text-center bg-white text-primary rounded-field py-3 font-bold text-sm mt-2 hover:opacity-90">Paket buchen</a>
         </div>
 
         {{-- Einzelstunde (nur Bestandskunden) --}}
