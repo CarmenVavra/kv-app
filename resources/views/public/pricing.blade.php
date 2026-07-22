@@ -13,6 +13,7 @@
     <section class="mx-auto max-w-6xl px-6 lg:px-14 pt-6 pb-16 grid gap-6 items-stretch" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
         {{-- Erstberatung --}}
         <div class="bg-card border border-border rounded-[20px] p-7.5 flex flex-col gap-4 relative">
+            <div class="absolute -top-3.5 left-6.5 bg-primary text-white text-[11.5px] font-extrabold px-3 py-1.5 rounded-chip uppercase tracking-wide">Schritt 1: Die Basis</div>
             <div class="font-serif text-[19px] font-semibold text-text">Das Erstgespräch &amp; Analyse</div>
             <div class="flex items-baseline gap-1.5">
                 <div class="font-serif text-[34px] font-semibold text-text">110 €</div>
