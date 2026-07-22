@@ -29,6 +29,17 @@ it('shows the outgoing tab by default with stat tiles', function () {
         ->assertSee('Rocky');
 });
 
+it('shows the Mahnstufe column with a level for overdue invoices and none for paid ones', function () {
+    $overdue = Invoice::factory()->create(['issue_date' => today()->subDays(19), 'due_date' => today()->subDays(12), 'paid_at' => null]);
+    $overdue->lineItems()->create(['description' => 'Folgetermin', 'quantity' => 1, 'unit_price' => 60]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->get(route('admin.accounting.index', ['tab' => 'out']))
+        ->assertOk()
+        ->assertSee('Mahnstufe')
+        ->assertSee('1. Mahnung');
+});
+
 it('switches to the incoming tab via the tab query parameter', function () {
     Expense::factory()->create(['supplier' => 'BüroPlus']);
 

@@ -68,7 +68,7 @@
     </nav>
 
     @if ($tab === 'out')
-        @include('admin.accounting._outgoing', ['invoices' => $invoices, 'euro' => $euro])
+        @include('admin.accounting._outgoing', ['invoices' => $invoices, 'euro' => $euro, 'mahnstufen' => $mahnstufen])
     @elseif ($tab === 'in')
         @include('admin.accounting._incoming', ['expenses' => $expenses, 'euro' => $euro])
     @elseif ($tab === 'mahnwesen')

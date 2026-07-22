@@ -1,12 +1,12 @@
 @php use App\Enums\InvoiceStatus; @endphp
 <section class="bg-card border border-border rounded-card overflow-hidden">
     <div class="overflow-x-auto">
-        <div class="min-w-[640px]">
-            <div class="grid grid-cols-[82px_minmax(0,1fr)_110px_120px_140px] gap-2 px-5.5 py-3.5 bg-bg text-[12px] font-extrabold text-text-muted uppercase tracking-wide">
-                <div>Datum</div><div>Klient / Leistung</div><div>Betrag</div><div>Status</div><div></div>
+        <div class="min-w-[760px]">
+            <div class="grid grid-cols-[82px_minmax(0,1fr)_110px_120px_130px_120px] gap-2 px-5.5 py-3.5 bg-bg text-[12px] font-extrabold text-text-muted uppercase tracking-wide">
+                <div>Datum</div><div>Klient / Leistung</div><div>Betrag</div><div>Status</div><div>Mahnstufe</div><div></div>
             </div>
             @forelse ($invoices as $invoice)
-                <div class="grid grid-cols-[82px_minmax(0,1fr)_110px_120px_140px] gap-2 px-5.5 py-4 items-center border-t border-border text-sm">
+                <div class="grid grid-cols-[82px_minmax(0,1fr)_110px_120px_130px_120px] gap-2 px-5.5 py-4 items-center border-t border-border text-sm">
                     <div class="text-text-muted">{{ $invoice->issue_date->format('d.m.') }}</div>
                     <div class="min-w-0">
                         <div class="font-bold truncate">{{ $invoice->client->dog_name }} ({{ $invoice->client->owner_name }})</div>
@@ -18,6 +18,19 @@
                             class="text-[12px] font-bold px-2.5 py-1.5 rounded-chip whitespace-nowrap"
                             style="background: {{ $invoice->status->badgeBg() }}; color: {{ $invoice->status->badgeText() }};"
                         >{{ $invoice->status->label() }}</span>
+                    </div>
+                    <div>
+                        @php ($mahnstufe = $mahnstufen[$invoice->id] ?? null)
+                        @if ($mahnstufe)
+                            <span
+                                class="text-[12px] font-bold px-2.5 py-1.5 rounded-chip whitespace-nowrap"
+                                style="background: {{ $mahnstufe->badgeBg() }}; color: {{ $mahnstufe->badgeText() }};"
+                                title="{{ $mahnstufe->timingHint() }}"
+                            >{{ $mahnstufe->shortLabel() }}</span>
+                        @else
+                            <span class="text-text-muted" aria-hidden="true">–</span>
+                            <span class="sr-only">Keine Mahnstufe</span>
+                        @endif
                     </div>
                     <div class="justify-self-start">
                         <button type="button" onclick="document.getElementById('preview-invoice-{{ $invoice->id }}').showModal()" class="font-bold text-sm bg-none border-none cursor-pointer p-0">

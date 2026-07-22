@@ -31,12 +31,13 @@ class AccountingController extends Controller
     ): View {
         $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : 'out';
 
-        $invoices = Invoice::query()->with(['client', 'lineItems'])->orderByDesc('issue_date')->get();
+        $invoices = Invoice::query()->with(['client', 'lineItems', 'paymentReminders'])->orderByDesc('issue_date')->get();
         $expenses = Expense::query()->orderByDesc('date')->get();
 
         return view('admin.accounting.index', [
             'tab' => $tab,
             'invoices' => $invoices,
+            'mahnstufen' => $invoices->mapWithKeys(fn (Invoice $invoice) => [$invoice->id => $dunningService->currentStage($invoice)]),
             'expenses' => $expenses,
             'clients' => Client::query()->orderBy('dog_name')->get(),
             'openAppointments' => Appointment::query()->unbilled()->orderBy('starts_at')->get()->groupBy('client_id'),

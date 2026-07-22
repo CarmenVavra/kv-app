@@ -99,6 +99,24 @@ modal, but the **actually sent** text is whatever the admin submits in the form 
 body can never diverge (a plan-mandated test scenario). Sending is blocked server-side with a session error if
 the client has no email on file (mockup doesn't show this case since its data is static).
 
+> **2026-07-22 — "Mahnstufe" column on the Ausgangsrechnungen list (`_outgoing.blade.php`, between Status and
+> the PDF action):** shows, per invoice, which dunning stage it's at, via `DunningService::currentStage()` —
+> which returns the **higher** of (a) the stage *recommended purely from days overdue* and (b) the *highest
+> stage actually already sent* (last `PaymentReminder`), so the column never under-reports what the admin has
+> already done in the Mahnwesen tab. It's `null` (renders a muted "–") for any invoice that isn't
+> `InvoiceStatus::Ueberfaellig` (paid or still within its due date) and for one only a day or two overdue
+> (below the Erinnerung threshold). The day thresholds live in `config('accounting.mahnstufe_ab_tag')`
+> (Erinnerung ≥ 3, 1. Mahnung ≥ 10, 2. Mahnung ≥ 20 Verzugstage — the lower bound of each range the client
+> gave, env-overridable) — this column is **decision support only**; it does not send anything, the actual
+> dunning is still triggered manually in the Mahnwesen tab. `DunningLevel` gained `rank()` (for the
+> higher-of comparison), `shortLabel()`/`timingHint()` (compact pill text + a `title` tooltip carrying the
+> client's per-stage tone/timing description) and `badgeBg()`/`badgeText()` (escalating severity: soft-orange
+> warning → soft-red error → solid-red for the final 2. Mahnung, reusing the existing status tokens). The
+> controller eager-loads `paymentReminders` alongside `client`/`lineItems` and precomputes an
+> `[invoice_id => ?DunningLevel]` map (`$mahnstufen`) so the Blade partial stays logic-free and there's no
+> N+1. Reflecting the same staging inside the Mahnwesen tab itself was explicitly deferred by the client
+> ("Das können wir nachher machen").
+
 **Wiederkehrend** — `RecurringInvoiceTemplate` + the daily-scheduled `invoices:generate-recurring` command
 (`GenerateRecurringInvoices`). Idempotency (plan-mandated: no duplicate on a second same-day run) comes from
 calling `$template->advanceNextRunDate()` *immediately* after generating each invoice, inside the same loop

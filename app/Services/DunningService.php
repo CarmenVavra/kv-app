@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\DunningLevel;
+use App\Enums\InvoiceStatus;
 use App\Models\Invoice;
+use App\Models\PaymentReminder;
 use Carbon\Carbon;
 
 class DunningService
@@ -18,6 +20,51 @@ class DunningService
     public function daysOverdue(Invoice $invoice): int
     {
         return (int) $invoice->due_date->diffInDays(now());
+    }
+
+    /**
+     * Aktuelle Mahnstufe einer Rechnung fuer die Listenanzeige: das Hoehere aus der nach
+     * Verzugstagen empfohlenen Stufe (config('accounting.mahnstufe_ab_tag')) und der bereits
+     * versendeten hoechsten Stufe - so untertreibt die Spalte nie gegenueber dem, was im
+     * Mahnwesen tatsaechlich schon gesendet wurde. Null, wenn die Rechnung nicht ueberfaellig
+     * ist (bezahlt oder noch innerhalb der Frist) oder erst so kurz ueberfaellig, dass noch
+     * keine Stufe empfohlen wird.
+     */
+    public function currentStage(Invoice $invoice): ?DunningLevel
+    {
+        if ($invoice->status !== InvoiceStatus::Ueberfaellig) {
+            return null;
+        }
+
+        $recommended = $this->recommendedStage($this->daysOverdue($invoice));
+
+        $sent = $invoice->paymentReminders
+            ->sortByDesc(fn (PaymentReminder $reminder) => $reminder->level->rank())
+            ->first()?->level;
+
+        $candidates = array_filter([$recommended, $sent]);
+
+        if ($candidates === []) {
+            return null;
+        }
+
+        return collect($candidates)->sortByDesc(fn (DunningLevel $level) => $level->rank())->first();
+    }
+
+    /**
+     * Empfohlene Mahnstufe rein nach Verzugstagen (Schwellen aus config); null bei sehr kurzer
+     * Ueberfaelligkeit, in der noch keine Erinnerung faellig ist.
+     */
+    private function recommendedStage(int $daysOverdue): ?DunningLevel
+    {
+        $thresholds = config('accounting.mahnstufe_ab_tag');
+
+        return match (true) {
+            $daysOverdue >= $thresholds['mahnung_2'] => DunningLevel::Mahnung2,
+            $daysOverdue >= $thresholds['mahnung_1'] => DunningLevel::Mahnung1,
+            $daysOverdue >= $thresholds['erinnerung'] => DunningLevel::Erinnerung,
+            default => null,
+        };
     }
 
     public function interestAmount(Invoice $invoice): float

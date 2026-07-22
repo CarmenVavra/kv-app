@@ -44,6 +44,44 @@ it('only charges interest and a collection fee from the 2nd Mahnung onward', fun
         ->and($draft['fee'])->toBe(40.0);
 });
 
+it('has no Mahnstufe for a paid or not-yet-overdue invoice', function () {
+    $service = new DunningService;
+
+    $notDue = Invoice::factory()->create(['issue_date' => today(), 'due_date' => today()->addDays(7), 'paid_at' => null]);
+    $paid = Invoice::factory()->create(['issue_date' => today()->subMonth(), 'due_date' => today()->subDays(20), 'paid_at' => today()]);
+
+    expect($service->currentStage($notDue))->toBeNull()
+        ->and($service->currentStage($paid))->toBeNull();
+});
+
+it('recommends no Mahnstufe yet while only a couple of days overdue', function () {
+    $invoice = Invoice::factory()->create(['issue_date' => today()->subDays(9), 'due_date' => today()->subDays(2), 'paid_at' => null]);
+
+    expect((new DunningService)->currentStage($invoice))->toBeNull();
+});
+
+it('escalates the recommended Mahnstufe by days overdue', function () {
+    $service = new DunningService;
+
+    $erinnerung = Invoice::factory()->create(['issue_date' => today()->subDays(11), 'due_date' => today()->subDays(4), 'paid_at' => null]);
+    $mahnung1 = Invoice::factory()->create(['issue_date' => today()->subDays(19), 'due_date' => today()->subDays(12), 'paid_at' => null]);
+    $mahnung2 = Invoice::factory()->create(['issue_date' => today()->subDays(29), 'due_date' => today()->subDays(22), 'paid_at' => null]);
+
+    expect($service->currentStage($erinnerung))->toBe(DunningLevel::Erinnerung)
+        ->and($service->currentStage($mahnung1))->toBe(DunningLevel::Mahnung1)
+        ->and($service->currentStage($mahnung2))->toBe(DunningLevel::Mahnung2);
+});
+
+it('never shows a lower Mahnstufe than one that was actually already sent', function () {
+    // Erst 4 Tage ueberfaellig (Tages-Empfehlung waere nur "Erinnerung"), aber es wurde bereits
+    // eine 1. Mahnung verschickt - die Spalte muss die hoehere, tatsaechlich versendete Stufe zeigen.
+    $invoice = Invoice::factory()->create(['issue_date' => today()->subDays(11), 'due_date' => today()->subDays(4), 'paid_at' => null]);
+    $invoice->paymentReminders()->create(['level' => DunningLevel::Erinnerung, 'subject' => 's', 'body' => 'b', 'sent_at' => now()->subDays(2)]);
+    $invoice->paymentReminders()->create(['level' => DunningLevel::Mahnung1, 'subject' => 's', 'body' => 'b', 'sent_at' => now()]);
+
+    expect((new DunningService)->currentStage($invoice->fresh()))->toBe(DunningLevel::Mahnung1);
+});
+
 it('drafts a subject and body that mention the client, invoice number and amount', function () {
     $client = Client::factory()->create(['owner_name' => 'Maria Weber']);
     $invoice = Invoice::factory()->for($client)->overdue()->create(['number' => 'R-0038']);

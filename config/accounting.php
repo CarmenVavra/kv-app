@@ -15,4 +15,19 @@ return [
 
     // Grobe Ruecklage-Schaetzung fuer die Einkommensteuer (keine Steuerberatung).
     'steuerruecklage_quote' => 0.20,
+
+    /*
+     * Ab wie vielen Verzugstagen welche Mahnstufe fuer eine offene Rechnung empfohlen wird -
+     * steuert nur die Anzeige der "Mahnstufe"-Spalte in der Ausgangsrechnungsliste (Richtwerte
+     * nach oesterreichischer Praxis). Die tatsaechliche Mahnung wird weiterhin manuell im
+     * Mahnwesen-Tab ausgeloest, dies ist reine Entscheidungshilfe.
+     *   - Zahlungserinnerung: ca. 3-5 Tage nach Verzug (hoeflich, ohne Gebuehren)
+     *   - 1. Mahnung:         ca. 10-14 Tage nach Verzug (bestimmter, Spesen/Zinsen moeglich)
+     *   - 2. Mahnung:         ca. 20-25 Tage nach Verzug (Androhung Inkasso/Gericht)
+     */
+    'mahnstufe_ab_tag' => [
+        'erinnerung' => (int) env('MAHNSTUFE_ERINNERUNG_AB_TAG', 3),
+        'mahnung_1' => (int) env('MAHNSTUFE_MAHNUNG_1_AB_TAG', 10),
+        'mahnung_2' => (int) env('MAHNSTUFE_MAHNUNG_2_AB_TAG', 20),
+    ],
 ];
