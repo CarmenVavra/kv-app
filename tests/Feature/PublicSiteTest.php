@@ -30,8 +30,8 @@ it('renders the pricing page with all three packages', function () {
         ->assertSee('110 €')
         ->assertSee('Paket „Sicher durch den Alltag“', false)
         ->assertSee('310 €')
-        ->assertSee('Trainingspaket 8er')
-        ->assertSee('580 €');
+        ->assertSee('Die Einzelstunde')
+        ->assertSee('75 €');
 });
 
 it('renders the legal pages', function () {
