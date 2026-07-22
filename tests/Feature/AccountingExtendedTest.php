@@ -27,6 +27,21 @@ it('shows overdue invoices on the Mahnwesen tab', function () {
         ->assertSee('Zahlungserinnerung senden');
 });
 
+it('shows the current Mahnstufe per invoice on the Mahnwesen tab', function () {
+    $client = Client::factory()->create();
+    Invoice::factory()->for($client)->create(['number' => 'R-0050', 'due_date' => now()->subDays(7), 'paid_at' => null]);
+    Invoice::factory()->for($client)->create(['number' => 'R-0051', 'due_date' => now()->subDays(12), 'paid_at' => null]);
+    Invoice::factory()->for($client)->create(['number' => 'R-0052', 'due_date' => now()->subDays(22), 'paid_at' => null]);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->get(route('admin.accounting.index', ['tab' => 'mahnwesen']))
+        ->assertOk()
+        ->assertSee('Mahnstufe')
+        ->assertSee('Erinnerung')
+        ->assertSee('1. Mahnung')
+        ->assertSee('2. Mahnung');
+});
+
 it('sends a payment reminder using exactly the edited subject and body, not the template', function () {
     Mail::fake();
 

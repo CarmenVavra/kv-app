@@ -1,18 +1,36 @@
-<div class="bg-bg rounded-xl px-4.5 py-3.5 text-[13px] text-[color:var(--color-text-muted-2)] leading-relaxed">
-    In Österreich üblich: erst eine kostenlose Zahlungserinnerung, danach 1.–2. Mahnung. Ab der 2. Mahnung dürfen
-    im B2B-Verkehr gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie ein pauschaler Betreibungsschaden
-    von 40 € verrechnet werden.
+<div class="bg-bg rounded-xl px-4.5 py-3.5 text-[13px] text-[color:var(--color-text-muted-2)] leading-relaxed flex flex-col gap-3">
+    <p>
+        In Österreich üblich: erst eine kostenlose Zahlungserinnerung, danach 1.–2. Mahnung. Ab der 2. Mahnung
+        dürfen im B2B-Verkehr gesetzliche Verzugszinsen (9,2 % über Basiszinssatz) sowie ein pauschaler
+        Betreibungsschaden von 40 € verrechnet werden. Die Spalte <strong class="text-text">Mahnstufe</strong>
+        zeigt je Rechnung die anhand der Verzugstage empfohlene Stufe (bereits gesendete Mahnungen werden nie
+        unterschritten).
+    </p>
+    <div class="flex flex-col gap-2">
+        @foreach (\App\Enums\DunningLevel::cases() as $level)
+            <div class="flex items-start gap-2.5">
+                <span
+                    class="text-[11.5px] font-bold px-2.5 py-1 rounded-chip whitespace-nowrap flex-shrink-0"
+                    style="background: {{ $level->badgeBg() }}; color: {{ $level->badgeText() }};"
+                >{{ $level->shortLabel() }}</span>
+                <span class="text-[12px] pt-0.5">{{ $level->timingHint() }}</span>
+            </div>
+        @endforeach
+    </div>
 </div>
 
 <section class="bg-card border border-border rounded-card overflow-hidden">
     <div class="overflow-x-auto">
-        <div class="min-w-[760px]">
-            <div class="grid grid-cols-[90px_minmax(0,1fr)_100px_100px_minmax(0,1fr)_190px] gap-2 px-5.5 py-3.5 bg-bg text-[12px] font-extrabold text-text-muted uppercase tracking-wide">
-                <div>Nr.</div><div>Klient</div><div>Betrag</div><div>Überfällig</div><div>Letzte Mahnung</div><div></div>
+        <div class="min-w-[880px]">
+            <div class="grid grid-cols-[90px_minmax(0,1fr)_100px_90px_120px_minmax(0,1fr)_190px] gap-2 px-5.5 py-3.5 bg-bg text-[12px] font-extrabold text-text-muted uppercase tracking-wide">
+                <div>Nr.</div><div>Klient</div><div>Betrag</div><div>Überfällig</div><div>Mahnstufe</div><div>Letzte Mahnung</div><div></div>
             </div>
             @forelse ($overdue as $entry)
-                @php [$invoice, $draft] = [$entry['invoice'], $entry['draft']]; @endphp
-                <div class="grid grid-cols-[90px_minmax(0,1fr)_100px_100px_minmax(0,1fr)_190px] gap-2 px-5.5 py-4 items-center border-t border-border text-sm">
+                @php
+                    [$invoice, $draft] = [$entry['invoice'], $entry['draft']];
+                    $mahnstufe = $mahnstufen[$invoice->id] ?? null;
+                @endphp
+                <div class="grid grid-cols-[90px_minmax(0,1fr)_100px_90px_120px_minmax(0,1fr)_190px] gap-2 px-5.5 py-4 items-center border-t border-border text-sm">
                     <div class="text-text-muted font-bold">{{ $invoice->number }}</div>
                     <div class="font-bold truncate">{{ $invoice->client->dog_name }} ({{ $invoice->client->owner_name }})</div>
                     <div class="font-extrabold">{{ $euro((float) $invoice->total_amount) }}</div>
@@ -20,6 +38,18 @@
                         <span class="bg-[color:var(--color-error-bg)] text-[color:var(--color-error-text)] text-[12px] font-bold px-2.5 py-1.5 rounded-chip whitespace-nowrap">
                             {{ $draft['daysOverdue'] }} Tage
                         </span>
+                    </div>
+                    <div>
+                        @if ($mahnstufe)
+                            <span
+                                class="text-[12px] font-bold px-2.5 py-1.5 rounded-chip whitespace-nowrap"
+                                style="background: {{ $mahnstufe->badgeBg() }}; color: {{ $mahnstufe->badgeText() }};"
+                                title="{{ $mahnstufe->timingHint() }}"
+                            >{{ $mahnstufe->shortLabel() }}</span>
+                        @else
+                            <span class="text-text-muted" aria-hidden="true">–</span>
+                            <span class="sr-only">Noch keine Mahnstufe fällig</span>
+                        @endif
                     </div>
                     <div class="text-text-muted text-[13px]">
                         @php $lastReminder = $invoice->paymentReminders->sortByDesc('sent_at')->first(); @endphp

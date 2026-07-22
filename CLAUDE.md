@@ -156,6 +156,19 @@ the client has no email on file (mockup doesn't show this case since its data is
 > N+1. Reflecting the same staging inside the Mahnwesen tab itself was explicitly deferred by the client
 > ("Das können wir nachher machen").
 
+> **2026-07-22 (later) — the deferred Mahnwesen-tab reflection is now built.** `_dunning.blade.php` gained a
+> "Mahnstufe" column (between "Überfällig" and "Letzte Mahnung") that renders the same `$mahnstufen` map
+> (`DunningService::currentStage`) with the identical escalating pill as the Ausgangsrechnungen list — so the
+> stage is visible right where the reminder is actually sent, not only in the invoice list. The map is already
+> computed once in `AccountingController::index` for every invoice and passed into the tab include, so no extra
+> query. The tab's intro box also gained a three-row legend (one `DunningLevel::badgeBg()` pill per case + its
+> `timingHint()`) documenting the day-range/tone of each stage. "Letzte Mahnung" (what was actually *sent*)
+> stays as its own separate column — it answers a different question than "Mahnstufe" (what stage is *due* by
+> now). Grid widened to 7 tracks (`min-w-[880px]`). Gotcha: the inline `@php ($x = …)` (space before paren)
+> form compiled without a closing `?>` here and broke the whole view with "unexpected token class" — merged it
+> into the row's existing `@php … @endphp` block instead. This column is still decision-support only; nothing
+> is sent automatically.
+
 **Wiederkehrend** — `RecurringInvoiceTemplate` + the daily-scheduled `invoices:generate-recurring` command
 (`GenerateRecurringInvoices`). Idempotency (plan-mandated: no duplicate on a second same-day run) comes from
 calling `$template->advanceNextRunDate()` *immediately* after generating each invoice, inside the same loop

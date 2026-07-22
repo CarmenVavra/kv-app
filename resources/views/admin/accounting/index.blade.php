@@ -72,7 +72,7 @@
     @elseif ($tab === 'in')
         @include('admin.accounting._incoming', ['expenses' => $expenses, 'euro' => $euro])
     @elseif ($tab === 'mahnwesen')
-        @include('admin.accounting._dunning', ['overdue' => $overdue, 'euro' => $euro])
+        @include('admin.accounting._dunning', ['overdue' => $overdue, 'euro' => $euro, 'mahnstufen' => $mahnstufen])
     @elseif ($tab === 'wiederkehrend')
         @include('admin.accounting._recurring', ['templates' => $templates, 'euro' => $euro])
     @elseif ($tab === 'fahrtkosten')
