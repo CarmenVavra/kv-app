@@ -86,6 +86,14 @@ fee at creation time. The billing side (`scopeUnbilled` = Abgeschlossen or Abges
 place from the earlier note and needed no change — verified end-to-end that both statuses show as selectable
 checkboxes in the "Neue Ausgangsrechnung" dialog (the Storno one pre-filled to the configured 50 € rate).
 
+**2026-07-22 (follow-up) — each Trainingsverlauf row shows its billing state.** Per past-appointment row on the
+Klientenprofil there's now a pill reflecting `$appointment->invoiceLineItem?->invoice?->status`: a muted
+outlined "Nicht verrechnet" when no invoice links to it, or a coloured pill "{R-XXXX} · {Bezahlt|Offen|
+Überfällig}" (reusing `InvoiceStatus::badgeBg()/badgeText()`, check icon for paid / clock for open) that links
+to the invoice's print view. `ClientController::show()` eager-loads `invoiceLineItem.invoice` to avoid an N+1
+across the history list (the `Invoice::status` accessor only needs `paid_at`/`due_date`, both on the invoice
+row, so the invoice's own `lineItems` don't need loading for this).
+
 ### Buchhaltung Kern (M4): Invoice.status is computed, Expense.status is stored
 
 `Invoice` has no `status` column — it's an accessor (`InvoiceStatus` enum: Offen/Bezahlt/Überfällig) derived

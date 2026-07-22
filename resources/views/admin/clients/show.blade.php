@@ -52,6 +52,30 @@
                         @if ($appointment->notes)
                             <div class="text-[color:var(--color-text-muted-2)] text-[13.5px] leading-relaxed mt-0.5">{{ $appointment->notes }}</div>
                         @endif
+
+                        @php $billedInvoice = $appointment->invoiceLineItem?->invoice; @endphp
+                        <div class="mt-2">
+                            @if ($billedInvoice)
+                                <a
+                                    href="{{ route('admin.accounting.invoices.print', $billedInvoice) }}" target="_blank"
+                                    title="Rechnung {{ $billedInvoice->number }} öffnen"
+                                    class="no-underline inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1 rounded-chip whitespace-nowrap"
+                                    style="background: {{ $billedInvoice->status->badgeBg() }}; color: {{ $billedInvoice->status->badgeText() }};"
+                                >
+                                    @if ($billedInvoice->status === \App\Enums\InvoiceStatus::Bezahlt)
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+                                    @else
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg>
+                                    @endif
+                                    {{ $billedInvoice->number }} · {{ $billedInvoice->status->label() }}
+                                </a>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1 rounded-chip border border-border text-text-muted whitespace-nowrap">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><path d="M8.5 12h7"/></svg>
+                                    Nicht verrechnet
+                                </span>
+                            @endif
+                        </div>
                     </div>
                     <form method="POST" action="{{ route('admin.appointments.update-status', $appointment) }}" class="flex-shrink-0">
                         @csrf

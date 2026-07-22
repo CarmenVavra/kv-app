@@ -46,7 +46,7 @@ class ClientController extends Controller
 
     public function show(Client $client): View
     {
-        $appointments = $client->appointments()->orderByDesc('starts_at')->get();
+        $appointments = $client->appointments()->with('invoiceLineItem.invoice')->orderByDesc('starts_at')->get();
 
         return view('admin.clients.show', [
             'client' => $client,
