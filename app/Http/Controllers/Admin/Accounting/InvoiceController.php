@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreInvoiceRequest;
 use App\Models\Appointment;
 use App\Models\Invoice;
+use App\Models\Setting;
 use App\Services\InvoiceNumberGenerator;
 use App\Services\InvoicePdfGenerator;
 use App\Services\MileageCalculator;
@@ -40,6 +41,8 @@ class InvoiceController extends Controller
             ->unbilled()
             ->get();
 
+        $stornoRate = (float) Setting::current()->stornogebuehr;
+
         foreach ($appointments as $appointment) {
             $invoice->lineItems()->create([
                 'appointment_id' => $appointment->id,
@@ -47,7 +50,7 @@ class InvoiceController extends Controller
                 'quantity' => 1,
                 'unit_price' => $request->input(
                     "appointment_amounts.{$appointment->id}",
-                    $appointment->type->defaultInvoiceAmount()
+                    $appointment->defaultBillingAmount($stornoRate)
                 ),
             ]);
         }

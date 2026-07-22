@@ -9,6 +9,7 @@ use App\Models\Client;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\RecurringInvoiceTemplate;
+use App\Models\Setting;
 use App\Services\DunningService;
 use App\Services\EuerCalculator;
 use App\Services\MileageCalculator;
@@ -43,6 +44,7 @@ class AccountingController extends Controller
             'openAppointments' => Appointment::query()->unbilled()->orderBy('starts_at')->get()->groupBy('client_id'),
             'ratePerKm' => $mileageCalculator->ratePerKm(),
             'parkingRatePerHalfHour' => $parkingCalculator->ratePerHalfHour(),
+            'stornoRate' => (float) Setting::current()->stornogebuehr,
             'stats' => $this->stats($invoices, $expenses),
             ...$this->tabData($tab, $invoices, $dunningService, $euerCalculator),
         ]);

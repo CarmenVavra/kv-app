@@ -32,6 +32,7 @@ class UpdateSettingsRequest extends FormRequest
             'working_days.*' => [Rule::in(Setting::WEEKDAYS)],
             'kilometergeld_pro_km' => ['required', 'numeric', 'min:0.01', 'max:9.99'],
             'kurzparkschein_tarif_pro_halbe_stunde' => ['required', 'numeric', 'min:0.01', 'max:99.99'],
+            'stornogebuehr' => ['required', 'numeric', 'min:0.01', 'max:9999.99'],
         ];
     }
 }

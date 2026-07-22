@@ -107,7 +107,7 @@
         {{-- Tarife --}}
         <section class="bg-card border border-border rounded-card p-6.5 flex flex-col gap-4.5">
             <div class="font-serif font-semibold text-lg">Tarife</div>
-            <p class="text-text-muted text-[12.5px] -mt-2.5">Werden bei neuen Rechnungspositionen für Fahrtkosten und Kurzparkscheine verwendet.</p>
+            <p class="text-text-muted text-[12.5px] -mt-2.5">Werden bei neuen Rechnungspositionen für Fahrtkosten, Kurzparkscheine und Stornogebühren verwendet.</p>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label class="flex flex-col gap-1.5 text-[13px] font-bold text-text-muted">
@@ -117,6 +117,10 @@
                 <label class="flex flex-col gap-1.5 text-[13px] font-bold text-text-muted">
                     Kurzparkschein-Tarif (€ pro halbe Stunde)
                     <input type="number" step="0.01" min="0.01" name="kurzparkschein_tarif_pro_halbe_stunde" required value="{{ old('kurzparkschein_tarif_pro_halbe_stunde', $setting->kurzparkschein_tarif_pro_halbe_stunde) }}" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
+                </label>
+                <label class="flex flex-col gap-1.5 text-[13px] font-bold text-text-muted">
+                    Stornogebühr (€)
+                    <input type="number" step="0.01" min="0.01" name="stornogebuehr" required value="{{ old('stornogebuehr', $setting->stornogebuehr) }}" class="border border-border bg-white rounded-field px-3 py-2.5 text-sm font-normal text-text">
                 </label>
             </div>
         </section>

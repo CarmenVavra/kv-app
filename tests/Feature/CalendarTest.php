@@ -93,7 +93,7 @@ it('updates an appointment, including its status', function () {
             'client_id' => $client->id,
             'type' => 'folgetermin',
             'behavior_topic' => 'impulskontrolle',
-            'status' => 'abgeschlossen',
+            'status_option' => 'abgeschlossen',
             'starts_at' => today()->addDay()->setTime(11, 0)->format('Y-m-d\TH:i'),
             'duration_minutes' => 45,
             'notes' => 'Verlief gut.',
@@ -140,6 +140,26 @@ it('clears the cancellation fee flag when moving away from Abgesagt', function (
         ->patch(route('admin.appointments.update-status', $appointment), ['status_option' => 'abgeschlossen']);
 
     expect($appointment->fresh()->cancellation_fee)->toBeNull();
+});
+
+it('cancels an appointment with a Stornogebühr via the full edit form', function () {
+    $client = Client::factory()->create();
+    $appointment = Appointment::factory()->for($client)->create(['status' => 'bestaetigt']);
+
+    $this->withoutMiddleware(Authenticate::class)
+        ->put(route('admin.appointments.update', $appointment), [
+            'client_id' => $client->id,
+            'type' => 'folgetermin',
+            'behavior_topic' => 'stress',
+            'status_option' => 'abgesagt_mit_gebuehr',
+            'starts_at' => today()->addDay()->setTime(11, 0)->format('Y-m-d\TH:i'),
+            'duration_minutes' => 60,
+        ])
+        ->assertRedirect();
+
+    $appointment->refresh();
+    expect($appointment->status->value)->toBe('abgesagt')
+        ->and($appointment->cancellation_fee)->toBeTrue();
 });
 
 it('deletes an appointment', function () {

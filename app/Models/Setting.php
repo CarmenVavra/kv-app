@@ -26,6 +26,7 @@ class Setting extends Model
         'working_days',
         'kilometergeld_pro_km',
         'kurzparkschein_tarif_pro_halbe_stunde',
+        'stornogebuehr',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class Setting extends Model
             'working_days' => 'array',
             'kilometergeld_pro_km' => 'decimal:2',
             'kurzparkschein_tarif_pro_halbe_stunde' => 'decimal:2',
+            'stornogebuehr' => 'decimal:2',
         ];
     }
 
@@ -60,6 +62,7 @@ class Setting extends Model
             'working_days' => ['Fr', 'Sa', 'So'],
             'kilometergeld_pro_km' => 0.50,
             'kurzparkschein_tarif_pro_halbe_stunde' => 1.20,
+            'stornogebuehr' => 50.00,
         ]);
     }
 }

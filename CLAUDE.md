@@ -205,11 +205,25 @@ per-client open-items list are two different answers to the same question and on
 > for; `Bestaetigt`/`Ausstehend` (not yet rendered) and folgenlos-abgesagte appointments are deliberately not
 > billable. A billable cancelled appointment shows on the invoice as `Appointment::billingLabel()` →
 > "Stornogebühr · {Terminart}" (vs. the normal "{Terminart} · {Leistung}" for a rendered session); its amount
-> pre-fills to the session's `defaultInvoiceAmount()` and stays editable in the dialog, since the actual
-> cancellation fee is a business choice (often less than the full session). The inline control lives only in the
-> Trainingsverlauf (past appointments) — cancelling a *future* appointment is still done via the Kalender edit
-> modal (whose plain Abgesagt leaves `cancellation_fee` null ⇒ not billable), which is the right place for the
-> pre-session cancel flow.
+> pre-fills via `Appointment::defaultBillingAmount()` to a **configurable flat Stornogebühr**
+> (`Setting.stornogebuehr`, default 50 €, editable in Einstellungen → Tarife alongside Kilometergeld and
+> Kurzparkschein) rather than the full session price, and stays editable per line in the dialog. A rendered
+> session still defaults to `type->defaultInvoiceAmount()`.
+
+> **2026-07-22 (follow-up) — the two requested refinements.** (1) The Stornogebühr amount became an
+> admin-editable `Setting.stornogebuehr` (see above), read by `AccountingController::index` (passed to the
+> dialog as `$stornoRate`) and re-read server-side in `InvoiceController::store()` for the fallback amount. (2)
+> The mit/ohne-Stornogebühr choice is now **also** on the Kalender "Termin bearbeiten" modal, not just the
+> Trainingsverlauf — so a *future* appointment can be cancelled-with-fee before it happens. Both the inline
+> Trainingsverlauf control and the full edit form now go through the same `Appointment::statusOptions()` /
+> `statusOptionValue()` / `resolveStatusOption()` trio (the last maps a `status_option` string back to
+> `[AppointmentStatus, ?bool fee]`), so `AppointmentController::update()` and `updateStatus()` share the mapping.
+> `UpdateAppointmentRequest` validates `status_option` (not the raw `status`) accordingly. Gotcha hit while
+> wiring the edit modal: `admin/appointments/_form-fields.blade.php` defines a `$value` **closure** at the top
+> (`old()`-vs-existing helper); the status `@foreach (... as $value => $label)` clobbered it, so every field
+> rendered *after* the status select (`starts_at`, `duration_minutes`) then called the string as a function
+> ("Call to undefined function abgesagt_ohne_gebuehr()"). Fixed by naming the loop vars `$statusValue`/
+> `$statusLabel` — a reminder not to reuse `$value` as a loop var in that partial.
 
 `InvoiceLineItem` gained a nullable `appointment_id` (not `Invoice` — one invoice can now bill several open
 appointments at once, "Ich möchte pro Rechnung mehrere Leistungen erfassen", so the link has to live at the

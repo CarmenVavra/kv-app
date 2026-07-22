@@ -132,6 +132,26 @@ it('bills a fee-bearing cancelled appointment as a Stornogebühr line item', fun
     expect(Invoice::sole()->lineItems()->sole()->description)->toContain('Stornogebühr');
 });
 
+it('defaults a cancelled appointment to the configured Stornogebühr rate', function () {
+    \App\Models\Setting::current()->update(['stornogebuehr' => 35.00]);
+    $client = Client::factory()->create();
+    $cancelled = Appointment::factory()->for($client)->create([
+        'type' => AppointmentType::Folgetermin,
+        'starts_at' => now()->subDay(),
+        'status' => AppointmentStatus::Abgesagt,
+        'cancellation_fee' => true,
+    ]);
+
+    // Kein appointment_amounts[] mitgeschickt -> Server nimmt den konfigurierten Storno-Tarif.
+    $this->withoutMiddleware(Authenticate::class)
+        ->post(route('admin.accounting.invoices.store'), [
+            'client_id' => $client->id,
+            'appointments' => [$cancelled->id],
+        ]);
+
+    expect((float) Invoice::sole()->lineItems()->sole()->amount)->toBe(35.0);
+});
+
 it('shows an open appointment with its Leistung in the new-invoice dialog', function () {
     $client = Client::factory()->create();
     Appointment::factory()->for($client)->create([

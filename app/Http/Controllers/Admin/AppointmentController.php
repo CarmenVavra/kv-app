@@ -67,7 +67,12 @@ class AppointmentController extends Controller
 
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): RedirectResponse
     {
-        $appointment->update($request->validated());
+        [$status, $fee] = Appointment::resolveStatusOption($request->validated('status_option'));
+
+        $appointment->update(
+            collect($request->validated())->except('status_option')->all()
+            + ['status' => $status, 'cancellation_fee' => $fee]
+        );
 
         return redirect()->route('admin.calendar', ['tag' => $appointment->starts_at->toDateString()]);
     }
@@ -91,11 +96,7 @@ class AppointmentController extends Controller
             'status_option' => ['required', 'in:'.implode(',', array_keys(Appointment::statusOptions()))],
         ]);
 
-        [$status, $fee] = match ($validated['status_option']) {
-            'abgesagt_mit_gebuehr' => [AppointmentStatus::Abgesagt, true],
-            'abgesagt_ohne_gebuehr' => [AppointmentStatus::Abgesagt, false],
-            default => [AppointmentStatus::from($validated['status_option']), null],
-        };
+        [$status, $fee] = Appointment::resolveStatusOption($validated['status_option']);
 
         $appointment->update(['status' => $status, 'cancellation_fee' => $fee]);
 

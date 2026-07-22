@@ -2,8 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Enums\AppointmentStatus;
-use Illuminate\Validation\Rule;
+use App\Models\Appointment;
 
 class UpdateAppointmentRequest extends StoreAppointmentRequest
 {
@@ -13,7 +12,7 @@ class UpdateAppointmentRequest extends StoreAppointmentRequest
     public function rules(): array
     {
         return parent::rules() + [
-            'status' => ['required', Rule::enum(AppointmentStatus::class)],
+            'status_option' => ['required', 'in:'.implode(',', array_keys(Appointment::statusOptions()))],
         ];
     }
 }

@@ -29,6 +29,7 @@ class SettingFactory extends Factory
             'working_days' => ['Fr', 'Sa', 'So'],
             'kilometergeld_pro_km' => 0.50,
             'kurzparkschein_tarif_pro_halbe_stunde' => 1.20,
+            'stornogebuehr' => 50.00,
         ];
     }
 }

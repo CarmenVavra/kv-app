@@ -74,6 +74,22 @@ class Appointment extends Model
         return $this->status->value;
     }
 
+    /**
+     * Uebersetzt einen statusOptions()-Schluessel zurueck in das Paar aus AppointmentStatus und
+     * cancellation_fee (null ausser bei einer Absage) - gemeinsam genutzt vom Inline-Status-Update
+     * und vom vollen Termin-Bearbeiten-Formular.
+     *
+     * @return array{0: AppointmentStatus, 1: bool|null}
+     */
+    public static function resolveStatusOption(string $option): array
+    {
+        return match ($option) {
+            'abgesagt_mit_gebuehr' => [AppointmentStatus::Abgesagt, true],
+            'abgesagt_ohne_gebuehr' => [AppointmentStatus::Abgesagt, false],
+            default => [AppointmentStatus::from($option), null],
+        };
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
@@ -100,6 +116,18 @@ class Appointment extends Model
         return $this->status === AppointmentStatus::Abgesagt
             ? 'Stornogebühr · '.$this->type->label()
             : $this->typeAndTopicLabel();
+    }
+
+    /**
+     * Vorgeschlagener Rechnungsbetrag im Rechnungsdialog: die konfigurierbare Pauschal-Stornogebuehr
+     * fuer eine (gebuehrenpflichtige) Absage, sonst der terminart-abhaengige Standardbetrag. In
+     * beiden Faellen im Dialog noch editierbar.
+     */
+    public function defaultBillingAmount(float $cancellationFeeRate): float
+    {
+        return $this->status === AppointmentStatus::Abgesagt
+            ? $cancellationFeeRate
+            : $this->type->defaultInvoiceAmount();
     }
 
     public function invoiceLineItem(): HasOne
