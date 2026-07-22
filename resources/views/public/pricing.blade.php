@@ -14,15 +14,15 @@
         {{-- Erstberatung --}}
         <div class="bg-card border border-border rounded-[20px] p-7.5 flex flex-col gap-4 relative">
             <div class="absolute -top-3.5 left-6.5 bg-primary text-white text-[11.5px] font-extrabold px-3 py-1.5 rounded-chip uppercase tracking-wide">Schritt 1: Die Basis</div>
-            <div class="font-serif text-[19px] font-semibold text-text">Das Erstgespräch &amp; Analyse</div>
+            <div class="font-serif text-[19px] font-semibold text-text">Erstgespräch &amp; Analyse</div>
             <div class="flex items-baseline gap-1.5">
                 <div class="font-serif text-[34px] font-semibold text-text">110 €</div>
                 <div class="text-[13px] text-text-muted">/ Sitzung</div>
             </div>
-            <div class="text-[13px] font-bold text-secondary">Dauer: ca. 90 Minuten</div>
+            <div class="text-[13px] font-bold text-primary">Dauer: ca. 90 Minuten</div>
             <div class="text-[13.5px] text-text-muted leading-relaxed">Jedes erfolgreiche Training beginnt mit einer genauen Ursachenforschung. Wir analysieren das Problemverhalten direkt bei dir vor Ort in gewohnter Umgebung. Du erhältst sofort erste, leicht umsetzbare Managementmaßnahmen für den Alltag.</div>
             <div class="flex flex-col gap-2.5 mt-1 flex-1">
-                @foreach (['90 Minuten vor Ort oder per Video', 'Verhaltensanalyse & Zielsetzung', 'Individueller Trainingsplan', 'Schriftliche Zusammenfassung', 'Voraussetzung für alle Trainingspakete'] as $feature)
+                @foreach (['90 Minuten vor Ort', 'Verhaltensanalyse & Zielsetzung', 'Managementmaßnahmen', 'Schriftliche Zusammenfassung', 'Voraussetzung für alle Trainingseinheiten'] as $feature)
                     <div class="flex gap-2.5 items-start text-[13.5px] text-text">{!! $checkIcon('#6b8e5a') !!}<span>{{ $feature }}</span></div>
                 @endforeach
             </div>

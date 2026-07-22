@@ -26,7 +26,7 @@ it('does not show the package hint for the Erstberatung interesse', function () 
 it('renders the pricing page with all three packages', function () {
     $this->get(route('pricing'))
         ->assertOk()
-        ->assertSee('Das Erstgespräch &amp; Analyse', false)
+        ->assertSee('Erstgespräch &amp; Analyse', false)
         ->assertSee('110 €')
         ->assertSee('Paket „Sicher durch den Alltag“', false)
         ->assertSee('310 €')
