@@ -66,7 +66,7 @@
             <div class="font-serif text-lg font-semibold">Gut zu wissen</div>
             @foreach ([
                 'Die Erstberatung ist verpflichtende Voraussetzung für alle Trainingspakete — erst danach ist eine Buchung möglich.',
-                'Hausbesuche innerhalb Wiens: keine Aufpreis. Außerhalb: Kilometergeld von 0,50 €/km.',
+                'Hausbesuche: Für alle Termine (auch innerhalb Wiens) verrechnen wir ein Kilometergeld von 0,50 €/km für die Hin- und Rückfahrt.',
                 'Absagen sind bis 24 Stunden vorher kostenfrei möglich — danach wird der volle Satz verrechnet.',
                 'Alle Pakete sind 12 Monate ab Kaufdatum gültig und übertragbar auf andere Hunde im selben Haushalt.',
             ] as $note)
