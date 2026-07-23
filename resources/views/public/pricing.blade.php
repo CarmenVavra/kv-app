@@ -65,10 +65,10 @@
         <div class="bg-card border border-border rounded-2xl p-7.5 flex flex-col gap-4">
             <div class="font-serif text-lg font-semibold">Gut zu wissen</div>
             @foreach ([
-                'Die Erstberatung ist verpflichtende Voraussetzung für alle Trainingspakete — erst danach ist eine Buchung möglich.',
+                'Die Erstberatung ist verpflichtende Voraussetzung für alle Trainingseinheiten — erst danach ist eine Buchung möglich.',
                 'Hausbesuche: Für alle Termine (auch innerhalb Wiens) verrechnen wir ein Kilometergeld von 0,50 €/km für die Hin- und Rückfahrt.',
                 'Absagen sind bis 24 Stunden vorher kostenfrei möglich — danach wird der volle Satz verrechnet.',
-                'Alle Pakete sind 12 Monate ab Kaufdatum gültig und übertragbar auf andere Hunde im selben Haushalt.',
+                'Alle Pakete sind 12 Monate ab Kaufdatum gültig.',
             ] as $note)
                 <div class="flex gap-3 items-start text-sm text-[color:var(--color-text-muted-2)] leading-relaxed">
                     <span class="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" aria-hidden="true"></span>

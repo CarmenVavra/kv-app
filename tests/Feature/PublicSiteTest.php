@@ -14,13 +14,13 @@ it('prefills the contact message and shows a package hint from the interesse que
     $this->get(route('landing', ['interesse' => 'Trainingspaket 4er']))
         ->assertOk()
         ->assertSee('Ich interessiere mich für: Trainingspaket 4er')
-        ->assertSee('Voraussetzung für alle Trainingspakete');
+        ->assertSee('Voraussetzung für alle Trainingseinheiten');
 });
 
 it('does not show the package hint for the Erstberatung interesse', function () {
     $this->get(route('landing', ['interesse' => 'Erstberatung']))
         ->assertOk()
-        ->assertDontSee('Voraussetzung für alle Trainingspakete ist, klären wir dort auch dein Interesse');
+        ->assertDontSee('Voraussetzung für alle Trainingseinheiten ist, klären wir dort auch dein Interesse');
 });
 
 it('renders the pricing page with all three packages', function () {

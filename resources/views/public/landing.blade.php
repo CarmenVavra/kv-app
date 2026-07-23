@@ -1,7 +1,7 @@
 @php
     $interesse = old('interested_package', request()->query('interesse'));
     $packageNote = $interesse && $interesse !== 'Erstberatung'
-        ? "Da die Erstberatung Voraussetzung für alle Trainingspakete ist, klären wir dort auch dein Interesse am „{$interesse}“ und planen die weiteren Termine."
+        ? "Da die Erstberatung Voraussetzung für alle Trainingseinheiten ist, klären wir dort auch dein Interesse am „{$interesse}“ und planen die weiteren Termine."
         : null;
 @endphp
 <x-layouts.public title="Mein Hund der Rowdy — Hundeverhaltensberatung in Wien">
