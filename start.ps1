@@ -24,7 +24,7 @@ Write-Host "MySQL ist erreichbar."
 
 Push-Location $ProjectRoot
 try {
-    $serve = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'serve' -PassThru -WindowStyle Minimized
+    $serve = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'serve', '--host=127.0.0.1', '--port=8950' -PassThru -WindowStyle Minimized
     $queue = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'queue:work', '--tries=1' -PassThru -WindowStyle Minimized
     $sched = Start-Process -FilePath 'php' -ArgumentList 'artisan', 'schedule:work' -PassThru -WindowStyle Minimized
     $vite = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', 'npm run dev' -PassThru -WindowStyle Minimized
@@ -36,5 +36,5 @@ finally {
     Pop-Location
 }
 
-Write-Host "Laravel laeuft unter http://127.0.0.1:8000"
+Write-Host "Laravel laeuft unter http://127.0.0.1:8950"
 Write-Host "Zum Beenden: .\stop.ps1"
