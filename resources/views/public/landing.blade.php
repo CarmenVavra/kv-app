@@ -135,7 +135,7 @@
                     Hier erfährst du, wie Hunde wirklich lernen, wie Stress das Verhalten beeinflusst und woran du faires Training erkennst.
                 </p>
             </div>
-            <div class="grid gap-5.5" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5.5">
                 <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
                     <div class="font-extrabold text-[12.5px] text-secondary uppercase tracking-wide">Trainingsmethoden</div>
                     <div class="font-serif font-semibold text-[19px] leading-snug">Warum der Leinenruck die Aggression deines Hundes verschlimmert</div>
@@ -153,6 +153,12 @@
                     <div class="font-serif font-semibold text-[19px] leading-snug">Die Dominanz-Theorie: Ein gefährliches Relikt aus alten Zeiten</div>
                     <p class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed flex-1">Musst du wirklich als Erster durch die Tür gehen? Wir räumen gründlich mit dem Mythos des „Rudelführers“ auf und zeigen moderne Lösungswege.</p>
                     <a href="{{ route('ratgeber.dominanz-mythos') }}" class="text-secondary hover:text-primary no-underline font-bold text-sm mt-1">Weiterlesen →</a>
+                </div>
+                <div class="bg-bg rounded-2xl p-6.5 flex flex-col gap-3">
+                    <div class="font-extrabold text-[12.5px] text-secondary uppercase tracking-wide">Trainerwahl</div>
+                    <div class="font-serif font-semibold text-[19px] leading-snug"><span class="text-[color:var(--color-error-text)]">Red Flags</span> im Hundetraining: Erkenne schlechte Trainingsmethoden und schütze deinen Hund vor Spätfolgen</div>
+                    <p class="text-[color:var(--color-text-muted-2)] text-sm leading-relaxed flex-1">Einschüchterung, Schreckreize und Leinenruck hinterlassen oft tiefe seelische Narben. Lerne, fragwürdige Praktiken sofort zu erkennen, bevor veraltete Ansätze deinen Hund dauerhaft verängstigen oder traumatisieren.</p>
+                    <a href="#ratgeber" class="text-secondary hover:text-primary no-underline font-bold text-sm mt-1">Weiterlesen →</a>
                 </div>
             </div>
         </div>
